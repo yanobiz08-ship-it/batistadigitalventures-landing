@@ -1,101 +1,1171 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Batista Digital Ventures</title>
+  <title>Batista Digital Ventures — Platforms, Mobile Apps & Digital Systems</title>
+  <meta name="description" content="Batista Digital Ventures: engineering consumer and B2B platforms, mobile applications, product architecture, and digital ventures including MERQOX and TRIVLO." />
   <style>
+    :root {
+      --bg-base: #070a10;
+      --bg-elevated: #0d121d;
+      --bg-card: #121826;
+      --bg-card-hover: #172033;
+      --gold: #d4af37;
+      --gold-bright: #e8c861;
+      --gold-soft: rgba(212, 175, 55, 0.14);
+      --gold-border: rgba(212, 175, 55, 0.28);
+      --gold-border-strong: rgba(212, 175, 55, 0.6);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --line: rgba(148, 163, 184, 0.14);
+      --emerald: #34d399;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --max-w: 1180px;
+    }
+
     * {
       box-sizing: border-box;
     }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0f17;
-      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 80% 8%, rgba(212, 175, 55, 0.11), transparent 36%),
+        radial-gradient(circle at 15% 22%, rgba(56, 189, 248, 0.06), transparent 38%),
+        var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header / Nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 10, 16, 0.82);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
       display: flex;
-      min-height: 100vh;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 76px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid var(--gold-border-strong);
+      background: linear-gradient(145deg, #172033, #0b0f17);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 24px rgba(212, 175, 55, 0.14);
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .brand-name {
+      font-size: 0.98rem;
+      color: var(--text-primary);
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-bright);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--gold-border);
+      border-radius: 999px;
+      padding: 3px;
+    }
+
+    .lang-btn {
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 6px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: var(--gold);
+      color: #070a10;
+    }
+
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.92rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+      color: #070a10;
+      box-shadow: 0 10px 28px rgba(212, 175, 55, 0.22);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(212, 175, 55, 0.32);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-primary);
+      border-color: var(--gold-border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-border-strong);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 76px 0 60px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.85fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-border);
+      color: var(--gold-bright);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(2.2rem, 4.4vw, 3.55rem);
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      font-weight: 800;
+    }
+
+    h1 .accent {
+      background: linear-gradient(120deg, #f8fafc 10%, var(--gold-bright) 55%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-lead {
+      margin: 0 0 28px;
+      font-size: 1.08rem;
+      color: var(--text-secondary);
+      max-width: 62ch;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 34px;
+    }
+
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .metric-box {
+      background: rgba(18, 24, 38, 0.72);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .metric-val {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      margin-bottom: 3px;
+    }
+
+    .metric-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Hero Thesis Card */
+    .thesis-card {
+      background: linear-gradient(165deg, rgba(23, 32, 51, 0.92), rgba(13, 18, 29, 0.96));
+      border: 1px solid var(--gold-border-strong);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: 0 28px 65px rgba(0, 0, 0, 0.55);
+    }
+
+    .thesis-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .thesis-label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .badge-live {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.12);
+      color: var(--emerald);
+      border: 1px solid rgba(52, 211, 153, 0.28);
+      font-weight: 600;
+    }
+
+    .thesis-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+
+    .thesis-copy {
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+      margin: 0 0 20px;
+    }
+
+    .thesis-list {
+      list-style: none;
+      margin: 0 0 22px;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .thesis-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .check {
+      color: var(--gold-bright);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Sections */
+    section.band {
+      padding: 72px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-head {
+      max-width: 720px;
+      margin-bottom: 38px;
+    }
+
+    .section-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .section-desc {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    /* Flagship Ventures */
+    .ventures-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .venture-card {
+      background: var(--bg-card);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .venture-card:hover {
+      border-color: var(--gold-border-strong);
+      transform: translateY(-2px);
+    }
+
+    .venture-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .venture-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--gold-soft);
+      color: var(--gold-bright);
+      border: 1px solid var(--gold-border);
+    }
+
+    .venture-domain {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .venture-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+    }
+
+    .venture-card p {
+      margin: 0 0 16px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .spec-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .spec-tag {
+      font-size: 0.78rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--text-secondary);
+    }
+
+    /* Full Scope Matrix */
+    .scope-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .scope-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
       padding: 24px;
     }
-    .card {
-      max-width: 680px;
-      width: 100%;
-      background: #131a29;
-      border: 1px solid rgba(212, 175, 55, 0.35);
-      border-radius: 16px;
-      padding: 40px 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-    }
-    h1 {
+
+    .scope-card h3 {
       margin: 0 0 12px;
-      color: #d4af37;
-      font-size: 2rem;
+      font-size: 1.08rem;
+      color: var(--gold-bright);
     }
-    p {
-      margin: 0 0 24px;
-      line-height: 1.6;
-      color: #cbd5e1;
-    }
-    .tag {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: rgba(212, 175, 55, 0.15);
-      color: #f8fafc;
+
+    .scope-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 7px;
+      color: var(--text-secondary);
       font-size: 0.9rem;
-      margin-bottom: 24px;
     }
-    .links {
+
+    /* Architecture & Pillars */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .pillar {
+      background: var(--bg-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 22px;
+    }
+
+    .pillar-num {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .pillar h3 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+    }
+
+    .pillar p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Contact / CTA Band */
+    .contact-band {
+      padding: 76px 0 88px;
+    }
+
+    .contact-box {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.14), rgba(18, 24, 38, 0.95) 55%);
+      border: 1px solid var(--gold-border-strong);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .contact-box h2 {
+      margin-bottom: 8px;
+    }
+
+    .contact-box p {
+      margin: 0;
+      color: var(--text-secondary);
+      max-width: 58ch;
+    }
+
+    .contact-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      justify-content: center;
-      margin-bottom: 24px;
     }
-    .btn {
-      display: inline-block;
-      padding: 10px 18px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 0.95rem;
-      border: 1px solid rgba(212, 175, 55, 0.45);
-      color: #f8fafc;
-      background: rgba(255, 255, 255, 0.04);
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0;
+      color: var(--text-muted);
+      font-size: 0.86rem;
     }
-    .btn-primary {
-      background: #d4af37;
-      color: #0b0f17;
-      border-color: #d4af37;
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
-    .contact {
-      font-size: 0.92rem;
-      color: #94a3b8;
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
     }
-    .contact a {
-      color: #d4af37;
-      text-decoration: none;
+
+    .footer-links a:hover {
+      color: var(--gold-bright);
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .ventures-grid,
+      .scope-grid,
+      .pillars-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .metrics-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-inner {
+        min-height: 68px;
+      }
+
+      .brand-name {
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        padding: 10px 14px;
+        font-size: 0.86rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <span class="tag">Batista Digital Ventures · En línea</span>
-    <h1>Batista Digital Ventures</h1>
-    <p>Estudio y desarrollo de plataformas digitales, aplicaciones móviles y soluciones tecnológicas.</p>
+  <header>
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="Batista Digital Ventures">
+        <span class="brand-icon-wrap" aria-hidden="true">
+          <!-- Bilingual-ready BDV Monogram Icon -->
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="28" height="28" rx="7" stroke="#E8C861" stroke-width="1.6"/>
+            <path d="M9 9.5H15.2C17.4 9.5 18.8 10.7 18.8 12.6C18.8 14 18 15 16.7 15.5C18.3 16 19.3 17.2 19.3 19C19.3 21.1 17.7 22.5 15.3 22.5H9V9.5ZM11.6 14.5H14.8C15.9 14.5 16.5 13.9 16.5 13C16.5 12.1 15.9 11.5 14.7 11.5H11.6V14.5ZM11.6 20.4H15.1C16.3 20.4 17 19.8 17 18.8C17 17.8 16.3 17.2 15 17.2H11.6V20.4Z" fill="#F8FAFC"/>
+            <path d="M21 9.5L24.4 22.5H26.4L29.8 9.5H27.2L25.4 17.8L23.6 9.5H21Z" fill="#E8C861"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">Batista Digital Ventures</span>
+          <span class="brand-sub" data-i18n="brandSub">VENTURE STUDIO · SYSTEMS</span>
+        </span>
+      </a>
 
-    <div class="links">
-      <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com">Escribir a Contacto</a>
-      <a class="btn" href="https://merqox.com" target="_blank" rel="noopener noreferrer">MERQOX</a>
-      <a class="btn" href="https://trivlopro.com" target="_blank" rel="noopener noreferrer">TRIVLO</a>
-    </div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#ventures" data-i18n="navVentures">Ventures & Work</a>
+        <a href="#scope" data-i18n="navScope">Full Coverage</a>
+        <a href="#standards" data-i18n="navStandards">Execution Standards</a>
+        <a href="#contact" data-i18n="navContact">Contact</a>
+      </nav>
 
-    <div class="contact">
-      Correo directo: <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
+      <div class="nav-actions">
+        <div class="lang-switch" role="group" aria-label="Language toggle">
+          <button type="button" class="lang-btn active" data-set-lang="es">ES</button>
+          <button type="button" class="lang-btn" data-set-lang="en">EN</button>
+        </div>
+        <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com" data-i18n="navCta">Partner With Us</a>
+      </div>
     </div>
-  </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">
+            <span class="dot"></span>
+            <span data-i18n="heroEyebrow">B2B & CONSUMER VENTURE ARCHITECTURE</span>
+          </div>
+          <h1>
+            <span data-i18n="heroTitleLead">We architect high-conviction</span>
+            <span class="accent" data-i18n="heroTitleAccent">digital platforms & mobile ventures.</span>
+          </h1>
+          <p class="hero-lead" data-i18n="heroLead">
+            Batista Digital Ventures designs, builds, and scales software products from zero to production—combining disciplined unit economics, modern cloud and mobile engineering, and real-world market execution.
+          </p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#ventures" data-i18n="heroPrimaryBtn">Explore Live Ventures</a>
+            <a class="btn btn-secondary" href="#scope" data-i18n="heroSecondaryBtn">Inspect Full Capabilities</a>
+          </div>
+
+          <div class="metrics-strip">
+            <div class="metric-box">
+              <div class="metric-val" data-i18n="m1Val">End-to-End</div>
+              <div class="metric-lbl" data-i18n="m1Lbl">Concept, UI/UX, backend, stores & growth</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" data-i18n="m2Val">iOS · Android · Web</div>
+              <div class="metric-lbl" data-i18n="m2Lbl">Cross-platform apps & web properties</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-val" data-i18n="m3Val">ES / EN Native</div>
+              <div class="metric-lbl" data-i18n="m3Lbl">Bilingual product & market reach</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="thesis-card" aria-label="Venture thesis">
+          <div class="thesis-top">
+            <span class="thesis-label" data-i18n="thesisKicker">OPERATING THESIS</span>
+            <span class="badge-live" data-i18n="thesisBadge">PRODUCTION READY</span>
+          </div>
+          <h2 class="thesis-title" data-i18n="thesisTitle">Built for durability, clarity, and capital efficiency.</h2>
+          <p class="thesis-copy" data-i18n="thesisCopy">
+            Every system under Batista Digital Ventures is engineered to solve concrete operational friction without bloated infrastructure or vanity complexity.
+          </p>
+          <ul class="thesis-list">
+            <li><span class="check">◆</span><span data-i18n="th1">Proprietary consumer and local-commerce applications with live domains.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th2">Full store readiness: App Store & Google Play compliance, privacy & metadata.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th3">Cloudflare edge routing, DNS security, automation & lean API pipelines.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th4">Bilingual go-to-market assets, brand identity & high-retention storytelling.</span></li>
+          </ul>
+          <a class="btn btn-secondary" style="width: 100%;" href="mailto:contact@batistadigitalventures.com" data-i18n="thesisCta">
+            Request Deck & Venture Brief → contact@batistadigitalventures.com
+          </a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Flagship Ventures & Completed Work -->
+    <section id="ventures" class="band">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="venturesKicker">PORTFOLIO & BUILT WORK</div>
+          <h2 data-i18n="venturesTitle">Flagship products & live platforms.</h2>
+          <p class="section-desc" data-i18n="venturesDesc">
+            Direct access to active digital properties built under our venture umbrella, alongside custom client and operational systems.
+          </p>
+        </div>
+
+        <div class="ventures-grid">
+          <article class="venture-card">
+            <div>
+              <div class="venture-top">
+                <span class="venture-pill" data-i18n="v1Pill">HYPERLOCAL MARKETPLACE</span>
+                <span class="venture-domain">merqox.com</span>
+              </div>
+              <h3>MERQOX</h3>
+              <p data-i18n="v1Desc">
+                Hyperlocal neighborhood commerce platform connecting local merchants and time-sensitive flash offers with nearby shoppers—pairing merchant operations, live discovery, and in-store QR pickup flows.
+              </p>
+              <div class="spec-tags">
+                <span class="spec-tag" data-i18n="v1T1">Merchant Dashboard</span>
+                <span class="spec-tag" data-i18n="v1T2">Flash Deals & Radar</span>
+                <span class="spec-tag" data-i18n="v1T3">Counter QR & Pickup</span>
+                <span class="spec-tag" data-i18n="v1T4">Neighborhood Feed</span>
+              </div>
+            </div>
+            <div>
+              <a class="btn btn-primary" href="https://merqox.com" target="_blank" rel="noopener noreferrer" data-i18n="v1Btn">
+                Visit merqox.com ↗
+              </a>
+            </div>
+          </article>
+
+          <article class="venture-card">
+            <div>
+              <div class="venture-top">
+                <span class="venture-pill" data-i18n="v2Pill">AI TRAVEL COMPANION</span>
+                <span class="venture-domain">trivlopro.com</span>
+              </div>
+              <h3>TRIVLO</h3>
+              <p data-i18n="v2Desc">
+                Intelligent travel companion application featuring conversational trip assistance, itinerary planning, location & weather intelligence, and full App Store & Google Play release governance.
+              </p>
+              <div class="spec-tags">
+                <span class="spec-tag" data-i18n="v2T1">Conversational Assistant</span>
+                <span class="spec-tag" data-i18n="v2T2">Itineraries & Places</span>
+                <span class="spec-tag" data-i18n="v2T3">iOS & Android Release</span>
+                <span class="spec-tag" data-i18n="v2T4">EN / ES Localization</span>
+              </div>
+            </div>
+            <div>
+              <a class="btn btn-primary" href="https://trivlopro.com" target="_blank" rel="noopener noreferrer" data-i18n="v2Btn">
+                Visit trivlopro.com ↗
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comprehensive Coverage -->
+    <section id="scope" class="band">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="scopeKicker">COMPLETE SCOPE OF WORK</div>
+          <h2 data-i18n="scopeTitle">Every layer covered, down to the finest detail.</h2>
+          <p class="section-desc" data-i18n="scopeDesc">
+            From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.
+          </p>
+        </div>
+
+        <div class="scope-grid">
+          <div class="scope-card">
+            <h3 data-i18n="s1Title">1. Product Strategy & Venture Design</h3>
+            <ul>
+              <li data-i18n="s1a">Value proposition, user journeys & MVP scoping</li>
+              <li data-i18n="s1b">Monetization models, pricing & unit economics</li>
+              <li data-i18n="s1c">B2B merchant & B2C consumer workflow mapping</li>
+              <li data-i18n="s1d">Roadmap prioritization & release milestones</li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3 data-i18n="s2Title">2. Mobile & Web Engineering</h3>
+            <ul>
+              <li data-i18n="s2a">Cross-platform mobile apps (React Native / TypeScript)</li>
+              <li data-i18n="s2b">High-converting landing pages & web portals</li>
+              <li data-i18n="s2c">Maps, geolocation, weather & AI API integrations</li>
+              <li data-i18n="s2d">Database schemas, auth flows & automated workflows</li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3 data-i18n="s3Title">3. App Stores & Release Governance</h3>
+            <ul>
+              <li data-i18n="s3a">Apple App Store Connect & TestFlight workflows</li>
+              <li data-i18n="s3b">Google Play Console setup, SKUs & testing tracks</li>
+              <li data-i18n="s3c">Privacy policies, data safety & merchant declarations</li>
+              <li data-i18n="s3d">Demo credentials, review notes & store metadata</li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3 data-i18n="s4Title">4. Domains, DNS, Security & Mail</h3>
+            <ul>
+              <li data-i18n="s4a">Domain onboarding & Cloudflare proxy/SSL setup</li>
+              <li data-i18n="s4b">GitHub Pages & static/edge hosting pipelines</li>
+              <li data-i18n="s4c">Email routing, aliases & SPF/DKIM/DMARC hygiene</li>
+              <li data-i18n="s4d">Error monitoring, uptime checks & cache control</li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3 data-i18n="s5Title">5. Brand Identity & Visual Systems</h3>
+            <ul>
+              <li data-i18n="s5a">App icons (1024px+ master marks & variants)</li>
+              <li data-i18n="s5b">Horizontal logos, color tokens & typography systems</li>
+              <li data-i18n="s5c">Promotional flyers, pitch graphics & UI mockups</li>
+              <li data-i18n="s5d">Consistent visual language across web & mobile</li>
+            </ul>
+          </div>
+
+          <div class="scope-card">
+            <h3 data-i18n="s6Title">6. Bilingual Growth & Media Systems</h3>
+            <ul>
+              <li data-i18n="s6a">Native English & Spanish product copywriting</li>
+              <li data-i18n="s6b">Short-form vertical video scripts & walkthroughs</li>
+              <li data-i18n="s6c">Teleprompter scripts & direct-to-camera formats</li>
+              <li data-i18n="s6d">Merchant onboarding & partner communication kits</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Execution Standards -->
+    <section id="standards" class="band">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker" data-i18n="stdKicker">HOW WE OPERATE</div>
+          <h2 data-i18n="stdTitle">Institutional rigor applied to agile builds.</h2>
+          <p class="section-desc" data-i18n="stdDesc">
+            Designed so founders, partners, and stakeholders can trust every release, metric, and deployment.
+          </p>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="pillar">
+            <div class="pillar-num">01</div>
+            <h3 data-i18n="p1Title">Evidence-First Debugging</h3>
+            <p data-i18n="p1Desc">Root-cause verification, exact file & line inspection, and surgical diffs without guesswork.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar-num">02</div>
+            <h3 data-i18n="p2Title">Lean Cost Architecture</h3>
+            <p data-i18n="p2Desc">Smart selection of free tiers, open tooling, and scalable services to protect early margins.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar-num">03</div>
+            <h3 data-i18n="p3Title">Compliance & Trust</h3>
+            <p data-i18n="p3Desc">Clear data disclosures, verified domains, HTTPS encryption, and policy-aligned store listings.</p>
+          </div>
+          <div class="pillar">
+            <div class="pillar-num">04</div>
+            <h3 data-i18n="p4Title">Ship & Iterate</h3>
+            <p data-i18n="p4Desc">Rapid testable increments from prototype to live traffic with measurable feedback loops.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section id="contact" class="contact-band">
+      <div class="container">
+        <div class="contact-box">
+          <div>
+            <div class="section-kicker" data-i18n="ctaKicker">DIRECT VENTURE & PARTNERSHIP DESK</div>
+            <h2 data-i18n="ctaTitle">Let’s build or scale what comes next.</h2>
+            <p data-i18n="ctaDesc">
+              Reach out for strategic partnerships, venture collaborations, product builds, or platform inquiries.
+            </p>
+          </div>
+          <div class="contact-actions">
+            <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com" data-i18n="ctaEmailBtn">
+              Email contact@batistadigitalventures.com
+            </a>
+            <a class="btn btn-secondary" href="https://merqox.com" target="_blank" rel="noopener noreferrer">
+              merqox.com
+            </a>
+            <a class="btn btn-secondary" href="https://trivlopro.com" target="_blank" rel="noopener noreferrer">
+              trivlopro.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        © <span id="yr">2026</span> Batista Digital Ventures · <span data-i18n="footRights">All rights reserved.</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://merqox.com" target="_blank" rel="noopener noreferrer">MERQOX</a>
+        <a href="https://trivlopro.com" target="_blank" rel="noopener noreferrer">TRIVLO</a>
+        <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      en: {
+        pageTitle: "Batista Digital Ventures — Platforms, Mobile Apps & Digital Systems",
+        brandSub: "VENTURE STUDIO · SYSTEMS",
+        navVentures: "Ventures & Work",
+        navScope: "Full Coverage",
+        navStandards: "Execution Standards",
+        navContact: "Contact",
+        navCta: "Partner With Us",
+        heroEyebrow: "B2B & CONSUMER VENTURE ARCHITECTURE",
+        heroTitleLead: "We architect high-conviction ",
+        heroTitleAccent: "digital platforms & mobile ventures.",
+        heroLead: "Batista Digital Ventures designs, builds, and scales software products from zero to production—combining disciplined unit economics, modern cloud and mobile engineering, and real-world market execution.",
+        heroPrimaryBtn: "Explore Live Ventures",
+        heroSecondaryBtn: "Inspect Full Capabilities",
+        m1Val: "End-to-End",
+        m1Lbl: "Concept, UI/UX, backend, stores & growth",
+        m2Val: "iOS · Android · Web",
+        m2Lbl: "Cross-platform apps & web properties",
+        m3Val: "ES / EN Native",
+        m3Lbl: "Bilingual product & market reach",
+        thesisKicker: "OPERATING THESIS",
+        thesisBadge: "PRODUCTION READY",
+        thesisTitle: "Built for durability, clarity, and capital efficiency.",
+        thesisCopy: "Every system under Batista Digital Ventures is engineered to solve concrete operational friction without bloated infrastructure or vanity complexity.",
+        th1: "Proprietary consumer and local-commerce applications with live domains.",
+        th2: "Full store readiness: App Store & Google Play compliance, privacy & metadata.",
+        th3: "Cloudflare edge routing, DNS security, automation & lean API pipelines.",
+        th4: "Bilingual go-to-market assets, brand identity & high-retention storytelling.",
+        thesisCta: "Request Deck & Venture Brief → contact@batistadigitalventures.com",
+        venturesKicker: "PORTFOLIO & BUILT WORK",
+        venturesTitle: "Flagship products & live platforms.",
+        venturesDesc: "Direct access to active digital properties built under our venture umbrella, alongside custom client and operational systems.",
+        v1Pill: "HYPERLOCAL MARKETPLACE",
+        v1Desc: "Hyperlocal neighborhood commerce platform connecting local merchants and time-sensitive flash offers with nearby shoppers—pairing merchant operations, live discovery, and in-store QR pickup flows.",
+        v1T1: "Merchant Dashboard",
+        v1T2: "Flash Deals & Radar",
+        v1T3: "Counter QR & Pickup",
+        v1T4: "Neighborhood Feed",
+        v1Btn: "Visit merqox.com ↗",
+        v2Pill: "AI TRAVEL COMPANION",
+        v2Desc: "Intelligent travel companion application featuring conversational trip assistance, itinerary planning, location & weather intelligence, and full App Store & Google Play release governance.",
+        v2T1: "Conversational Assistant",
+        v2T2: "Itineraries & Places",
+        v2T3: "iOS & Android Release",
+        v2T4: "EN / ES Localization",
+        v2Btn: "Visit trivlopro.com ↗",
+        scopeKicker: "COMPLETE SCOPE OF WORK",
+        scopeTitle: "Every layer covered, down to the finest detail.",
+        scopeDesc: "From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.",
+        s1Title: "1. Product Strategy & Venture Design",
+        s1a: "Value proposition, user journeys & MVP scoping",
+        s1b: "Monetization models, pricing & unit economics",
+        s1c: "B2B merchant & B2C consumer workflow mapping",
+        s1d: "Roadmap prioritization & release milestones",
+        s2Title: "2. Mobile & Web Engineering",
+        s2a: "Cross-platform mobile apps (React Native / TypeScript)",
+        s2b: "High-converting landing pages & web portals",
+        s2c: "Maps, geolocation, weather & AI API integrations",
+        s2d: "Database schemas, auth flows & automated workflows",
+        s3Title: "3. App Stores & Release Governance",
+        s3a: "Apple App Store Connect & TestFlight workflows",
+        s3b: "Google Play Console setup, SKUs & testing tracks",
+        s3c: "Privacy policies, data safety & merchant declarations",
+        s3d: "Demo credentials, review notes & store metadata",
+        s4Title: "4. Domains, DNS, Security & Mail",
+        s4a: "Domain onboarding & Cloudflare proxy/SSL setup",
+        s4b: "GitHub Pages & static/edge hosting pipelines",
+        s4c: "Email routing, aliases & SPF/DKIM/DMARC hygiene",
+        s4d: "Error monitoring, uptime checks & cache control",
+        s5Title: "5. Brand Identity & Visual Systems",
+        s5a: "App icons (1024px+ master marks & variants)",
+        s5b: "Horizontal logos, color tokens & typography systems",
+        s5c: "Promotional flyers, pitch graphics & UI mockups",
+        s5d: "Consistent visual language across web & mobile",
+        s6Title: "6. Bilingual Growth & Media Systems",
+        s6a: "Native English & Spanish product copywriting",
+        s6b: "Short-form vertical video scripts & walkthroughs",
+        s6c: "Teleprompter scripts & direct-to-camera formats",
+        s6d: "Merchant onboarding & partner communication kits",
+        stdKicker: "HOW WE OPERATE",
+        stdTitle: "Institutional rigor applied to agile builds.",
+        stdDesc: "Designed so founders, partners, and stakeholders can trust every release, metric, and deployment.",
+        p1Title: "Evidence-First Debugging",
+        p1Desc: "Root-cause verification, exact file & line inspection, and surgical diffs without guesswork.",
+        p2Title: "Lean Cost Architecture",
+        p2Desc: "Smart selection of free tiers, open tooling, and scalable services to protect early margins.",
+        p3Title: "Compliance & Trust",
+        p3Desc: "Clear data disclosures, verified domains, HTTPS encryption, and policy-aligned store listings.",
+        p4Title: "Ship & Iterate",
+        p4Desc: "Rapid testable increments from prototype to live traffic with measurable feedback loops.",
+        ctaKicker: "DIRECT VENTURE & PARTNERSHIP DESK",
+        ctaTitle: "Let’s build or scale what comes next.",
+        ctaDesc: "Reach out for strategic partnerships, venture collaborations, product builds, or platform inquiries.",
+        ctaEmailBtn: "Email contact@batistadigitalventures.com",
+        footRights: "All rights reserved."
+      },
+      es: {
+        pageTitle: "Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales",
+        brandSub: "VENTURE STUDIO · SISTEMAS",
+        navVentures: "Proyectos y Trabajo",
+        navScope: "Cobertura Integral",
+        navStandards: "Estándares de Ejecución",
+        navContact: "Contacto",
+        navCta: "Colaborar",
+        heroEyebrow: "ARQUITECTURA DE VENTURES B2B Y CONSUMO",
+        heroTitleLead: "Arquitectamos ",
+        heroTitleAccent: "plataformas digitales y apps móviles de alta convicción.",
+        heroLead: "Batista Digital Ventures diseña, construye y escala productos de software de cero a producción—combinando economía unitaria disciplinada, ingeniería móvil y nube moderna, y ejecución real en mercado.",
+        heroPrimaryBtn: "Ver Proyectos Activos",
+        heroSecondaryBtn: "Ver Cobertura Completa",
+        m1Val: "De Punta a Punta",
+        m1Lbl: "Concepto, UI/UX, backend, tiendas y crecimiento",
+        m2Val: "iOS · Android · Web",
+        m2Lbl: "Apps multiplataforma y propiedades web",
+        m3Val: "ES / EN Nativo",
+        m3Lbl: "Producto bilingüe y alcance multilingüe",
+        thesisKicker: "TESIS OPERATIVA",
+        thesisBadge: "EN PRODUCCIÓN",
+        thesisTitle: "Construido para solidez, claridad y eficiencia de capital.",
+        thesisCopy: "Cada sistema de Batista Digital Ventures está diseñado para resolver fricción operativa real sin infraestructura inflada ni complejidad innecesaria.",
+        th1: "Aplicaciones propias de consumo y comercio local con dominios activos.",
+        th2: "Preparación completa para tiendas: cumplimiento en App Store y Google Play, privacidad y metadatos.",
+        th3: "Enrutamiento edge en Cloudflare, seguridad DNS, automatización y flujos API ligeros.",
+        th4: "Activos bilingües de lanzamiento, identidad de marca y narrativa de alta retención.",
+        thesisCta: "Solicitar dossier y brief → contact@batistadigitalventures.com",
+        venturesKicker: "PORTAFOLIO Y TRABAJOS REALIZADOS",
+        venturesTitle: "Productos insignia y plataformas en vivo.",
+        venturesDesc: "Acceso directo a propiedades digitales activas desarrolladas bajo nuestro estudio, junto con sistemas operativos y de producto.",
+        v1Pill: "MARKETPLACE HIPERLOCAL",
+        v1Desc: "Plataforma de comercio vecinal hiperlocal que conecta comercios locales y ofertas relámpago con compradores cercanos—integrando panel comercial, radar en vivo y recogida por código QR.",
+        v1T1: "Panel de Comercios",
+        v1T2: "Ofertas Flash y Radar",
+        v1T3: "QR en Mostrador y Recogida",
+        v1T4: "Feed Vecinal",
+        v1Btn: "Ir a merqox.com ↗",
+        v2Pill: "COPILOTO DE VIAJE CON IA",
+        v2Desc: "Aplicación inteligente de asistencia de viaje con asistente conversacional, planificación de itinerarios, inteligencia de ubicación y clima, y gestión completa para App Store y Google Play.",
+        v2T1: "Asistente Conversacional",
+        v2T2: "Itinerarios y Lugares",
+        v2T3: "Lanzamiento iOS y Android",
+        v2T4: "Localización ES / EN",
+        v2Btn: "Ir a trivlopro.com ↗",
+        scopeKicker: "ALCANCE COMPLETO DE LA COMPAÑÍA",
+        scopeTitle: "Cada capa cubierta hasta el último detalle.",
+        scopeDesc: "Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.",
+        s1Title: "1. Estrategia de Producto y Diseño de Venture",
+        s1a: "Propuesta de valor, recorridos de usuario y alcance MVP",
+        s1b: "Modelos de monetización, precios y economía unitaria",
+        s1c: "Mapeo de flujos B2B para comercios y B2C para usuarios",
+        s1d: "Priorización de roadmap e hitos de lanzamiento",
+        s2Title: "2. Ingeniería Móvil y Web",
+        s2a: "Apps móviles multiplataforma (React Native / TypeScript)",
+        s2b: "Landing pages de alta conversión y portales web",
+        s2c: "Integración de mapas, geolocalización, clima y APIs de IA",
+        s2d: "Esquemas de base de datos, autenticación y automatizaciones",
+        s3Title: "3. Tiendas de Apps y Gobernanza",
+        s3a: "Flujos en Apple App Store Connect y TestFlight",
+        s3b: "Configuración en Google Play Console, SKUs y pruebas",
+        s3c: "Políticas de privacidad, seguridad de datos y declaraciones",
+        s3d: "Credenciales demo, notas de revisión y metadatos de tienda",
+        s4Title: "4. Dominios, DNS, Seguridad y Correo",
+        s4a: "Alta de dominios, proxy y SSL/TLS en Cloudflare",
+        s4b: "Despliegue en GitHub Pages y entrega estática/edge",
+        s4c: "Enrutamiento de correo, alias y registros SPF/DKIM/DMARC",
+        s4d: "Monitoreo de errores, disponibilidad y control de caché",
+        s5Title: "5. Identidad de Marca y Sistemas Visuales",
+        s5a: "Iconos de app (piezas maestras 1024px+ y variantes)",
+        s5b: "Logotipos horizontales, paletas de color y tipografía",
+        s5c: "Flyers promocionales, piezas de presentación y mockups UI",
+        s5d: "Coherencia visual entre web, móvil y material impreso/digital",
+        s6Title: "6. Crecimiento Bilingüe y Contenido",
+        s6a: "Redacción nativa en español e inglés para producto y marca",
+        s6b: "Guiones de video vertical corto y recorridos visuales",
+        s6c: "Guiones de teleprompter y formatos directos a cámara",
+        s6d: "Kits de incorporación comercial y comunicación con aliados",
+        stdKicker: "CÓMO OPERAMOS",
+        stdTitle: "Rigor institucional aplicado a entregas ágiles.",
+        stdDesc: "Diseñado para que fundadores, socios y aliados confíen en cada despliegue, métrica y decisión técnica.",
+        p1Title: "Diagnóstico Basado en Evidencia",
+        p1Desc: "Verificación de causa raíz, revisión exacta de líneas y cambios quirúrgicos sin suposiciones.",
+        p2Title: "Arquitectura de Costo Eficiente",
+        p2Desc: "Uso inteligente de capas gratuitas, herramientas abiertas y servicios escalables para cuidar márgenes.",
+        p3Title: "Cumplimiento y Confianza",
+        p3Desc: "Transparencia de datos, dominios verificados, cifrado HTTPS y fichas alineadas a políticas.",
+        p4Title: "Publicar e Iterar",
+        p4Desc: "Avances incrementales comprobables desde el prototipo hasta producción con retroalimentación real.",
+        ctaKicker: "MESA DIRECTA DE VENTURES Y ALIANZAS",
+        ctaTitle: "Construyamos o escalemos lo que sigue.",
+        ctaDesc: "Escríbenos para alianzas estratégicas, colaboración en ventures, desarrollo de producto o consultas generales.",
+        ctaEmailBtn: "Escribir a contact@batistadigitalventures.com",
+        footRights: "Todos los derechos reservados."
+      }
+    };
+
+    const buttons = document.querySelectorAll("[data-set-lang]");
+    function applyLanguage(lang) {
+      const dict = translations[lang] || translations.es;
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute("data-lang", lang);
+      document.title = dict.pageTitle;
+
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key] !== undefined) {
+          el.textContent = dict[key];
+        }
+      });
+
+      buttons.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+      });
+
+      try {
+        localStorage.setItem("bdv_lang", lang);
+      } catch (_) {}
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        applyLanguage(btn.getAttribute("data-set-lang"));
+      });
+    });
+
+    const savedLang = (() => {
+      try {
+        return localStorage.getItem("bdv_lang");
+      } catch (_) {
+        return null;
+      }
+    })();
+
+    applyLanguage(savedLang === "en" ? "en" : "es");
+  </script>
 </body>
 </html>
