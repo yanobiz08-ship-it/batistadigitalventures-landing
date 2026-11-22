@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Batista Digital Ventures</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -18,11 +21,13 @@
       padding: 24px;
     }
     .card {
-      max-width: 640px;
+      max-width: 680px;
+      width: 100%;
       background: #131a29;
       border: 1px solid rgba(212, 175, 55, 0.35);
       border-radius: 16px;
       padding: 40px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
     }
     h1 {
       margin: 0 0 12px;
@@ -41,14 +46,56 @@
       background: rgba(212, 175, 55, 0.15);
       color: #f8fafc;
       font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      color: #f8fafc;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .btn-primary {
+      background: #d4af37;
+      color: #0b0f17;
+      border-color: #d4af37;
+    }
+    .contact {
+      font-size: 0.92rem;
+      color: #94a3b8;
+    }
+    .contact a {
+      color: #d4af37;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="card">
+    <span class="tag">Batista Digital Ventures · En línea</span>
     <h1>Batista Digital Ventures</h1>
     <p>Estudio y desarrollo de plataformas digitales, aplicaciones móviles y soluciones tecnológicas.</p>
-    <span class="tag">Próximamente · En línea</span>
+
+    <div class="links">
+      <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com">Escribir a Contacto</a>
+      <a class="btn" href="https://merqox.com" target="_blank" rel="noopener noreferrer">MERQOX</a>
+      <a class="btn" href="https://trivlopro.com" target="_blank" rel="noopener noreferrer">TRIVLO</a>
+    </div>
+
+    <div class="contact">
+      Correo directo: <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
+    </div>
   </div>
 </body>
 </html>
