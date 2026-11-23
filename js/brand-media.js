@@ -91,8 +91,13 @@
       img = document.createElement("img");
       img.className = "bdv-header-logo-img";
       img.src = "./assets/BDV Logo.png";
-      iconWrap.innerHTML = "";
-      iconWrap.appendChild(img);
+      img.style.width = "44px";
+      img.style.height = "44px";
+      img.style.maxWidth = "44px";
+      img.style.maxHeight = "44px";
+      img.style.objectFit = "cover";
+      img.style.display = "block";
+      iconWrap.prepend(img);
     }
     img.alt = copy[lang].altLogo;
   }
@@ -132,18 +137,22 @@
     }
   }
 
+  function hideStaticVenturesGrid(container) {
+    if (!container) return;
+    const grids = container.querySelectorAll(":scope > .ventures-grid");
+    grids.forEach((grid) => {
+      grid.style.setProperty("display", "none", "important");
+    });
+  }
+
   function applyProductsDrawer(lang) {
-    if (document.getElementById("bdv-products-drawer")) return;
     const venturesSection = document.getElementById("ventures");
     if (!venturesSection) return;
 
     const container = venturesSection.querySelector(".container") || venturesSection;
-    
-    // Oculta y remueve la cuadrícula estática previa si existe
-    const oldGrid = container.querySelector(":scope > .ventures-grid");
-    if (oldGrid) {
-      oldGrid.style.display = "none";
-    }
+    hideStaticVenturesGrid(container);
+
+    if (document.getElementById("bdv-products-drawer")) return;
 
     const t = copy[lang];
     const wrap = document.createElement("div");
