@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress & Legal */
+/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact & Legal */
 (function () {
   const copy = {
     es: {
@@ -198,6 +198,34 @@
     { stage: 5, percentage: 90, name_es: "Inspección de Entrega y Ventana de Revisión", name_en: "Client Inspection & Review Window" },
     { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Despliegue", name_en: "Final Settlement, Handoff & Release" }
   ];
+
+  /* =========================================================
+     COMPACTACIÓN VISUAL: CÓMO OPERAMOS (01-04)
+     ========================================================= */
+  const opsData = {
+    es: {
+      title: "CÓMO OPERAMOS",
+      sub: "Rigor institucional aplicado a entregas ágiles.",
+      items: [
+        { num: "01", short: "Evidencia", desc: "Diagnóstico Basado en Evidencia: causa raíz, revisión exacta de líneas y cambios quirúrgicos sin suposiciones." },
+        { num: "02", short: "Costo Eficiente", desc: "Arquitectura de Costo Eficiente: capas gratuitas, herramientas abiertas y servicios escalables para cuidar márgenes." },
+        { num: "03", short: "Cumplimiento", desc: "Cumplimiento y Confianza: transparencia de datos, dominios verificados, cifrado HTTPS y fichas alineadas a políticas." },
+        { num: "04", short: "Iterar", desc: "Publicar e Iterar: avances incrementales comprobables desde el prototipo hasta producción con retroalimentación real." }
+      ]
+    },
+    en: {
+      title: "HOW WE OPERATE",
+      sub: "Institutional rigor applied to agile delivery.",
+      items: [
+        { num: "01", short: "Evidence", desc: "Evidence-Based Diagnostics: root-cause checks, exact line inspection, and surgical changes without guesswork." },
+        { num: "02", short: "Lean Cost", desc: "Cost-Efficient Architecture: smart free tiers, open tooling, and scalable services to protect margins." },
+        { num: "03", short: "Compliance", desc: "Compliance & Trust: data transparency, verified domains, HTTPS encryption, and policy-aligned store listings." },
+        { num: "04", short: "Iterate", desc: "Ship & Iterate: verifiable incremental progress from prototype to production with real feedback." }
+      ]
+    }
+  };
+
+  let activeOpsIndex = 0;
 
   function getLang() {
     const lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
@@ -492,6 +520,55 @@
     });
   }
 
+  function applyCompactHowWeOperate(lang) {
+    const sections = Array.from(document.querySelectorAll("main section"));
+    const targetSec = sections.find((sec) => {
+      if (sec.id && sec.id.startsWith("bdv-")) return false;
+      const txt = (sec.textContent || "");
+      return txt.includes("01") && txt.includes("02") && txt.includes("03") && txt.includes("04");
+    });
+    if (!targetSec) return;
+
+    const d = opsData[lang] || opsData.es;
+    if (activeOpsIndex >= d.items.length) activeOpsIndex = 0;
+    const current = d.items[activeOpsIndex];
+
+    targetSec.innerHTML = `
+      <div class="container">
+        <div class="bdv-ops-compact">
+          <div class="bdv-ops-head">
+            <h2 class="bdv-ops-title">${d.title}</h2>
+            <p class="bdv-ops-sub">${d.sub}</p>
+          </div>
+          <div class="bdv-ops-pills">
+            ${d.items
+              .map(
+                (it, idx) => `
+                  <button
+                    type="button"
+                    class="bdv-ops-pill ${idx === activeOpsIndex ? "is-active" : ""}"
+                    data-bdv-ops-idx="${idx}"
+                  >
+                    <span class="bdv-ops-num">${it.num}</span>
+                    <span>${it.short}</span>
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+          <div class="bdv-ops-detail">${current.desc}</div>
+        </div>
+      </div>
+    `;
+
+    targetSec.querySelectorAll("[data-bdv-ops-idx]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeOpsIndex = Number(btn.getAttribute("data-bdv-ops-idx")) || 0;
+        applyCompactHowWeOperate(getLang());
+      });
+    });
+  }
+
   function cleanFooterLinksAndApplyLegal(lang) {
     const footer = document.querySelector("footer");
     if (!footer) return;
@@ -596,6 +673,7 @@
     applyBanner(lang);
     applyProductsDrawer(lang);
     renderCabinet(lang);
+    applyCompactHowWeOperate(lang);
     applyLegalModals();
     cleanFooterLinksAndApplyLegal(lang);
 
