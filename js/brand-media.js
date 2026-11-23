@@ -3,6 +3,16 @@
   const BDV_ADMIN_API_URL = "https://script.google.com/macros/s/AKfycbza_9dJxLPS6zQS8KApE52HLBR_6izMwp2nnG1OlkJlp7lUai5SIRbQmS2nVCBOFwAZdg/exec";
   const BDV_DEFAULT_ADMIN_KEY = "BDV_MASTER_2026";
 
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   const copy = {
     es: {
       eyebrow: "PLATAFORMAS DIGITALES Y APPS MÓVILES",
@@ -679,7 +689,7 @@
         </form>
         <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result"></div>
         <p class="bdv-tracker-disclaimer">
-          * Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
+- Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
         </p>
       </div>
     `;
@@ -732,8 +742,8 @@
             resBox.innerHTML = `
               <span class="bdv-tracker-status-tag bdv-status-active">Acceso Activo · Obra en Progreso</span>
               <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Etapa ${matched.stage}/6: ${stName} (${stObj.percentage}%)</h4>
-              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ${matched.name} (${matched.id})</p>
-              <p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Estado Financiero:</strong> ${matched.paymentStatus}</p>
+              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ${escapeHtml(matched.name)} (${escapeHtml(matched.id)})</p>
+              <p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Estado Financiero:</strong> ${escapeHtml(matched.paymentStatus)}</p>
               <div class="bdv-progress-track" style="margin-top: 8px;">
                 <div class="bdv-progress-fill" style="width: ${stObj.percentage}%;"></div>
               </div>
@@ -776,6 +786,7 @@
         <div id="bdv-admin-auth-view" style="margin-top: 15px;">
           <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa tu clave (Admin o Programador)" />
           <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
+          <div id="bdv-admin-auth-msg" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #f87171;"></div>
         </div>
 
         <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
@@ -794,6 +805,7 @@
               <input type="password" id="bdv-new-role-pass" class="bdv-tracker-input" placeholder="Nueva clave (mín. 6 letras/números)" style="flex: 1; padding: 6px 10px; font-size: 0.82rem;" />
               <button type="button" class="bdv-admin-action-btn" onclick="submitPasswordChange()">Guardar Clave</button>
             </div>
+            <div id="bdv-key-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>
           </div>
 
           <div id="bdv-admin-projects-list" style="margin-top: 14px;">Cargando proyectos...</div>
@@ -812,10 +824,15 @@
 
     document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
       const pass = (document.getElementById("bdv-admin-pass").value || "").trim();
+      const authMsg = document.getElementById("bdv-admin-auth-msg");
       if (!pass) {
-        alert("Ingresa tu clave de acceso.");
+        if (authMsg) {
+          authMsg.style.display = "block";
+          authMsg.textContent = "Ingresa tu clave de acceso.";
+        }
         return;
       }
+      if (authMsg) authMsg.style.display = "none";
       window.__bdvSessionKey = pass;
       document.getElementById("bdv-admin-auth-view").style.display = "none";
       document.getElementById("bdv-admin-dash-view").style.display = "block";
@@ -833,8 +850,14 @@
   window.submitPasswordChange = function () {
     const input = document.getElementById("bdv-new-role-pass");
     const newPass = (input ? input.value : "").trim();
+    const statusMsg = document.getElementById("bdv-key-status-msg");
+
     if (!newPass || newPass.length < 6) {
-      alert("La nueva clave debe tener al menos 6 caracteres.");
+      if (statusMsg) {
+        statusMsg.style.display = "block";
+        statusMsg.style.color = "#f87171";
+        statusMsg.textContent = "La nueva clave debe tener al menos 6 caracteres.";
+      }
       return;
     }
 
@@ -849,16 +872,29 @@
     })
       .then(r => r.json())
       .then(res => {
+        if (statusMsg) statusMsg.style.display = "block";
         if (res.ok) {
           window.__bdvSessionKey = newPass;
           input.value = "";
-          document.getElementById("bdv-key-change-box").style.display = "none";
-          alert("✓ Tu clave ha sido actualizada exitosamente en el sistema.");
+          statusMsg.style.color = "#4ade80";
+          statusMsg.textContent = "✓ Clave actualizada exitosamente en el sistema.";
+          setTimeout(() => {
+            const box = document.getElementById("bdv-key-change-box");
+            if (box) box.style.display = "none";
+            statusMsg.style.display = "none";
+          }, 2500);
         } else {
-          alert(res.error || "No se pudo actualizar la clave.");
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = res.error || "No se pudo actualizar la clave.";
         }
       })
-      .catch(() => alert("Error de red al actualizar la clave."));
+      .catch(() => {
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = "Error de red al actualizar la clave.";
+        }
+      });
   };
 
   function loadAdminProjects() {
@@ -897,8 +933,8 @@
 
           const proposalBanner = proposalObj
             ? `<div style="margin-top: 10px; padding: 10px; border-radius: 8px; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.45); font-size: 0.78rem;">
-                 <strong style="color: #e8c861;">Propuesta de ${proposalObj.devName || "Partner"}:</strong> Etapa ${proposalObj.stage}/6
-                 ${proposalObj.notes ? `<div style="color: #e2e8f0; margin-top: 4px;">Nota: ${proposalObj.notes}</div>` : ""}
+                 <strong style="color: #e8c861;">Propuesta de ${escapeHtml(proposalObj.devName || "Partner")}:</strong> Etapa ${proposalObj.stage}/6
+                 ${proposalObj.notes ? `<div style="color: #e2e8f0; margin-top: 4px;">Nota: ${escapeHtml(proposalObj.notes)}</div>` : ""}
                  ${isAdmin
                    ? `<button type="button" class="bdv-admin-action-btn" style="margin-top: 8px;" onclick="approveProjectProposal(${p.row})">✓ Confirmar Avance y Notificar</button>`
                    : `<div style="color: #cbd5e1; margin-top: 4px;">Estado: Enviado a revisión del administrador.</div>`
@@ -908,7 +944,7 @@
 
           const adminPinBox = isAdmin
             ? `<div class="bdv-admin-grid-row" style="margin-top: 10px;">
-                 <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 170px; padding: 6px 10px; font-size: 0.8rem;" value="${p.code}" placeholder="Nuevo PIN (ej. BDV-5521)" />
+                 <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 170px; padding: 6px 10px; font-size: 0.8rem;" value="${escapeHtml(p.code)}" placeholder="Nuevo PIN (ej. BDV-5521)" />
                  <button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(${p.row})">Cambiar PIN</button>
                </div>`
             : "";
@@ -923,14 +959,14 @@
             <div class="bdv-admin-project-item" data-row="${p.row}">
               <div class="bdv-admin-grid-row">
                 <div>
-                  <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
-                  <span style="font-size: 0.75rem; color: #94a3b8;">(${p.id})</span>
+                  <strong style="color: #f8fafc; font-size: 0.9rem;">${escapeHtml(p.name)}</strong>
+                  <span style="font-size: 0.75rem; color: #94a3b8;">(${escapeHtml(p.id)})</span>
                   <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
-                    ${isAdmin ? `Email: ${p.email} | ` : ""}PIN: <span style="color: #e8c861; font-weight: 700;">${p.code}</span>
+                    ${isAdmin ? `Email: ${escapeHtml(p.email)} | ` : ""}PIN: <span style="color: #e8c861; font-weight: 700;">${escapeHtml(p.code)}</span>
                   </div>
                 </div>
                 <span class="bdv-tracker-status-tag ${p.accessStatus === 'ACTIVE' ? 'bdv-status-active' : 'bdv-status-disabled'}">
-                  ${p.accessStatus}
+                  ${escapeHtml(p.accessStatus)}
                 </span>
               </div>
 
@@ -952,6 +988,7 @@
                   ${primaryBtnText}
                 </button>
               </div>
+              <div id="row-status-${p.row}" style="display: none; margin-top: 6px; font-size: 0.78rem;"></div>
             </div>
           `;
         }).join("");
@@ -965,6 +1002,7 @@
     const input = document.getElementById(`pin-input-${row}`);
     const newCode = (input ? input.value : "").trim().toUpperCase();
     const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const rowStatus = document.getElementById(`row-status-${row}`);
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -977,18 +1015,32 @@
     })
       .then(r => r.json())
       .then(res => {
+        if (rowStatus) rowStatus.style.display = "block";
         if (res.ok) {
-          alert(`PIN actualizado a ${res.code}.`);
-          loadAdminProjects();
+          if (rowStatus) {
+            rowStatus.style.color = "#4ade80";
+            rowStatus.textContent = `✓ PIN actualizado a ${res.code}`;
+          }
+          setTimeout(loadAdminProjects, 1000);
         } else {
-          alert(res.error || "No se pudo cambiar el PIN.");
+          if (rowStatus) {
+            rowStatus.style.color = "#f87171";
+            rowStatus.textContent = res.error || "No se pudo cambiar el PIN.";
+          }
         }
       })
-      .catch(() => alert("Error de red al cambiar el PIN."));
+      .catch(() => {
+        if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = "Error de red al cambiar el PIN.";
+        }
+      });
   };
 
   window.approveProjectProposal = function (row) {
     const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const rowStatus = document.getElementById(`row-status-${row}`);
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -1000,14 +1052,27 @@
     })
       .then(r => r.json())
       .then(res => {
+        if (rowStatus) rowStatus.style.display = "block";
         if (res.ok) {
-          alert(`Avance confirmado (Etapa ${res.stage}/6) y notificaciones enviadas.`);
-          loadAdminProjects();
+          if (rowStatus) {
+            rowStatus.style.color = "#4ade80";
+            rowStatus.textContent = `✓ Avance confirmado (Etapa ${res.stage}/6) y notificado.`;
+          }
+          setTimeout(loadAdminProjects, 1200);
         } else {
-          alert(res.error || "No se pudo confirmar la propuesta.");
+          if (rowStatus) {
+            rowStatus.style.color = "#f87171";
+            rowStatus.textContent = res.error || "No se pudo confirmar la propuesta.";
+          }
         }
       })
-      .catch(() => alert("Error de red al confirmar la propuesta."));
+      .catch(() => {
+        if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = "Error de red al confirmar propuesta.";
+        }
+      });
   };
 
   window.updateProjectStage = function (row) {
@@ -1018,6 +1083,7 @@
     const isAdmin = Boolean(window.__bdvIsAdmin);
     const noteInput = document.getElementById(`dev-note-${row}`);
     const notes = noteInput ? noteInput.value.trim() : "";
+    const rowStatus = document.getElementById(`row-status-${row}`);
 
     sel.disabled = true;
 
@@ -1044,33 +1110,93 @@
       .then(r => r.json())
       .then(res => {
         sel.disabled = false;
+        if (rowStatus) rowStatus.style.display = "block";
         if (res.ok) {
-          alert(
-            isAdmin
-              ? `Etapa actualizada a ${stage}/6. Correos enviados automáticamente.`
-              : `Avance enviado a revisión del administrador para confirmación.`
-          );
-          loadAdminProjects();
+          if (rowStatus) {
+            rowStatus.style.color = "#4ade80";
+            rowStatus.textContent = isAdmin
+              ? `✓ Etapa actualizada a ${stage}/6. Correos enviados.`
+              : `✓ Avance enviado a revisión del administrador.`;
+          }
+          setTimeout(loadAdminProjects, 1200);
         } else {
-          alert(res.error || "Error al procesar la solicitud.");
+          if (rowStatus) {
+            rowStatus.style.color = "#f87171";
+            rowStatus.textContent = res.error || "Error al procesar la solicitud.";
+          }
         }
       })
       .catch(() => {
         sel.disabled = false;
-        alert("Error de red al actualizar.");
+        if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = "Error de red al actualizar.";
+        }
       });
   };
 
-  /* Solicitud de Servicios con Selección Múltiple y Notificación a Admin + Partners */
+  /* Solicitud de Servicios Bilingüe con Selección Múltiple y Notificación a Admin + Partners */
   function applyServiceRequestModal() {
-    if (!document.getElementById("bdv-request-services-btn")) {
+    const lang = getLang();
+
+    const serviceCopy = {
+      es: {
+        btn: "Solicitar nuestros servicios",
+        title: "Solicitar nuestros servicios · BDV LLC",
+        desc: "Marca lo que necesitas para tu negocio. Enviaremos tu solicitud a dirección y a nuestros programadores partners disponibles.",
+        namePh: "Tu nombre completo",
+        emailPh: "Tu correo electrónico",
+        businessPh: "Nombre de tu negocio o proyecto (opcional)",
+        notesPh: "Cuéntanos brevemente qué quieres lograr o cuándo te gustaría iniciar...",
+        submit: "Enviar Solicitud",
+        selectOne: "Selecciona al menos un servicio de la lista.",
+        sending: "Enviando solicitud...",
+        success: "✓ Solicitud enviada. Te contactaremos pronto para revisar el alcance.",
+        fail: "No se pudo enviar la solicitud.",
+        netErr: "Error de conexión al enviar la solicitud.",
+        items: [
+          "Sitio Web Base / MVP ($450–$850)",
+          "Plataforma / Web Dinámica ($1,200–$2,800+)",
+          "Aplicación Móvil por Hitos ($2,500–$5,000+)",
+          "Panel de Administración / Automatización",
+          "Póliza Mensual / Soporte ($180–$450/mes)"
+        ]
+      },
+      en: {
+        btn: "Request Our Services",
+        title: "Request Our Services · BDV LLC",
+        desc: "Select what you need for your business. We will send your request to management and available partner developers.",
+        namePh: "Your full name",
+        emailPh: "Your email address",
+        businessPh: "Business or project name (optional)",
+        notesPh: "Tell us briefly what you want to build or when you plan to start...",
+        submit: "Submit Request",
+        selectOne: "Select at least one service from the list.",
+        sending: "Sending request...",
+        success: "✓ Request sent. We will follow up soon to review scope.",
+        fail: "Could not send the request.",
+        netErr: "Connection error while sending the request.",
+        items: [
+          "Starter Website / MVP ($450–$850)",
+          "Dynamic Platform / Web App ($1,200–$2,800+)",
+          "Milestone Mobile App ($2,500–$5,000+)",
+          "Admin Dashboard / Automation",
+          "Monthly Care / Support ($180–$450/mo)"
+        ]
+      }
+    };
+
+    const s = serviceCopy[lang] || serviceCopy.es;
+
+    let reqBtn = document.getElementById("bdv-request-services-btn");
+    if (!reqBtn) {
       const heroCta = document.querySelector(".hero-cta");
       if (heroCta) {
-        const reqBtn = document.createElement("button");
+        reqBtn = document.createElement("button");
         reqBtn.type = "button";
         reqBtn.id = "bdv-request-services-btn";
         reqBtn.className = "btn btn-primary";
-        reqBtn.textContent = "Solicitar nuestros servicios";
         reqBtn.addEventListener("click", () => {
           const m = document.getElementById("bdv-service-modal-root");
           if (m) m.style.display = "flex";
@@ -1078,117 +1204,122 @@
         heroCta.appendChild(reqBtn);
       }
     }
+    if (reqBtn) reqBtn.textContent = s.btn;
 
-    if (document.getElementById("bdv-service-modal-root")) return;
-
-    const servicesList = [
-      "Sitio Web Base / MVP ($450–$850)",
-      "Plataforma / Web Dinámica ($1,200–$2,800+)",
-      "Aplicación Móvil por Hitos ($2,500–$5,000+)",
-      "Panel de Administración / Automatización",
-      "Póliza Mensual / Soporte ($180–$450/mes)"
-    ];
-
-    const checkboxesHtml = servicesList
-      .map(
-        (srv, idx) => `
-          <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; font-size: 0.84rem; color: #e2e8f0;">
-            <input type="checkbox" id="bdv-srv-${idx}" value="${srv}" style="accent-color: #d4af37;" />
-            <span>${srv}</span>
-          </label>
-        `
-      )
-      .join("");
-
-    const modalRoot = document.createElement("div");
-    modalRoot.id = "bdv-service-modal-root";
-    modalRoot.className = "bdv-modal-overlay";
-    modalRoot.style.display = "none";
-
-    modalRoot.innerHTML = `
-      <div class="bdv-tracker-card" style="max-width: 500px;">
-        <div class="bdv-modal-top">
-          <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">Solicitar nuestros servicios · BDV LLC</h3>
-          <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
-        </div>
-        <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 12px 0;">
-          Marca lo que necesitas para tu negocio. Enviaremos tu solicitud a dirección y a nuestros programadores partners disponibles.
-        </p>
-        <form id="bdv-service-request-form" class="bdv-tracker-form">
-          <input type="text" id="bdv-srv-client-name" class="bdv-tracker-input" placeholder="Tu nombre completo" required />
-          <input type="email" id="bdv-srv-client-email" class="bdv-tracker-input" placeholder="Tu correo electrónico" required />
-          <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" placeholder="Nombre de tu negocio o proyecto (opcional)" />
-          <div style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;">
-            ${checkboxesHtml}
-          </div>
-          <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" placeholder="Cuéntanos brevemente qué quieres lograr o cuándo te gustaría iniciar..." style="resize: vertical;"></textarea>
-          <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn">Enviar Solicitud</button>
-        </form>
-        <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
-      </div>
-    `;
-
-    document.body.appendChild(modalRoot);
-
-    document.getElementById("bdv-service-close-btn").addEventListener("click", () => {
+    let modalRoot = document.getElementById("bdv-service-modal-root");
+    if (!modalRoot) {
+      modalRoot = document.createElement("div");
+      modalRoot.id = "bdv-service-modal-root";
+      modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.display = "none";
-    });
 
-    modalRoot.addEventListener("click", (e) => {
-      if (e.target === modalRoot) modalRoot.style.display = "none";
-    });
+      modalRoot.innerHTML = `
+        <div class="bdv-tracker-card" style="max-width: 500px;">
+          <div class="bdv-modal-top">
+            <h3 id="bdv-srv-modal-title" style="margin: 0; font-size: 1.05rem; color: #e8c861;"></h3>
+            <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+          </div>
+          <p id="bdv-srv-modal-desc" style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 12px 0;"></p>
+          <form id="bdv-service-request-form" class="bdv-tracker-form">
+            <input type="text" id="bdv-srv-client-name" class="bdv-tracker-input" required />
+            <input type="email" id="bdv-srv-client-email" class="bdv-tracker-input" required />
+            <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" />
+            <div id="bdv-srv-checkboxes" style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;"></div>
+            <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" style="resize: vertical;"></textarea>
+            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn"></button>
+          </form>
+          <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
+        </div>
+      `;
 
-    document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const clientName = (document.getElementById("bdv-srv-client-name").value || "").trim();
-      const clientEmail = (document.getElementById("bdv-srv-client-email").value || "").trim();
-      const businessName = (document.getElementById("bdv-srv-business-name").value || "").trim();
-      const notes = (document.getElementById("bdv-srv-notes").value || "").trim();
-      const selected = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-      const statusEl = document.getElementById("bdv-srv-status-msg");
-      const submitBtn = document.getElementById("bdv-srv-submit-btn");
+      document.body.appendChild(modalRoot);
 
-      if (!selected.length) {
-        statusEl.style.display = "block";
-        statusEl.style.color = "#f87171";
-        statusEl.textContent = "Selecciona al menos un servicio de la lista.";
-        return;
-      }
+      document.getElementById("bdv-service-close-btn").addEventListener("click", () => {
+        modalRoot.style.display = "none";
+      });
 
-      submitBtn.disabled = true;
-      statusEl.style.display = "block";
-      statusEl.style.color = "#94a3b8";
-      statusEl.textContent = "Enviando solicitud...";
+      modalRoot.addEventListener("click", (e) => {
+        if (e.target === modalRoot) modalRoot.style.display = "none";
+      });
 
-      fetch(BDV_ADMIN_API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "request_services",
-          clientName: clientName,
-          clientEmail: clientEmail,
-          businessName: businessName,
-          services: selected,
-          notes: notes
-        })
-      })
-        .then(r => r.json())
-        .then(res => {
-          submitBtn.disabled = false;
-          if (res.ok) {
-            statusEl.style.color = "#4ade80";
-            statusEl.textContent = "✓ Solicitud enviada. Te contactaremos pronto para revisar el alcance.";
-            e.target.reset();
-          } else {
-            statusEl.style.color = "#f87171";
-            statusEl.textContent = res.error || "No se pudo enviar la solicitud.";
-          }
-        })
-        .catch(() => {
-          submitBtn.disabled = false;
+      document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const curLang = getLang();
+        const curS = serviceCopy[curLang] || serviceCopy.es;
+
+        const clientName = (document.getElementById("bdv-srv-client-name").value || "").trim();
+        const clientEmail = (document.getElementById("bdv-srv-client-email").value || "").trim();
+        const businessName = (document.getElementById("bdv-srv-business-name").value || "").trim();
+        const notes = (document.getElementById("bdv-srv-notes").value || "").trim();
+        const selected = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        const statusEl = document.getElementById("bdv-srv-status-msg");
+        const submitBtn = document.getElementById("bdv-srv-submit-btn");
+
+        if (!selected.length) {
+          statusEl.style.display = "block";
           statusEl.style.color = "#f87171";
-          statusEl.textContent = "Error de conexión al enviar la solicitud.";
-        });
-    });
+          statusEl.textContent = curS.selectOne;
+          return;
+        }
+
+        submitBtn.disabled = true;
+        statusEl.style.display = "block";
+        statusEl.style.color = "#94a3b8";
+        statusEl.textContent = curS.sending;
+
+        fetch(BDV_ADMIN_API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "request_services",
+            clientName: clientName,
+            clientEmail: clientEmail,
+            businessName: businessName,
+            services: selected,
+            notes: notes
+          })
+        })
+          .then(r => r.json())
+          .then(res => {
+            submitBtn.disabled = false;
+            if (res.ok) {
+              statusEl.style.color = "#4ade80";
+              statusEl.textContent = curS.success;
+              e.target.reset();
+            } else {
+              statusEl.style.color = "#f87171";
+              statusEl.textContent = res.error || curS.fail;
+            }
+          })
+          .catch(() => {
+            submitBtn.disabled = false;
+            statusEl.style.color = "#f87171";
+            statusEl.textContent = curS.netErr;
+          });
+      });
+    }
+
+    const prevChecked = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => Number(cb.dataset.idx));
+    document.getElementById("bdv-srv-modal-title").textContent = s.title;
+    document.getElementById("bdv-srv-modal-desc").textContent = s.desc;
+    document.getElementById("bdv-srv-client-name").placeholder = s.namePh;
+    document.getElementById("bdv-srv-client-email").placeholder = s.emailPh;
+    document.getElementById("bdv-srv-business-name").placeholder = s.businessPh;
+    document.getElementById("bdv-srv-notes").placeholder = s.notesPh;
+    document.getElementById("bdv-srv-submit-btn").textContent = s.submit;
+
+    const cbContainer = document.getElementById("bdv-srv-checkboxes");
+    if (cbContainer) {
+      cbContainer.innerHTML = s.items
+        .map(
+          (srv, idx) => `
+            <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; font-size: 0.84rem; color: #e2e8f0;">
+              <input type="checkbox" id="bdv-srv-${idx}" data-idx="${idx}" value="${escapeHtml(srv)}" ${prevChecked.includes(idx) ? "checked" : ""} style="accent-color: #d4af37;" />
+              <span>${escapeHtml(srv)}</span>
+            </label>
+          `
+        )
+        .join("");
+    }
   }
 
   function loadCabinetData() {
