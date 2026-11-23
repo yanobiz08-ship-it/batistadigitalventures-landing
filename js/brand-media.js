@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Landing Core, Legal, Pillars & Media */
+/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Legal & Media */
 (function () {
   const copy = {
     es: {
@@ -37,24 +37,54 @@
       gyT4: "Membresías (Vista Previa)",
       gyBtn: "Revisar gyroadsidesolutions.com/en ↗",
 
-      instKicker: "FUNDAMENTOS CORPORATIVOS",
-      instTitle: "Visión, Valores y Pilares de Ejecución",
-      visionHeading: "Nuestra Visión",
-      visionText: "Consolidar a Batista Digital Ventures LLC como una factoría tecnológica y venture studio de referencia por su agilidad, solidez arquitectónica y honestidad operativa, respaldando productos de consumo propios y soluciones para negocios reales.",
-      valuesHeading: "Valores Fundamentales",
-      val1Title: "Verdad y Claridad Operativa",
-      val1Text: "Sin métricas de vanidad ni promesas vacías. Definimos alcances reales, estatus verificables y entregables funcionales.",
-      val2Title: "Disciplina de Capital y Código",
-      val2Text: "Construcción lean, arquitecturas sin dependencias innecesarias y máxima eficiencia técnica de punta a punta.",
-      val3Title: "Acuerdos Transparentes",
-      val3Text: "Relaciones comerciales justas por hitos con clientes y reparto equitativo de ingresos con programadores partners.",
-      pillarsHeading: "Pilares Estratégicos",
-      pil1Title: "Arquitectura Móvil y Web",
-      pil1Text: "Sistemas nativos y web rápidos, escalables, optimizados para dispositivos móviles y listos para tiendas de aplicaciones.",
-      pil2Title: "Ecosistema Propio",
-      pil2Text: "Incubación y desarrollo continuo de activos propietarios como TRIVLO, MERQOX y soporte a infraestructuras en marcha.",
-      pil3Title: "Alianzas y Contratos Claros",
-      pil3Text: "Marco legal riguroso bajo la LLC que protege a clientes e impulsa a desarrolladores bajo contratos independientes.",
+      cabKicker: "ARCHIVO EJECUTIVO · BATISTA DIGITAL VENTURES LLC",
+      cabTitle: "Explora por pestaña sin desplazarte de más",
+      tabs: [
+        {
+          id: "trust",
+          label: "Confianza y Respaldo",
+          headline: "Ejecución real, acuerdos claros y productos con historia.",
+          summary: "Operamos bajo Batista Digital Ventures LLC en Lompoc, California, combinando criterio de negocio, desarrollo web y móvil, y procesos por hitos sin promesas infladas.",
+          bullets: [
+            "<strong>Para clientes:</strong> Alcance por escrito (SOW), hitos claros, entrega limpia y transparencia total en costos.",
+            "<strong>Para programadores partners:</strong> Contratos claros, reparto sobre ingreso neto cobrado y protección de código y clientes.",
+            "<strong>Ecosistema activo:</strong> Desarrollo y soporte en TRIVLO, MERQOX y GY Roadside Solutions."
+          ]
+        },
+        {
+          id: "foundations",
+          label: "Visión y Pilares",
+          headline: "Visión, Valores y Pilares de Batista Digital Ventures LLC",
+          summary: "Una estructura diseñada para construir software útil y duradero sin enredos ni improvisación.",
+          bullets: [
+            "<strong>Visión:</strong> Consolidar un venture studio ágil, honesto y sólido en arquitectura y ejecución.",
+            "<strong>Valores:</strong> Verdad operativa, disciplina de capital y código, y acuerdos transparentes.",
+            "<strong>Pilares:</strong> Ingeniería móvil y web, ecosistema propio y alianzas con reglas claras."
+          ]
+        },
+        {
+          id: "pricing",
+          label: "Proceso y Precios",
+          headline: "Del primer mensaje al lanzamiento, con escalones accesibles.",
+          summary: "Estructuramos proyectos por etapas para que personas comunes con aspiraciones y negocios reales puedan avanzar sin comprometer la calidad.",
+          bullets: [
+            "<strong>Flujo:</strong> Solicitud y filtro → Alcance (SOW) y anticipo → Hitos y pruebas → Liquidación y entrega.",
+            "<strong>Escalones orientativos:</strong> Web base/MVP ($450–$850), Web dinámica por fases ($1,200–$2,800+), App móvil por hitos ($2,500–$5,000+).",
+            "<strong>Soporte opcional:</strong> Mantenimiento y mejoras mensuales ($180–$450/mes) tras el lanzamiento."
+          ]
+        },
+        {
+          id: "partners",
+          label: "Partners y Legal",
+          headline: "Colaboración con programadores y respaldo legal bajo la LLC.",
+          summary: "Cada colaboración se formaliza por escrito bajo las leyes de California para proteger el trabajo de todos.",
+          bullets: [
+            "<strong>Reparto sobre neto cobrado:</strong> 50%–60% al partner si la LLC aporta el cliente; 70%–80% al partner si aporta el cliente.",
+            "<strong>Reglas clave:</strong> Contratista independiente, pago condicionado a cobro efectivo y cesión de propiedad intelectual al liquidar.",
+            "<strong>Documentación:</strong> Términos de Servicio y Política de Privacidad disponibles en todo momento."
+          ]
+        }
+      ],
 
       legalTermsBtn: "Términos de Servicio",
       legalPrivacyBtn: "Política de Privacidad",
@@ -99,24 +129,54 @@
       gyT4: "Memberships (Preview)",
       gyBtn: "Review gyroadsidesolutions.com/en ↗",
 
-      instKicker: "CORPORATE FOUNDATIONS",
-      instTitle: "Vision, Values & Execution Pillars",
-      visionHeading: "Our Vision",
-      visionText: "Establish Batista Digital Ventures LLC as a premier tech venture studio recognized for rapid execution, solid engineering, and transparent governance across our proprietary platforms and commercial client systems.",
-      valuesHeading: "Core Values",
-      val1Title: "Operational Truth & Clarity",
-      val1Text: "No vanity metrics or empty promises. We commit to factual scopes, verifiable product milestones, and battle-tested code.",
-      val2Title: "Capital & Engineering Discipline",
-      val2Text: "Lean architecture, minimal external bloat, and end-to-end technical efficiency.",
-      val3Title: "Transparent Governance",
-      val3Text: "Equitable milestone agreements for clients and structured revenue-share contracts for partner developers.",
-      pillarsHeading: "Strategic Pillars",
-      pil1Title: "Mobile & Web Engineering",
-      pil1Text: "Fast, responsive systems engineered mobile-first and configured for native App Store and Google Play publishing.",
-      pil2Title: "Proprietary Ecosystem",
-      pil2Text: "Active incubation and scaling of owned assets including TRIVLO, MERQOX, and live infrastructure.",
-      pil3Title: "Protected Partnerships",
-      pil3Text: "Enforceable legal protection under California law safeguarding client assets and empowering independent collaborators.",
+      cabKicker: "EXECUTIVE CABINET · BATISTA DIGITAL VENTURES LLC",
+      cabTitle: "Switch tabs cleanly without endless scrolling",
+      tabs: [
+        {
+          id: "trust",
+          label: "Trust & Track Record",
+          headline: "Disciplined execution, clear agreements, and real product momentum.",
+          summary: "Operating under Batista Digital Ventures LLC in Lompoc, California—uniting practical business economics, web and mobile engineering, and milestone-based delivery.",
+          bullets: [
+            "<strong>For clients:</strong> Written scope (SOW), clear milestones, clean handoff, and no hidden surprises.",
+            "<strong>For partner developers:</strong> Written agreements, revenue share on collected net funds, and clear IP/client protection.",
+            "<strong>Active ecosystem:</strong> Ongoing work across TRIVLO, MERQOX, and GY Roadside Solutions."
+          ]
+        },
+        {
+          id: "foundations",
+          label: "Vision & Pillars",
+          headline: "Vision, Values & Pillars of Batista Digital Ventures LLC",
+          summary: "Built for clarity, lean engineering, and durable outcomes rather than vanity complexity.",
+          bullets: [
+            "<strong>Vision:</strong> Build a trusted venture studio known for speed, engineering reliability, and straight talk.",
+            "<strong>Values:</strong> Operational truth, capital and code discipline, and transparent agreements.",
+            "<strong>Pillars:</strong> Mobile and web architecture, proprietary products, and structured partnerships."
+          ]
+        },
+        {
+          id: "pricing",
+          label: "Process & Pricing",
+          headline: "From initial inquiry to launch, with accessible entry tiers.",
+          summary: "Phased delivery helps ambitious founders and everyday businesses start smart without sacrificing solid engineering.",
+          bullets: [
+            "<strong>Workflow:</strong> Inquiry & fit check → Written SOW & deposit → Milestones & QA → Final balance & handoff.",
+            "<strong>Reference tiers:</strong> Starter/MVP web ($450–$850), Phased dynamic web ($1,200–$2,800+), Milestone mobile app ($2,500–$5,000+).",
+            "<strong>Optional care:</strong> Monthly maintenance and updates ($180–$450/mo) after launch."
+          ]
+        },
+        {
+          id: "partners",
+          label: "Partners & Legal",
+          headline: "Partner developer model and LLC legal guardrails.",
+          summary: "Every engagement is documented in writing under California law so expectations stay clear from day one.",
+          bullets: [
+            "<strong>Net collected split:</strong> 50%–60% to partner when LLC brings the client; 70%–80% when partner brings the client.",
+            "<strong>Core guardrails:</strong> Independent contractor status, paid-when-paid trigger, and IP transfer upon full settlement.",
+            "<strong>Legal policies:</strong> Terms of Service and Privacy Policy accessible anytime."
+          ]
+        }
+      ],
 
       legalTermsBtn: "Terms of Service",
       legalPrivacyBtn: "Privacy Policy",
@@ -128,6 +188,7 @@
   };
 
   let isPanelOpen = false;
+  let activeTabIndex = 0;
 
   function getLang() {
     const lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
@@ -311,59 +372,72 @@
     }
   }
 
-  function applyFoundationsSection(lang) {
-    if (document.getElementById("bdv-foundations-section")) return;
+  function renderCabinet(lang) {
     const mainEl = document.querySelector("main") || document.body;
     if (!mainEl) return;
 
+    const oldFoundations = document.getElementById("bdv-foundations-section");
+    if (oldFoundations) oldFoundations.remove();
+
+    let cab = document.getElementById("bdv-cabinet-section");
+    if (!cab) {
+      cab = document.createElement("section");
+      cab.id = "bdv-cabinet-section";
+      cab.className = "bdv-cabinet-band";
+      mainEl.appendChild(cab);
+    }
+
     const t = copy[lang];
-    const section = document.createElement("section");
-    section.id = "bdv-foundations-section";
-    section.className = "bdv-foundations-band";
-    section.innerHTML = `
+    const tabs = Array.isArray(t.tabs) && t.tabs.length ? t.tabs : [];
+    if (activeTabIndex >= tabs.length) activeTabIndex = 0;
+    const currentTab = tabs[activeTabIndex] || { headline: "", summary: "", bullets: [] };
+
+    const markersHtml = tabs
+      .map(
+        (tab, idx) => `
+          <button
+            type="button"
+            role="tab"
+            aria-selected="${idx === activeTabIndex ? "true" : "false"}"
+            class="bdv-tab-marker ${idx === activeTabIndex ? "is-active" : ""}"
+            data-bdv-tab-index="${idx}"
+          >${tab.label}</button>
+        `
+      )
+      .join("");
+
+    const bulletsHtml = (currentTab.bullets || [])
+      .map((item) => `<li>${item}</li>`)
+      .join("");
+
+    cab.innerHTML = `
       <div class="container">
-        <div class="bdv-sec-header">
-          <span class="bdv-banner-kicker" data-bdv-inst-kicker>${t.instKicker}</span>
-          <h2 class="bdv-sec-title" data-bdv-inst-title>${t.instTitle}</h2>
+        <div class="bdv-cabinet-header">
+          <span class="bdv-banner-kicker">${t.cabKicker}</span>
+          <h2 class="bdv-cabinet-title">${t.cabTitle}</h2>
         </div>
-
-        <div class="bdv-vision-card">
-          <h3 data-bdv-vision-h>${t.visionHeading}</h3>
-          <p data-bdv-vision-p>${t.visionText}</p>
-        </div>
-
-        <div class="bdv-grid-two">
-          <div class="bdv-inst-box">
-            <h3 data-bdv-val-h>${t.valuesHeading}</h3>
-            <ul>
-              <li><strong data-val1-t>${t.val1Title}</strong> — <span data-val1-p>${t.val1Text}</span></li>
-              <li><strong data-val2-t>${t.val2Title}</strong> — <span data-val2-p>${t.val2Text}</span></li>
-              <li><strong data-val3-t>${t.val3Title}</strong> — <span data-val3-p>${t.val3Text}</span></li>
-            </ul>
-          </div>
-
-          <div class="bdv-inst-box">
-            <h3 data-bdv-pil-h>${t.pillarsHeading}</h3>
-            <ul>
-              <li><strong data-pil1-t>${t.pil1Title}</strong> — <span data-pil1-p>${t.pil1Text}</span></li>
-              <li><strong data-pil2-t>${t.pil2Title}</strong> — <span data-pil2-p>${t.pil2Text}</span></li>
-              <li><strong data-pil3-t>${t.pil3Title}</strong> — <span data-pil3-p>${t.pil3Text}</span></li>
-            </ul>
-          </div>
+        <div class="bdv-tabs-bar" role="tablist">${markersHtml}</div>
+        <div class="bdv-folder-sheet" role="tabpanel">
+          <h3 class="bdv-folder-headline">${currentTab.headline}</h3>
+          <p class="bdv-folder-summary">${currentTab.summary}</p>
+          <ul class="bdv-folder-list">${bulletsHtml}</ul>
         </div>
       </div>
     `;
 
-    mainEl.appendChild(section);
+    cab.querySelectorAll("[data-bdv-tab-index]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeTabIndex = Number(btn.getAttribute("data-bdv-tab-index")) || 0;
+        renderCabinet(getLang());
+      });
+    });
   }
 
   function cleanFooterLinksAndApplyLegal(lang) {
     const footer = document.querySelector("footer");
     if (!footer) return;
 
-    // Remover enlaces de MERQOX y TRIVLO en el pie de página
-    const footerLinks = footer.querySelectorAll("a, span");
-    footerLinks.forEach((el) => {
+    footer.querySelectorAll("a, span").forEach((el) => {
       const txt = (el.textContent || "").trim().toUpperCase();
       if (txt === "MERQOX" || txt === "TRIVLO") {
         el.style.display = "none";
@@ -371,7 +445,6 @@
       }
     });
 
-    // Inyectar o actualizar los botones legales
     let legalBar = document.getElementById("bdv-footer-legal-links");
     if (!legalBar) {
       legalBar = document.createElement("div");
@@ -429,19 +502,25 @@
     });
   }
 
-  function loadFoundationsFromFolder() {
-    fetch("./bdv-company/foundations.json", { cache: "no-cache" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!data) return;
-        ["es", "en"].forEach((langKey) => {
-          if (data[langKey]) {
-            copy[langKey] = Object.assign({}, copy[langKey], data[langKey]);
-          }
-        });
-        syncAll();
-      })
-      .catch(() => {});
+  function loadCabinetData() {
+    Promise.all([
+      fetch("./bdv-company/cabinet-tabs.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch("./bdv-company/foundations.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+    ]).then(([cabData, foundData]) => {
+      ["es", "en"].forEach((langKey) => {
+        if (foundData && foundData[langKey]) {
+          copy[langKey] = Object.assign({}, copy[langKey], foundData[langKey]);
+        }
+        if (cabData && cabData[langKey]) {
+          copy[langKey] = Object.assign({}, copy[langKey], cabData[langKey]);
+        }
+      });
+      syncAll();
+    });
   }
 
   function syncAll() {
@@ -451,7 +530,7 @@
     applyLogo(lang);
     applyBanner(lang);
     applyProductsDrawer(lang);
-    applyFoundationsSection(lang);
+    renderCabinet(lang);
     applyLegalModals();
     cleanFooterLinksAndApplyLegal(lang);
 
@@ -483,33 +562,10 @@
       toggleLabel.textContent = isPanelOpen ? t.toggleClose : t.toggleOpen;
     }
 
-    const instPairs = [
-      ["[data-bdv-inst-kicker]", t.instKicker],
-      ["[data-bdv-inst-title]", t.instTitle],
-      ["[data-bdv-vision-h]", t.visionHeading],
-      ["[data-bdv-vision-p]", t.visionText],
-      ["[data-bdv-val-h]", t.valuesHeading],
-      ["[data-val1-t]", t.val1Title],
-      ["[data-val1-p]", t.val1Text],
-      ["[data-val2-t]", t.val2Title],
-      ["[data-val2-p]", t.val2Text],
-      ["[data-val3-t]", t.val3Title],
-      ["[data-val3-p]", t.val3Text],
-      ["[data-bdv-pil-h]", t.pillarsHeading],
-      ["[data-pil1-t]", t.pil1Title],
-      ["[data-pil1-p]", t.pil1Text],
-      ["[data-pil2-t]", t.pil2Title],
-      ["[data-pil2-p]", t.pil2Text],
-      ["[data-pil3-t]", t.pil3Title],
-      ["[data-pil3-p]", t.pil3Text],
-      ["[data-legal-terms-btn]", t.legalTermsBtn],
-      ["[data-legal-privacy-btn]", t.legalPrivacyBtn]
-    ];
-
-    instPairs.forEach(([sel, val]) => {
-      const el = document.querySelector(sel);
-      if (el) el.textContent = val;
-    });
+    const termsBtn = document.querySelector("[data-legal-terms-btn]");
+    const privBtn = document.querySelector("[data-legal-privacy-btn]");
+    if (termsBtn) termsBtn.textContent = t.legalTermsBtn;
+    if (privBtn) privBtn.textContent = t.legalPrivacyBtn;
 
     const pairs = [
       ["[data-tr-pill]", t.trPill],
@@ -544,7 +600,7 @@
 
   function init() {
     syncAll();
-    loadFoundationsFromFolder();
+    loadCabinetData();
     document.querySelectorAll("[data-set-lang]").forEach((btn) => {
       btn.addEventListener("click", () => {
         setTimeout(syncAll, 20);
