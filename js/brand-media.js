@@ -1,7 +1,7 @@
-/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker & Legal */
+/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker, Dev Flow & Legal */
 (function () {
   const BDV_ADMIN_API_URL = "https://script.google.com/macros/s/AKfycbza_9dJxLPS6zQS8KApE52HLBR_6izMwp2nnG1OlkJlp7lUai5SIRbQmS2nVCBOFwAZdg/exec";
-  const BDV_ADMIN_KEY = "BDV_MASTER_2026";
+  const BDV_DEFAULT_ADMIN_KEY = "BDV_MASTER_2026";
 
   const copy = {
     es: {
@@ -10,7 +10,7 @@
       lead: "Batista Digital Ventures diseña, lanza y hace crecer software desde cero hasta producción—uniendo estrategia de negocio, desarrollo móvil, infraestructura en la nube y ejecución enfocada en resultados.",
       ctaPrimary: "Ver Proyectos Activos",
       ctaSecondary: "Ver Qué Hacemos",
-      navCta: "Colaborar",
+      navCta: "Cotizar Proyecto",
       kicker: "IDENTIDAD OFICIAL · BATISTA DIGITAL VENTURES",
       caption: "Plataformas digitales, aplicaciones móviles y sistemas listos para crecer",
       altBanner: "Banner oficial de Batista Digital Ventures con emblema hexagonal dorado y nombre de marca",
@@ -103,7 +103,7 @@
       lead: "Batista Digital Ventures designs, builds, and scales software from concept to production—combining disciplined business economics, modern mobile engineering, cloud infrastructure, and market execution.",
       ctaPrimary: "View Active Ventures",
       ctaSecondary: "Explore Full Scope",
-      navCta: "Partner With Us",
+      navCta: "Request a Proposal",
       kicker: "OFFICIAL IDENTITY · BATISTA DIGITAL VENTURES",
       caption: "Digital platforms, mobile applications & growth systems",
       altBanner: "Official Batista Digital Ventures banner featuring gold hexagonal emblem and wordmark",
@@ -706,7 +706,8 @@
       resBox.style.display = "block";
       resBox.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Verificando credenciales...</p>`;
 
-      fetch(`${BDV_ADMIN_API_URL}?key=${BDV_ADMIN_KEY}`)
+      const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+      fetch(`${BDV_ADMIN_API_URL}?key=${encodeURIComponent(sessionKey)}`)
         .then(r => r.json())
         .then(res => {
           if (!res.ok || !res.projects) {
@@ -752,7 +753,7 @@
     });
   }
 
-  /* Admin Panel Web y Portal de Programadores Partners */
+  /* Admin Panel Web y Portal de Programadores Partners con Cambio de Claves */
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
     if (!footer || document.getElementById("bdv-admin-btn")) return;
@@ -776,16 +777,29 @@
         </div>
 
         <div id="bdv-admin-auth-view" style="margin-top: 15px;">
-          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Clave de administrador o programador partner" />
-          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder</button>
+          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa tu clave (Admin o Programador)" />
+          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
         </div>
 
         <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
             <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
-            <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻ Actualizar</button>
+            <div>
+              <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status" style="margin-right: 6px;">🔐 Cambiar Clave</button>
+              <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻</button>
+            </div>
           </div>
-          <div id="bdv-admin-projects-list">Cargando proyectos...</div>
+
+          <!-- Módulo para cambiar contraseña -->
+          <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="bdv-new-role-pass" class="bdv-tracker-input" placeholder="Nueva clave (mín. 6 letras/números)" style="flex: 1; padding: 6px 10px; font-size: 0.82rem;" />
+              <button type="button" class="bdv-admin-action-btn" onclick="submitPasswordChange()">Guardar Clave</button>
+            </div>
+          </div>
+
+          <div id="bdv-admin-projects-list" style="margin-top: 14px;">Cargando proyectos...</div>
         </div>
       </div>
     `;
@@ -812,12 +826,48 @@
     });
 
     document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
+
+    document.getElementById("bdv-toggle-key-change-btn").addEventListener("click", () => {
+      const box = document.getElementById("bdv-key-change-box");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    });
   }
+
+  window.submitPasswordChange = function () {
+    const input = document.getElementById("bdv-new-role-pass");
+    const newPass = (input ? input.value : "").trim();
+    if (!newPass || newPass.length < 6) {
+      alert("La nueva clave debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "change_my_password",
+        newPassword: newPass
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          window.__bdvSessionKey = newPass;
+          input.value = "";
+          document.getElementById("bdv-key-change-box").style.display = "none";
+          alert("✓ Tu clave ha sido actualizada exitosamente en el sistema.");
+        } else {
+          alert(res.error || "No se pudo actualizar la clave.");
+        }
+      })
+      .catch(() => alert("Error de red al actualizar la clave."));
+  };
 
   function loadAdminProjects() {
     const listEl = document.getElementById("bdv-admin-projects-list");
     const roleLabel = document.getElementById("bdv-admin-role-label");
-    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
 
     listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Consultando proyectos...</p>`;
 
@@ -917,7 +967,7 @@
   window.updateProjectPin = function (row) {
     const input = document.getElementById(`pin-input-${row}`);
     const newCode = (input ? input.value : "").trim().toUpperCase();
-    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -941,7 +991,7 @@
   };
 
   window.approveProjectProposal = function (row) {
-    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -967,7 +1017,7 @@
     const sel = document.getElementById(`stage-select-${row}`);
     const stage = Number(sel.value);
     const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
-    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
     const isAdmin = Boolean(window.__bdvIsAdmin);
     const noteInput = document.getElementById(`dev-note-${row}`);
     const notes = noteInput ? noteInput.value.trim() : "";
