@@ -1,0 +1,102 @@
+{
+  "es": {
+    "cabKicker": "ARCHIVO EJECUTIVO · BATISTA DIGITAL VENTURES LLC",
+    "cabTitle": "Explora por pestaña sin desplazarte de más",
+    "tabs": [
+      {
+        "id": "trust",
+        "label": "Confianza y Respaldo",
+        "headline": "Ejecución real, acuerdos claros y productos con historia.",
+        "summary": "Operamos bajo Batista Digital Ventures LLC en Lompoc, California, combinando criterio de negocio, desarrollo web y móvil, y procesos por hitos sin promesas infladas.",
+        "bullets": [
+          "<strong>Para clientes:</strong> Alcance por escrito (SOW), hitos claros, entrega limpia y transparencia total en costos.",
+          "<strong>Para programadores partners:</strong> Contratos claros, reparto sobre ingreso neto cobrado y protección de código y clientes.",
+          "<strong>Ecosistema activo:</strong> Desarrollo y soporte en TRIVLO, MERQOX y GY Roadside Solutions."
+        ]
+      },
+      {
+        "id": "foundations",
+        "label": "Visión y Pilares",
+        "headline": "Visión, Valores y Pilares de Batista Digital Ventures LLC",
+        "summary": "Una estructura diseñada para construir software útil y duradero sin enredos ni improvisación.",
+        "bullets": [
+          "<strong>Visión:</strong> Consolidar un venture studio ágil, honesto y sólido en arquitectura y ejecución.",
+          "<strong>Valores:</strong> Verdad operativa, disciplina de capital y código, y acuerdos transparentes.",
+          "<strong>Pilares:</strong> Ingeniería móvil y web, ecosistema propio y alianzas con reglas claras."
+        ]
+      },
+      {
+        "id": "pricing",
+        "label": "Proceso y Precios",
+        "headline": "Del primer mensaje al lanzamiento, con escalones accesibles.",
+        "summary": "Estructuramos proyectos por etapas para que personas comunes con aspiraciones y negocios reales puedan avanzar sin comprometer la calidad.",
+        "bullets": [
+          "<strong>Flujo:</strong> Solicitud y filtro → Alcance (SOW) y anticipo → Hitos y pruebas → Liquidación y entrega.",
+          "<strong>Escalones orientativos:</strong> Web base/MVP ($450–$850), Web dinámica por fases ($1,200–$2,800+), App móvil por hitos ($2,500–$5,000+).",
+          "<strong>Soporte opcional:</strong> Mantenimiento y mejoras mensuales ($180–$450/mes) tras el lanzamiento."
+        ]
+      },
+      {
+        "id": "partners",
+        "label": "Partners y Legal",
+        "headline": "Colaboración con programadores y respaldo legal bajo la LLC.",
+        "summary": "Cada colaboración se formaliza por escrito bajo las leyes de California para proteger el trabajo de todos.",
+        "bullets": [
+          "<strong>Reparto sobre neto cobrado:</strong> 50%–60% al partner si la LLC aporta el cliente; 70%–80% al partner si aporta el cliente.",
+          "<strong>Reglas clave:</strong> Contratista independiente, pago condicionado a cobro efectivo y cesión de propiedad intelectual al liquidar.",
+          "<strong>Documentación:</strong> Términos de Servicio y Política de Privacidad disponibles en todo momento."
+        ]
+      }
+    ]
+  },
+  "en": {
+    "cabKicker": "EXECUTIVE CABINET · BATISTA DIGITAL VENTURES LLC",
+    "cabTitle": "Switch tabs cleanly without endless scrolling",
+    "tabs": [
+      {
+        "id": "trust",
+        "label": "Trust & Track Record",
+        "headline": "Disciplined execution, clear agreements, and real product momentum.",
+        "summary": "Operating under Batista Digital Ventures LLC in Lompoc, California—uniting practical business economics, web and mobile engineering, and milestone-based delivery.",
+        "bullets": [
+          "<strong>For clients:</strong> Written scope (SOW), clear milestones, clean handoff, and no hidden surprises.",
+          "<strong>For partner developers:</strong> Written agreements, revenue share on collected net funds, and clear IP/client protection.",
+          "<strong>Active ecosystem:</strong> Ongoing work across TRIVLO, MERQOX, and GY Roadside Solutions."
+        ]
+      },
+      {
+        "id": "foundations",
+        "label": "Vision & Pillars",
+        "headline": "Vision, Values & Pillars of Batista Digital Ventures LLC",
+        "summary": "Built for clarity, lean engineering, and durable outcomes rather than vanity complexity.",
+        "bullets": [
+          "<strong>Vision:</strong> Build a trusted venture studio known for speed, engineering reliability, and straight talk.",
+          "<strong>Values:</strong> Operational truth, capital and code discipline, and transparent agreements.",
+          "<strong>Pillars:</strong> Mobile and web architecture, proprietary products, and structured partnerships."
+        ]
+      },
+      {
+        "id": "pricing",
+        "label": "Process & Pricing",
+        "headline": "From initial inquiry to launch, with accessible entry tiers.",
+        "summary": "Phased delivery helps ambitious founders and everyday businesses start smart without sacrificing solid engineering.",
+        "bullets": [
+          "<strong>Workflow:</strong> Inquiry & fit check → Written SOW & deposit → Milestones & QA → Final balance & handoff.",
+          "<strong>Reference tiers:</strong> Starter/MVP web ($450–$850), Phased dynamic web ($1,200–$2,800+), Milestone mobile app ($2,500–$5,000+).",
+          "<strong>Optional care:</strong> Monthly maintenance and updates ($180–$450/mo) after launch."
+        ]
+      },
+      {
+        "id": "partners",
+        "label": "Partners & Legal",
+        "headline": "Partner developer model and LLC legal guardrails.",
+        "summary": "Every engagement is documented in writing under California law so expectations stay clear from day one.",
+        "bullets": [
+          "<strong>Net collected split:</strong> 50%–60% to partner when LLC brings the client; 70%–80% when partner brings the client.",
+          "<strong>Core guardrails:</strong> Independent contractor status, paid-when-paid trigger, and IP transfer upon full settlement.",
+          "<strong>Legal policies:</strong> Terms of Service and Privacy Policy accessible anytime."
+        ]
+      }
+    ]
+  }
+}
