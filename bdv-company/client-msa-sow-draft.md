@@ -1,4 +1,50 @@
-# MASTER SERVICES AGREEMENT & STATEMENT OF WORK (SOW)
+# MASTER SERVICES AGREEMENT & STATEMENT OF WORK (ENGLISH VERSION)
+**BATISTA DIGITAL VENTURES LLC**
+
+This Master Services Agreement & Statement of Work (the "Agreement") governs the provision of software engineering, UI/UX design, platform maintenance, and technical consulting services between:
+
+- **Provider:** **Batista Digital Ventures LLC**, a California limited liability company, with its principal office in Lompoc, California ("Company").
+- **Client:** The individual or business entity identified in the attached Statement of Work ("Client").
+
+---
+
+### 1. Statement of Work (SOW) & Scope
+- **1.1. Strict Scope Definition:** Specific project deliverables, technical architectures, and target schedules are governed solely by the mutually executed Statement of Work (SOW).
+- **1.2. Change Orders:** Any requests for additional features, layout redesigns, or third-party integrations outside the approved SOW require a formal written Change Order with separate pricing before engineering begins.
+
+---
+
+### 2. Payment Terms, Milestone Billing & Advance Deposits
+- **2.1. Mandatory Advance Deposit:** No engineering, design, or architecture work shall commence without prior receipt and clearance of the initial non-refundable deposit (minimum 25% to 50% as specified in the SOW).
+- **2.2. Non-Refundable Milestone Payments:** Progress payments cover committed engineering hours, server resources, and deliverables completed to date, and are non-refundable.
+- **2.3. 100% Full Settlement Before Production Release:** The remaining balance must be paid in full and cleared into Company’s bank account prior to master administrative handoff, source code repository transfer, or deployment to production domains and native App Store / Google Play listings.
+
+---
+
+### 3. Inspection Window & Deemed Acceptance
+- **3.1. Review Window:** Client has a strict inspection window of **five (5) business days** following formal notification of milestone completion or staging deployment to submit substantiated, written technical feedback aligned with the SOW.
+- **3.2. Deemed Acceptance:** In the absence of written objections within this 5-day window, deliverables are deemed fully and irrevocably accepted for all contractual and billing purposes.
+
+---
+
+### 4. Intellectual Property & Reservation of Title
+- **4.1. Conditional Transfer:** All custom intellectual property developed specifically for Client transfers exclusively upon 100% full and final payment of all invoiced fees.
+- **4.2. Proprietary Assets:** Company retains sole ownership of its pre-existing core frameworks, boilerplate code, internal design libraries, automation scripts, and reusable engineering assets.
+
+---
+
+### 5. Limitation of Liability
+- **5.1. Monetary Cap:** The total aggregate liability of Batista Digital Ventures LLC arising out of or related to this Agreement or delivered software shall not exceed the total net fees actually paid by Client to Company for the specific disputed project.
+- **5.2. Exclusion of Consequential Damages:** Under no circumstances shall Company be liable for lost profits, business disruption, loss of data, or indirect damages.
+
+---
+
+### 6. Governing Law & Dispute Resolution
+This Agreement is governed by the laws of the State of California. Any disputes arising from this Agreement shall be litigated exclusively in the state or federal courts located in Santa Barbara County, California.
+
+---
+
+# MASTER SERVICES AGREEMENT & STATEMENT OF WORK (SOW) (SPANISH VERSION)
 **BATISTA DIGITAL VENTURES LLC**
 
 Este Acuerdo de Prestación de Servicios Tecnológicos (el "Acuerdo") regula la contratación de servicios de diseño, desarrollo de software, mantenimiento y consultoría técnica celebrado entre:
