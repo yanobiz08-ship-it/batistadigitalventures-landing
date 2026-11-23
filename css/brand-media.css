@@ -566,3 +566,63 @@ footer {
     overflow: hidden;
   }
 }
+
+/* Barra de progreso de etapas dentro del folder */
+.bdv-progress-box {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(212, 175, 55, 0.28);
+}
+
+.bdv-progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  color: #e8c861;
+  font-weight: 700;
+}
+
+.bdv-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.bdv-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #f3d678);
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.bdv-stage-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.bdv-stage-pill-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #131c2e;
+  color: #cbd5e1;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bdv-stage-pill-btn.is-active {
+  background: rgba(212, 175, 55, 0.22);
+  color: #f8fafc;
+  border-color: #e8c861;
+}
