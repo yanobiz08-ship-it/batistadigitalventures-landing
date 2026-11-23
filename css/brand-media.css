@@ -228,3 +228,45 @@ footer,
     border-radius: 12px !important;
   }
 }
+/* Oculta la cuadricula original fija para mostrar productos solo al abrir el boton */
+#ventures > .container > .ventures-grid {
+  display: none !important;
+}
+
+/* Boton y panel desplegable de productos */
+.bdv-products-drawer-wrap {
+  margin-top: 22px;
+  width: 100%;
+}
+
+.bdv-products-toggle-btn {
+  width: 100%;
+  min-height: 50px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 175, 55, 0.65) !important;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(13, 18, 29, 0.98)) !important;
+  color: #f8fafc !important;
+  font-weight: 700;
+  font-size: 0.94rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.bdv-products-panel {
+  margin-top: 16px;
+  display: none !important;
+}
+
+.bdv-products-panel.is-open {
+  display: block !important;
+}
+
+.bdv-products-panel .ventures-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
