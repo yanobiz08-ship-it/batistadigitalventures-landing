@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact & Legal */
+/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker & Legal */
 (function () {
   const copy = {
     es: {
@@ -39,6 +39,7 @@
 
       cabKicker: "ARCHIVO EJECUTIVO · BATISTA DIGITAL VENTURES LLC",
       cabTitle: "Explora por pestaña sin desplazarte de más",
+      trackerBtnLabel: "🔑 Consultar Mi Proyecto (Solo Lectura)",
       tabs: [
         {
           id: "trust",
@@ -66,11 +67,11 @@
           id: "pricing",
           label: "Proceso y Precios",
           headline: "6 etapas de principio a fin, escalones accesibles y barra de progreso.",
-          summary: "Cada encargo avanza en orden lógico (10% → 25% → 45% → 75% → 90% → 100%) con notificación automática al cliente y a Batista Digital Ventures LLC en cada cambio.",
+          summary: "Cada encargo avanza en orden lógico (10% → 25% → 45% → 75% → 90% → 100%) con código secreto de seguimiento en Etapa 2 y notificación dual automática.",
           bullets: [
-            "<strong>Etapas 1–2 (10%–25%):</strong> Recepción y filtro → Firma de SOW, anticipo y asignación/toma de trabajo.",
+            "<strong>Etapas 1–2 (10%–25%):</strong> Recepción y filtro → SOW, depósito y activación de código secreto temporal.",
             "<strong>Etapas 3–5 (45%–90%):</strong> Arquitectura base → Construcción y pruebas QA → Revisión del cliente (5 días hábiles).",
-            "<strong>Etapa 6 y Precios (100%):</strong> Liquidación y entrega. Web base/MVP ($450–$850), Web dinámica ($1,200–$2,800+), App por hitos ($2,500–$5,000+), Mantenimiento ($180–$450/mes)."
+            "<strong>Etapa 6 y Precios (100%):</strong> Liquidación final y entrega. El código secreto expira (no incluye mantenimiento). Web base/MVP ($450–$850), Web dinámica ($1,200–$2,800+), App por hitos ($2,500–$5,000+), Póliza mensual ($180–$450/mes)."
           ]
         },
         {
@@ -131,6 +132,7 @@
 
       cabKicker: "EXECUTIVE CABINET · BATISTA DIGITAL VENTURES LLC",
       cabTitle: "Switch tabs cleanly without endless scrolling",
+      trackerBtnLabel: "🔑 Track My Project (Read-Only)",
       tabs: [
         {
           id: "trust",
@@ -158,11 +160,11 @@
           id: "pricing",
           label: "Process & Pricing",
           headline: "6 end-to-end stages, accessible tiers, and automated progress alerts.",
-          summary: "Every project follows a sequential path (10% → 25% → 45% → 75% → 90% → 100%) with automatic notifications to both the client and Batista Digital Ventures LLC on stage updates.",
+          summary: "Every project follows a sequential path (10% → 25% → 45% → 75% → 90% → 100%) with a Stage 2 secret tracker code and automated dual alerts.",
           bullets: [
-            "<strong>Stages 1–2 (10%–25%):</strong> Intake & scope fit → SOW execution, deposit & partner dispatch.",
+            "<strong>Stages 1–2 (10%–25%):</strong> Intake & scope fit → SOW execution, deposit & temporary secret PIN issuance.",
             "<strong>Stages 3–5 (45%–90%):</strong> Architecture setup → Core build & QA → Client review (5 business days).",
-            "<strong>Stage 6 & Tiers (100%):</strong> Final settlement & handoff. Starter/MVP web ($450–$850), Dynamic web ($1,200–$2,800+), Milestone app ($2,500–$5,000+), Care ($180–$450/mo)."
+            "<strong>Stage 6 & Tiers (100%):</strong> Final settlement & release. Secret PIN expires (maintenance not included). Starter/MVP web ($450–$850), Dynamic web ($1,200–$2,800+), Milestone app ($2,500–$5,000+), Monthly care ($180–$450/mo)."
           ]
         },
         {
@@ -191,12 +193,12 @@
   let activeTabIndex = 0;
   let activeStageIndex = 0;
   let workflowStages = [
-    { stage: 1, percentage: 10, name_es: "Recepción y Filtro de Alcance", name_en: "Intake & Scope Fit Assessment" },
-    { stage: 2, percentage: 25, name_es: "Firma de SOW, Depósito y Asignación", name_en: "SOW Execution, Deposit & Partner Dispatch" },
-    { stage: 3, percentage: 45, name_es: "Arquitectura y Entorno Base", name_en: "System Architecture & Base Setup" },
-    { stage: 4, percentage: 75, name_es: "Construcción y Auditoría Técnica Interna", name_en: "Core Engineering & Internal QA" },
-    { stage: 5, percentage: 90, name_es: "Inspección de Entrega y Ventana de Revisión", name_en: "Client Inspection & Review Window" },
-    { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Despliegue", name_en: "Final Settlement, Handoff & Release" }
+    { stage: 1, percentage: 10, name_es: "Recepción y Filtro de Alcance", name_en: "Intake & Scope Fit Assessment", financial_trigger_es: "Sin costo · Diagnóstico inicial", financial_trigger_en: "No cost · Intake check" },
+    { stage: 2, percentage: 25, name_es: "Firma de SOW, Depósito y Activación de Código Secreto", name_en: "SOW Execution, Deposit & Secret Code Issuance", financial_trigger_es: "Depósito inicial liquidado (25%–50%) → Emisión de PIN temporal", financial_trigger_en: "Deposit cleared (25%–50%) → Temporary access PIN issued" },
+    { stage: 3, percentage: 45, name_es: "Arquitectura y Entorno Base", name_en: "System Architecture & Base Setup", financial_trigger_es: "En desarrollo · Cubierto por anticipo", financial_trigger_en: "In progress · Covered by deposit" },
+    { stage: 4, percentage: 75, name_es: "Construcción y Auditoría Técnica Interna", name_en: "Core Engineering & Internal QA", financial_trigger_es: "Próximo vencimiento: Saldo final para entrega", financial_trigger_en: "Next due: Final balance prior to release" },
+    { stage: 5, percentage: 90, name_es: "Inspección de Entrega y Ventana de Revisión", name_en: "Client Inspection & Review Window", financial_trigger_es: "Ventana de 5 días activa · 100% requerido para despliegue", financial_trigger_en: "5-day window open · 100% required for deployment" },
+    { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Expiración de Acceso", name_en: "Final Settlement, Handoff & Portal Disablement", financial_trigger_es: "100% liquidado · Acceso temporal cerrado (no incluye mantenimiento)", financial_trigger_en: "100% settled · Temporary tracker disabled (maintenance not included)" }
   ];
 
   /* =========================================================
@@ -480,6 +482,11 @@
             <div class="bdv-progress-fill" style="width: ${st.percentage}%;"></div>
           </div>
           <div class="bdv-stage-pills">${pillsHtml}</div>
+          <div style="margin-top: 14px;">
+            <button type="button" id="bdv-open-tracker-btn" class="bdv-tracker-launch-btn">
+              ${t.trackerBtnLabel || "🔑 Consultar Mi Proyecto (Solo Lectura)"}
+            </button>
+          </div>
         </div>
       `;
     }
@@ -518,6 +525,14 @@
         renderCabinet(getLang());
       });
     });
+
+    const openTrackerBtn = cab.querySelector("#bdv-open-tracker-btn");
+    if (openTrackerBtn) {
+      openTrackerBtn.addEventListener("click", () => {
+        const modal = document.getElementById("bdv-tracker-modal-root");
+        if (modal) modal.style.display = "flex";
+      });
+    }
   }
 
   function applyCompactHowWeOperate(lang) {
@@ -638,6 +653,89 @@
     });
   }
 
+  /* =========================================================
+     MODAL DE VISOR DE PROYECTO CLIENTE (SOLO LECTURA)
+     ========================================================= */
+  function applyClientTrackerModal() {
+    if (document.getElementById("bdv-tracker-modal-root")) return;
+
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "bdv-tracker-modal-root";
+    modalRoot.className = "bdv-modal-overlay";
+    modalRoot.style.display = "none";
+
+    modalRoot.innerHTML = `
+      <div class="bdv-tracker-card">
+        <div class="bdv-modal-top">
+          <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">Visor de Progreso · BDV LLC</h3>
+          <button type="button" id="bdv-tracker-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+        </div>
+        <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;">
+          Acceso de solo lectura mediante tu correo y el código secreto temporal asignado al liquidar el depósito.
+        </p>
+        <form id="bdv-tracker-query-form" class="bdv-tracker-form">
+          <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="tu-correo@empresa.com" required />
+          <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="Código secreto (ej. BDV-7492)" required />
+          <button type="submit" class="bdv-tracker-btn">Consultar Avance</button>
+        </form>
+        <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result"></div>
+        <p class="bdv-tracker-disclaimer">
+          * Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
+        </p>
+      </div>
+    `;
+    document.body.appendChild(modalRoot);
+
+    document.getElementById("bdv-tracker-close-btn").addEventListener("click", () => {
+      modalRoot.style.display = "none";
+    });
+
+    modalRoot.addEventListener("click", (e) => {
+      if (e.target === modalRoot) modalRoot.style.display = "none";
+    });
+
+    const form = document.getElementById("bdv-tracker-query-form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = (document.getElementById("bdv-track-email").value || "").trim().toLowerCase();
+      const pin = (document.getElementById("bdv-track-pin").value || "").trim().toUpperCase();
+      const resBox = document.getElementById("bdv-track-result-box");
+      const lang = getLang();
+
+      if (!email || !pin) return;
+
+      // Simulación de comprobación de código secreto temporal
+      // Si el PIN incluye "DEMO", simula proyecto activo en Etapa 4
+      resBox.style.display = "block";
+      if (pin.includes("DEMO") || pin.startsWith("BDV-")) {
+        const isSettled = pin.includes("100");
+        if (isSettled) {
+          resBox.innerHTML = `
+            <span class="bdv-tracker-status-tag bdv-status-disabled">Acceso Expirado / Inhabilitado</span>
+            <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Proyecto Liquidado al 100%</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0;">El software fue entregado y las credenciales maestras fueron traspasadas. El visor temporal ha concluido. Para soporte técnico continuo, contacte una póliza mensual.</p>
+          `;
+        } else {
+          resBox.innerHTML = `
+            <span class="bdv-tracker-status-tag bdv-status-active">Acceso Activo · Obra en Progreso</span>
+            <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Etapa 4/6: Construcción y QA Interno (75%)</h4>
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Hito Activo:</strong> Módulos funcionales en staging.</p>
+            <p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Semáforo Financiero:</strong> Anticipo liquidado (25%). Saldo final pendiente de cobro previo al despliegue en producción (Etapa 6).</p>
+            <div class="bdv-progress-track" style="margin-top: 8px;">
+              <div class="bdv-progress-fill" style="width: 75%;"></div>
+            </div>
+          `;
+        }
+      } else {
+        resBox.innerHTML = `
+          <p style="font-size: 0.82rem; color: #f87171; margin: 0;">
+            ${lang === "en" ? "Credentials not found or expired. Check your welcome email or contact management." : "Credenciales no encontradas o expiradas. Revisa tu correo de bienvenida o contacta a soporte."}
+          </p>
+        `;
+      }
+    });
+  }
+
   function loadCabinetData() {
     Promise.all([
       fetch("./bdv-company/cabinet-tabs.json", { cache: "no-cache" })
@@ -675,6 +773,7 @@
     renderCabinet(lang);
     applyCompactHowWeOperate(lang);
     applyLegalModals();
+    applyClientTrackerModal();
     cleanFooterLinksAndApplyLegal(lang);
 
     const eyebrow = document.querySelector(".eyebrow");
