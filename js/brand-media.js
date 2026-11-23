@@ -752,7 +752,7 @@
     });
   }
 
-  /* Admin Panel Web (Gestión Interna de Proyectos) */
+  /* Admin Panel Web y Portal de Programadores Partners */
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
     if (!footer || document.getElementById("bdv-admin-btn")) return;
@@ -760,7 +760,7 @@
     const adminLink = document.createElement("div");
     adminLink.style.textAlign = "center";
     adminLink.style.marginTop = "15px";
-    adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn">⚙ Panel Admin</button>`;
+    adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn">⚙ Panel Admin / Dev</button>`;
     (footer.querySelector(".container") || footer).appendChild(adminLink);
 
     const modalRoot = document.createElement("div");
@@ -771,18 +771,18 @@
     modalRoot.innerHTML = `
       <div class="bdv-admin-card">
         <div class="bdv-modal-top">
-          <h3 style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Admin Panel · BDV LLC</h3>
+          <h3 id="bdv-admin-modal-title" style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Control Operativo · BDV LLC</h3>
           <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>
         </div>
 
         <div id="bdv-admin-auth-view" style="margin-top: 15px;">
-          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa clave de administrador" />
-          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
+          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Clave de administrador o programador partner" />
+          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder</button>
         </div>
 
         <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-            <h4 style="margin: 0; font-size: 0.95rem;">Proyectos en Curso</h4>
+            <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
             <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻ Actualizar</button>
           </div>
           <div id="bdv-admin-projects-list">Cargando proyectos...</div>
@@ -800,14 +800,15 @@
     });
 
     document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
-      const pass = document.getElementById("bdv-admin-pass").value;
-      if (pass === BDV_ADMIN_KEY) {
-        document.getElementById("bdv-admin-auth-view").style.display = "none";
-        document.getElementById("bdv-admin-dash-view").style.display = "block";
-        loadAdminProjects();
-      } else {
-        alert("Clave de administrador incorrecta.");
+      const pass = (document.getElementById("bdv-admin-pass").value || "").trim();
+      if (!pass) {
+        alert("Ingresa tu clave de acceso.");
+        return;
       }
+      window.__bdvSessionKey = pass;
+      document.getElementById("bdv-admin-auth-view").style.display = "none";
+      document.getElementById("bdv-admin-dash-view").style.display = "block";
+      loadAdminProjects();
     });
 
     document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
@@ -815,78 +816,196 @@
 
   function loadAdminProjects() {
     const listEl = document.getElementById("bdv-admin-projects-list");
+    const roleLabel = document.getElementById("bdv-admin-role-label");
+    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+
     listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Consultando proyectos...</p>`;
 
-    fetch(`${BDV_ADMIN_API_URL}?key=${BDV_ADMIN_KEY}`)
+    fetch(`${BDV_ADMIN_API_URL}?key=${encodeURIComponent(sessionKey)}`)
       .then(r => r.json())
       .then(res => {
-        if (!res.ok || !res.projects || !res.projects.length) {
-          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos activos registrados en la hoja Projects.</p>`;
+        if (!res.ok) {
+          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #f87171;">Clave no válida o sin permiso.</p>`;
           return;
         }
 
-        listEl.innerHTML = res.projects.map(p => `
-          <div class="bdv-admin-project-item" data-row="${p.row}">
-            <div class="bdv-admin-grid-row">
-              <div>
-                <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
-                <span style="font-size: 0.75rem; color: #94a3b8;">(${p.id})</span>
-                <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
-                  Email: ${p.email} | PIN: <span style="color: #e8c861; font-weight: 700;">${p.code}</span>
+        const isAdmin = res.role === "admin";
+        window.__bdvIsAdmin = isAdmin;
+        if (roleLabel) {
+          roleLabel.textContent = isAdmin
+            ? "Admin · Control de Etapas, PINs y Aprobaciones"
+            : "Programador Partner · Reporte para Revisión y Confirmación";
+        }
+
+        if (!res.projects || !res.projects.length) {
+          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos registrados en la hoja Projects.</p>`;
+          return;
+        }
+
+        listEl.innerHTML = res.projects.map(p => {
+          let proposalObj = null;
+          if (p.pendingProposal) {
+            try { proposalObj = JSON.parse(p.pendingProposal); } catch (e) { proposalObj = null; }
+          }
+
+          const proposalBanner = proposalObj
+            ? `<div style="margin-top: 10px; padding: 10px; border-radius: 8px; background: rgba(212, 175, 55, 0.12); border: 1px solid rgba(212, 175, 55, 0.45); font-size: 0.78rem;">
+                 <strong style="color: #e8c861;">Propuesta de ${proposalObj.devName || "Partner"}:</strong> Etapa ${proposalObj.stage}/6
+                 ${proposalObj.notes ? `<div style="color: #e2e8f0; margin-top: 4px;">Nota: ${proposalObj.notes}</div>` : ""}
+                 ${isAdmin
+                   ? `<button type="button" class="bdv-admin-action-btn" style="margin-top: 8px;" onclick="approveProjectProposal(${p.row})">✓ Confirmar Avance y Notificar</button>`
+                   : `<div style="color: #cbd5e1; margin-top: 4px;">Estado: Enviado a revisión del administrador.</div>`
+                 }
+               </div>`
+            : "";
+
+          const adminPinBox = isAdmin
+            ? `<div class="bdv-admin-grid-row" style="margin-top: 10px;">
+                 <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 170px; padding: 6px 10px; font-size: 0.8rem;" value="${p.code}" placeholder="Nuevo PIN (ej. BDV-5521)" />
+                 <button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(${p.row})">Cambiar PIN</button>
+               </div>`
+            : "";
+
+          const devNotesInput = !isAdmin
+            ? `<input type="text" id="dev-note-${p.row}" class="bdv-tracker-input" style="width: 100%; margin-top: 8px; padding: 6px 10px; font-size: 0.8rem;" placeholder="Resumen de lo avanzado para revisión del admin..." />`
+            : "";
+
+          const primaryBtnText = isAdmin ? "Guardar y Notificar" : "Enviar a Revisión";
+
+          return `
+            <div class="bdv-admin-project-item" data-row="${p.row}">
+              <div class="bdv-admin-grid-row">
+                <div>
+                  <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
+                  <span style="font-size: 0.75rem; color: #94a3b8;">(${p.id})</span>
+                  <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
+                    ${isAdmin ? `Email: ${p.email} | ` : ""}PIN: <span style="color: #e8c861; font-weight: 700;">${p.code}</span>
+                  </div>
                 </div>
+                <span class="bdv-tracker-status-tag ${p.accessStatus === 'ACTIVE' ? 'bdv-status-active' : 'bdv-status-disabled'}">
+                  ${p.accessStatus}
+                </span>
               </div>
-              <span class="bdv-tracker-status-tag ${p.accessStatus === 'ACTIVE' ? 'bdv-status-active' : 'bdv-status-disabled'}">
-                ${p.accessStatus}
-              </span>
-            </div>
 
-            <div class="bdv-admin-grid-row" style="margin-top: 10px;">
-              <select class="bdv-admin-select" id="stage-select-${p.row}">
-                <option value="1" ${p.stage === 1 ? 'selected' : ''}>1. Intake (10%)</option>
-                <option value="2" ${p.stage === 2 ? 'selected' : ''}>2. SOW & PIN (25%)</option>
-                <option value="3" ${p.stage === 3 ? 'selected' : ''}>3. Arquitectura (45%)</option>
-                <option value="4" ${p.stage === 4 ? 'selected' : ''}>4. Core & QA (75%)</option>
-                <option value="5" ${p.stage === 5 ? 'selected' : ''}>5. Revisión (90%)</option>
-                <option value="6" ${p.stage === 6 ? 'selected' : ''}>6. Release 100% (Disable)</option>
-              </select>
+              ${adminPinBox}
+              ${proposalBanner}
+              ${devNotesInput}
 
-              <button type="button" class="bdv-admin-action-btn" onclick="updateProjectStage(${p.row})">
-                Guardar y Notificar
-              </button>
+              <div class="bdv-admin-grid-row" style="margin-top: 10px;">
+                <select class="bdv-admin-select" id="stage-select-${p.row}">
+                  <option value="1" ${p.stage === 1 ? 'selected' : ''}>1. Intake (10%)</option>
+                  <option value="2" ${p.stage === 2 ? 'selected' : ''}>2. SOW & PIN (25%)</option>
+                  <option value="3" ${p.stage === 3 ? 'selected' : ''}>3. Arquitectura (45%)</option>
+                  <option value="4" ${p.stage === 4 ? 'selected' : ''}>4. Core & QA (75%)</option>
+                  <option value="5" ${p.stage === 5 ? 'selected' : ''}>5. Revisión (90%)</option>
+                  <option value="6" ${p.stage === 6 ? 'selected' : ''}>6. Release 100% (Disable)</option>
+                </select>
+
+                <button type="button" class="bdv-admin-action-btn" onclick="updateProjectStage(${p.row})">
+                  ${primaryBtnText}
+                </button>
+              </div>
             </div>
-          </div>
-        `).join("");
+          `;
+        }).join("");
       })
       .catch(() => {
         listEl.innerHTML = `<p style="font-size: 0.8rem; color: #f87171;">Error al conectar con la API de proyectos.</p>`;
       });
   }
 
-  window.updateProjectStage = function (row) {
-    const sel = document.getElementById(`stage-select-${row}`);
-    const stage = Number(sel.value);
-    const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
-
-    sel.disabled = true;
+  window.updateProjectPin = function (row) {
+    const input = document.getElementById(`pin-input-${row}`);
+    const newCode = (input ? input.value : "").trim().toUpperCase();
+    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
       body: JSON.stringify({
-        key: BDV_ADMIN_KEY,
-        action: "update",
+        key: sessionKey,
+        action: "update_pin",
         row: row,
-        stage: stage,
-        accessStatus: accessStatus
+        code: newCode
       })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          alert(`PIN actualizado a ${res.code}.`);
+          loadAdminProjects();
+        } else {
+          alert(res.error || "No se pudo cambiar el PIN.");
+        }
+      })
+      .catch(() => alert("Error de red al cambiar el PIN."));
+  };
+
+  window.approveProjectProposal = function (row) {
+    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "approve_proposal",
+        row: row
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          alert(`Avance confirmado (Etapa ${res.stage}/6) y notificaciones enviadas.`);
+          loadAdminProjects();
+        } else {
+          alert(res.error || "No se pudo confirmar la propuesta.");
+        }
+      })
+      .catch(() => alert("Error de red al confirmar la propuesta."));
+  };
+
+  window.updateProjectStage = function (row) {
+    const sel = document.getElementById(`stage-select-${row}`);
+    const stage = Number(sel.value);
+    const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
+    const sessionKey = window.__bdvSessionKey || BDV_ADMIN_KEY;
+    const isAdmin = Boolean(window.__bdvIsAdmin);
+    const noteInput = document.getElementById(`dev-note-${row}`);
+    const notes = noteInput ? noteInput.value.trim() : "";
+
+    sel.disabled = true;
+
+    const payload = isAdmin
+      ? {
+          key: sessionKey,
+          action: "update",
+          row: row,
+          stage: stage,
+          accessStatus: accessStatus
+        }
+      : {
+          key: sessionKey,
+          action: "propose",
+          row: row,
+          stage: stage,
+          notes: notes
+        };
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
     })
       .then(r => r.json())
       .then(res => {
         sel.disabled = false;
         if (res.ok) {
-          alert(`Etapa actualizada a ${stage}/6. Correos enviados automáticamente.`);
+          alert(
+            isAdmin
+              ? `Etapa actualizada a ${stage}/6. Correos enviados automáticamente.`
+              : `Avance enviado a revisión del administrador para confirmación.`
+          );
           loadAdminProjects();
         } else {
-          alert("Error al actualizar la etapa.");
+          alert(res.error || "Error al procesar la solicitud.");
         }
       })
       .catch(() => {
