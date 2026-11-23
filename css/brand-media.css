@@ -130,20 +130,20 @@ body {
 @media (max-width: 820px) {
   .nav-inner {
     min-height: 62px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
+    flex-wrap: nowrap;
   }
 
   .brand {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
     min-width: 0;
-    flex: 1 1 190px;
+    flex: 1 1 auto;
   }
 
   .brand-text {
@@ -154,7 +154,7 @@ body {
   }
 
   .brand-name {
-    font-size: 0.84rem;
+    font-size: 0.78rem;
     line-height: 1.15;
     white-space: normal;
     overflow: visible;
@@ -162,9 +162,9 @@ body {
   }
 
   .brand-sub {
-    font-size: 0.58rem;
+    font-size: 0.54rem;
     line-height: 1.2;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     color: #e8c861;
     white-space: normal;
     overflow: visible;
@@ -174,23 +174,29 @@ body {
   .nav-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-shrink: 0;
   }
 
   .lang-btn {
-    padding: 5px 7px;
-    font-size: 0.68rem;
+    padding: 4px 6px;
+    font-size: 0.66rem;
   }
 
-  .nav-actions .btn,
-  .nav-actions a.btn,
-  .nav-actions button.btn {
-    padding: 6px 10px;
-    font-size: 0.72rem;
-    min-height: 32px;
-    width: auto;
-    border-radius: 10px;
+  header .nav-actions .btn,
+  header .nav-actions a.btn,
+  header .nav-actions button.btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 6px 8px !important;
+    font-size: 0.66rem !important;
+    min-height: 30px !important;
+    width: auto !important;
+    max-width: none !important;
+    border-radius: 9px !important;
+    white-space: nowrap !important;
+    line-height: 1.1 !important;
   }
 
   /* Evita que grids o filas internas estiren mas alla del ancho del iPhone */
