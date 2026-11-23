@@ -1,42 +1,57 @@
-/* Batista Digital Ventures - App-Native Mobile & High-End Polish */
+/* Batista Digital Ventures - Ajuste móvil tipo app y bloqueo de desborde */
+html,
+body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
 
-/* 1. Header estilo App Bar */
-@media (max-width: 768px) {
+main,
+section,
+header,
+footer,
+.container {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 820px) {
   header {
-    background: rgba(7, 10, 16, 0.94) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.25) !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 100 !important;
+    background: rgba(7, 10, 16, 0.95) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.28) !important;
   }
 
   .nav-inner {
-    min-height: 64px !important;
-    padding: 0 16px !important;
+    min-height: 62px !important;
+    padding: 8px 14px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     gap: 8px !important;
+    flex-wrap: nowrap !important;
   }
 
   .brand {
-    gap: 10px !important;
     display: flex !important;
     align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
   }
 
   .brand-icon-wrap {
     width: 44px !important;
     height: 44px !important;
+    min-width: 44px !important;
     border-radius: 12px !important;
-    border: 1px solid rgba(232, 200, 97, 0.7) !important;
-    background: #0d121d !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6) !important;
-    flex-shrink: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
+    border: 1px solid rgba(232, 200, 97, 0.72) !important;
+    background: #0d121d !important;
   }
 
   .bdv-header-logo-img {
@@ -50,77 +65,73 @@
     display: flex !important;
     flex-direction: column !important;
     gap: 2px !important;
+    min-width: 0 !important;
   }
 
   .brand-name {
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.01em !important;
+    font-size: 0.92rem !important;
+    line-height: 1.15 !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   .brand-sub {
-    font-size: 0.62rem !important;
-    letter-spacing: 0.12em !important;
+    font-size: 0.6rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.08em !important;
     color: #e8c861 !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   .nav-actions {
     display: flex !important;
     align-items: center !important;
-    gap: 8px !important;
+    gap: 6px !important;
     flex-shrink: 0 !important;
   }
 
   .lang-switch {
     padding: 2px !important;
-    background: rgba(18, 24, 38, 0.9) !important;
-    border: 1px solid rgba(212, 175, 55, 0.3) !important;
-    border-radius: 20px !important;
+    border-radius: 999px !important;
   }
 
   .lang-btn {
-    padding: 5px 9px !important;
-    font-size: 0.72rem !important;
+    padding: 5px 8px !important;
+    font-size: 0.7rem !important;
   }
 
-  .nav-actions .btn-primary {
-    display: none !important; /* Oculta botón redundante en barra superior para no saturar la pantalla */
-  }
-}
-
-/* 2. Formato de pantalla, Hero y Contenedores */
-@media (max-width: 768px) {
-  body {
-    padding-bottom: 30px !important;
-    -webkit-tap-highlight-color: transparent !important;
+  .nav-actions .btn,
+  .nav-actions a.btn,
+  .nav-actions button.btn {
+    padding: 7px 11px !important;
+    font-size: 0.76rem !important;
+    min-height: 34px !important;
+    width: auto !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
   }
 
   .container {
-    padding: 0 16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
   .hero {
-    padding: 32px 0 36px !important;
-  }
-
-  .eyebrow {
-    font-size: 0.7rem !important;
-    padding: 5px 12px !important;
-    margin-bottom: 14px !important;
+    padding: 28px 0 32px !important;
   }
 
   h1 {
-    font-size: 1.85rem !important;
+    font-size: 1.75rem !important;
     line-height: 1.18 !important;
-    margin-bottom: 14px !important;
+    word-break: break-word !important;
   }
 
   .hero-lead {
-    font-size: 0.95rem !important;
+    font-size: 0.94rem !important;
     line-height: 1.5 !important;
-    margin-bottom: 22px !important;
   }
 
   .hero-cta {
@@ -128,139 +139,41 @@
     flex-direction: column !important;
     gap: 10px !important;
     width: 100% !important;
-    margin-bottom: 24px !important;
   }
 
-  .btn {
+  .hero-cta .btn,
+  .hero-cta a,
+  .hero-cta button {
     width: 100% !important;
-    min-height: 48px !important;
-    font-size: 0.95rem !important;
+    min-height: 46px !important;
     border-radius: 12px !important;
-    font-weight: 700 !important;
+    justify-content: center !important;
+    text-align: center !important;
   }
 
-  .metrics-strip {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-    padding-top: 18px !important;
-  }
-
-  .metric-box {
-    padding: 12px 14px !important;
-    border-radius: 12px !important;
-    background: rgba(18, 24, 38, 0.85) !important;
-  }
-
-  .metric-val {
-    font-size: 1rem !important;
-  }
-
-  .metric-lbl {
-    font-size: 0.78rem !important;
-  }
-}
-
-/* 3. Tarjetas tipo app (Cards & Touch Targets) */
-@media (max-width: 768px) {
-  section.band {
-    padding: 44px 0 !important;
-  }
-
-  .section-head {
-    margin-bottom: 24px !important;
-  }
-
-  h2 {
-    font-size: 1.55rem !important;
-    line-height: 1.2 !important;
-  }
-
+  .metrics-strip,
   .ventures-grid,
   .scope-grid,
   .pillars-grid {
     display: flex !important;
     flex-direction: column !important;
-    gap: 16px !important;
+    gap: 14px !important;
   }
 
   .venture-card,
   .thesis-card,
   .scope-card,
   .pillar,
+  .metric-box,
   .bdv-banner-frame {
+    width: 100% !important;
     border-radius: 16px !important;
-    padding: 20px 18px !important;
-    background: #111724 !important;
-    border: 1px solid rgba(212, 175, 55, 0.28) !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
-  }
-
-  .spec-tags {
-    gap: 6px !important;
-    margin-top: 12px !important;
-    margin-bottom: 16px !important;
-  }
-
-  .spec-tag {
-    font-size: 0.74rem !important;
-    padding: 4px 8px !important;
-    border-radius: 6px !important;
-  }
-
-  /* Banner adaptado */
-  .bdv-showcase-band {
-    padding: 36px 0 !important;
-  }
-
-  .bdv-banner-top {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 4px !important;
-    margin-bottom: 14px !important;
-  }
-
-  .bdv-banner-kicker {
-    font-size: 0.72rem !important;
-  }
-
-  .bdv-banner-caption {
-    font-size: 0.82rem !important;
+    padding: 18px 16px !important;
   }
 
   .bdv-banner-img {
-    border-radius: 10px !important;
-  }
-
-  /* Contact Box */
-  .contact-band {
-    padding: 40px 0 50px !important;
-  }
-
-  .contact-box {
-    padding: 24px 18px !important;
-    border-radius: 18px !important;
-  }
-
-  .contact-actions {
-    flex-direction: column !important;
     width: 100% !important;
-    gap: 10px !important;
-    margin-top: 16px !important;
-  }
-
-  footer {
-    padding: 24px 0 !important;
-  }
-
-  .footer-inner {
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    gap: 14px !important;
-  }
-
-  .footer-links {
-    flex-direction: column !important;
-    gap: 10px !important;
+    height: auto !important;
+    border-radius: 12px !important;
   }
 }
