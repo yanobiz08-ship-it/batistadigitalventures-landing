@@ -138,9 +138,11 @@
     if (!venturesSection) return;
 
     const container = venturesSection.querySelector(".container") || venturesSection;
-    const existingGrid = container.querySelector(".ventures-grid");
-    if (existingGrid) {
-      existingGrid.style.display = "none";
+    
+    // Oculta y remueve la cuadrícula estática previa si existe
+    const oldGrid = container.querySelector(":scope > .ventures-grid");
+    if (oldGrid) {
+      oldGrid.style.display = "none";
     }
 
     const t = copy[lang];
@@ -150,7 +152,7 @@
     wrap.innerHTML = `
       <button type="button" id="bdv-products-toggle-btn" class="bdv-products-toggle-btn" aria-expanded="false" aria-controls="bdv-products-panel">
         <span data-bdv-toggle-label>${t.toggleOpen}</span>
-        <span id="bdv-products-arrow" aria-hidden="true">+</span>
+        <span id="bdv-products-arrow" aria-hidden="true" style="font-size: 1.2rem; font-weight: bold;">+</span>
       </button>
       <div id="bdv-products-panel" class="bdv-products-panel">
         <div class="ventures-grid">
@@ -224,9 +226,14 @@
     if (btn && panel && arrow) {
       btn.addEventListener("click", () => {
         isPanelOpen = !isPanelOpen;
-        panel.classList.toggle("is-open", isPanelOpen);
+        if (isPanelOpen) {
+          panel.classList.add("is-open");
+          arrow.textContent = "−";
+        } else {
+          panel.classList.remove("is-open");
+          arrow.textContent = "+";
+        }
         btn.setAttribute("aria-expanded", String(isPanelOpen));
-        arrow.textContent = isPanelOpen ? "−" : "+";
         syncAll();
       });
     }
