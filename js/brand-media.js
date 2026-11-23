@@ -357,7 +357,52 @@
     mainEl.appendChild(section);
   }
 
-  function applyLegalModals(lang) {
+  function cleanFooterLinksAndApplyLegal(lang) {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    // Remover enlaces de MERQOX y TRIVLO en el pie de página
+    const footerLinks = footer.querySelectorAll("a, span");
+    footerLinks.forEach((el) => {
+      const txt = (el.textContent || "").trim().toUpperCase();
+      if (txt === "MERQOX" || txt === "TRIVLO") {
+        el.style.display = "none";
+        el.remove();
+      }
+    });
+
+    // Inyectar o actualizar los botones legales
+    let legalBar = document.getElementById("bdv-footer-legal-links");
+    if (!legalBar) {
+      legalBar = document.createElement("div");
+      legalBar.id = "bdv-footer-legal-links";
+      legalBar.className = "bdv-footer-legal";
+      legalBar.innerHTML = `
+        <button type="button" id="bdv-btn-terms" class="bdv-link-btn" data-legal-terms-btn>${copy[lang].legalTermsBtn}</button>
+        <span class="bdv-legal-dot">•</span>
+        <button type="button" id="bdv-btn-privacy" class="bdv-link-btn" data-legal-privacy-btn>${copy[lang].legalPrivacyBtn}</button>
+      `;
+
+      const container = footer.querySelector(".container") || footer;
+      container.appendChild(legalBar);
+
+      document.getElementById("bdv-btn-terms").addEventListener("click", () => {
+        const curLang = getLang();
+        document.getElementById("bdv-modal-title").textContent = copy[curLang].termsTitle;
+        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].termsContent;
+        document.getElementById("bdv-legal-modal-root").style.display = "flex";
+      });
+
+      document.getElementById("bdv-btn-privacy").addEventListener("click", () => {
+        const curLang = getLang();
+        document.getElementById("bdv-modal-title").textContent = copy[curLang].privacyTitle;
+        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].privacyContent;
+        document.getElementById("bdv-legal-modal-root").style.display = "flex";
+      });
+    }
+  }
+
+  function applyLegalModals() {
     if (document.getElementById("bdv-legal-modal-root")) return;
 
     const modalRoot = document.createElement("div");
@@ -375,41 +420,13 @@
     `;
     document.body.appendChild(modalRoot);
 
-    const closeBtn = document.getElementById("bdv-modal-close-btn");
-    closeBtn.addEventListener("click", () => {
+    document.getElementById("bdv-modal-close-btn").addEventListener("click", () => {
       modalRoot.style.display = "none";
     });
 
     modalRoot.addEventListener("click", (e) => {
       if (e.target === modalRoot) modalRoot.style.display = "none";
     });
-
-    const footer = document.querySelector("footer");
-    if (footer && !document.getElementById("bdv-footer-legal-links")) {
-      const legalBar = document.createElement("div");
-      legalBar.id = "bdv-footer-legal-links";
-      legalBar.className = "bdv-footer-legal";
-      legalBar.innerHTML = `
-        <button type="button" id="bdv-btn-terms" class="bdv-link-btn" data-legal-terms-btn>${copy[lang].legalTermsBtn}</button>
-        <span>•</span>
-        <button type="button" id="bdv-btn-privacy" class="bdv-link-btn" data-legal-privacy-btn>${copy[lang].legalPrivacyBtn}</button>
-      `;
-      footer.appendChild(legalBar);
-
-      document.getElementById("bdv-btn-terms").addEventListener("click", () => {
-        const curLang = getLang();
-        document.getElementById("bdv-modal-title").textContent = copy[curLang].termsTitle;
-        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].termsContent;
-        modalRoot.style.display = "flex";
-      });
-
-      document.getElementById("bdv-btn-privacy").addEventListener("click", () => {
-        const curLang = getLang();
-        document.getElementById("bdv-modal-title").textContent = copy[curLang].privacyTitle;
-        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].privacyContent;
-        modalRoot.style.display = "flex";
-      });
-    }
   }
 
   function loadFoundationsFromFolder() {
@@ -435,7 +452,8 @@
     applyBanner(lang);
     applyProductsDrawer(lang);
     applyFoundationsSection(lang);
-    applyLegalModals(lang);
+    applyLegalModals();
+    cleanFooterLinksAndApplyLegal(lang);
 
     const eyebrow = document.querySelector(".eyebrow");
     if (eyebrow) eyebrow.textContent = t.eyebrow;
