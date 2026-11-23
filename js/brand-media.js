@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Legal & Media */
+/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress & Legal */
 (function () {
   const copy = {
     es: {
@@ -65,12 +65,12 @@
         {
           id: "pricing",
           label: "Proceso y Precios",
-          headline: "Del primer mensaje al lanzamiento, con escalones accesibles.",
-          summary: "Estructuramos proyectos por etapas para que personas comunes con aspiraciones y negocios reales puedan avanzar sin comprometer la calidad.",
+          headline: "6 etapas de principio a fin, escalones accesibles y barra de progreso.",
+          summary: "Cada encargo avanza en orden lógico (10% → 25% → 45% → 75% → 90% → 100%) con notificación automática al cliente y a Batista Digital Ventures LLC en cada cambio.",
           bullets: [
-            "<strong>Flujo:</strong> Solicitud y filtro → Alcance (SOW) y anticipo → Hitos y pruebas → Liquidación y entrega.",
-            "<strong>Escalones orientativos:</strong> Web base/MVP ($450–$850), Web dinámica por fases ($1,200–$2,800+), App móvil por hitos ($2,500–$5,000+).",
-            "<strong>Soporte opcional:</strong> Mantenimiento y mejoras mensuales ($180–$450/mes) tras el lanzamiento."
+            "<strong>Etapas 1–2 (10%–25%):</strong> Recepción y filtro → Firma de SOW, anticipo y asignación/toma de trabajo.",
+            "<strong>Etapas 3–5 (45%–90%):</strong> Arquitectura base → Construcción y pruebas QA → Revisión del cliente (5 días hábiles).",
+            "<strong>Etapa 6 y Precios (100%):</strong> Liquidación y entrega. Web base/MVP ($450–$850), Web dinámica ($1,200–$2,800+), App por hitos ($2,500–$5,000+), Mantenimiento ($180–$450/mes)."
           ]
         },
         {
@@ -157,12 +157,12 @@
         {
           id: "pricing",
           label: "Process & Pricing",
-          headline: "From initial inquiry to launch, with accessible entry tiers.",
-          summary: "Phased delivery helps ambitious founders and everyday businesses start smart without sacrificing solid engineering.",
+          headline: "6 end-to-end stages, accessible tiers, and automated progress alerts.",
+          summary: "Every project follows a sequential path (10% → 25% → 45% → 75% → 90% → 100%) with automatic notifications to both the client and Batista Digital Ventures LLC on stage updates.",
           bullets: [
-            "<strong>Workflow:</strong> Inquiry & fit check → Written SOW & deposit → Milestones & QA → Final balance & handoff.",
-            "<strong>Reference tiers:</strong> Starter/MVP web ($450–$850), Phased dynamic web ($1,200–$2,800+), Milestone mobile app ($2,500–$5,000+).",
-            "<strong>Optional care:</strong> Monthly maintenance and updates ($180–$450/mo) after launch."
+            "<strong>Stages 1–2 (10%–25%):</strong> Intake & scope fit → SOW execution, deposit & partner dispatch.",
+            "<strong>Stages 3–5 (45%–90%):</strong> Architecture setup → Core build & QA → Client review (5 business days).",
+            "<strong>Stage 6 & Tiers (100%):</strong> Final settlement & handoff. Starter/MVP web ($450–$850), Dynamic web ($1,200–$2,800+), Milestone app ($2,500–$5,000+), Care ($180–$450/mo)."
           ]
         },
         {
@@ -189,6 +189,15 @@
 
   let isPanelOpen = false;
   let activeTabIndex = 0;
+  let activeStageIndex = 0;
+  let workflowStages = [
+    { stage: 1, percentage: 10, name_es: "Recepción y Filtro de Alcance", name_en: "Intake & Scope Fit Assessment" },
+    { stage: 2, percentage: 25, name_es: "Firma de SOW, Depósito y Asignación", name_en: "SOW Execution, Deposit & Partner Dispatch" },
+    { stage: 3, percentage: 45, name_es: "Arquitectura y Entorno Base", name_en: "System Architecture & Base Setup" },
+    { stage: 4, percentage: 75, name_es: "Construcción y Auditoría Técnica Interna", name_en: "Core Engineering & Internal QA" },
+    { stage: 5, percentage: 90, name_es: "Inspección de Entrega y Ventana de Revisión", name_en: "Client Inspection & Review Window" },
+    { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Despliegue", name_en: "Final Settlement, Handoff & Release" }
+  ];
 
   function getLang() {
     const lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
@@ -390,7 +399,7 @@
     const t = copy[lang];
     const tabs = Array.isArray(t.tabs) && t.tabs.length ? t.tabs : [];
     if (activeTabIndex >= tabs.length) activeTabIndex = 0;
-    const currentTab = tabs[activeTabIndex] || { label: "", headline: "", summary: "", bullets: [] };
+    const currentTab = tabs[activeTabIndex] || { id: "", label: "", headline: "", summary: "", bullets: [] };
     const folderCode = `FOLDER 0${activeTabIndex + 1} / 0${tabs.length || 1}`;
 
     const markersHtml = tabs
@@ -411,6 +420,42 @@
       .map((item) => `<li>${item}</li>`)
       .join("");
 
+    let progressHtml = "";
+    if (currentTab.id === "pricing" && workflowStages.length) {
+      if (activeStageIndex >= workflowStages.length) activeStageIndex = 0;
+      const st = workflowStages[activeStageIndex];
+      const stageName = lang === "en" ? st.name_en : st.name_es;
+      const alertLabel =
+        lang === "en"
+          ? `Auto-alert: Client + contact@batistadigitalventures.com (${st.percentage}%)`
+          : `Alerta automática: Cliente + contact@batistadigitalventures.com (${st.percentage}%)`;
+
+      const pillsHtml = workflowStages
+        .map(
+          (item, idx) => `
+            <button
+              type="button"
+              class="bdv-stage-pill-btn ${idx === activeStageIndex ? "is-active" : ""}"
+              data-bdv-stage-index="${idx}"
+            >${item.stage}. ${item.percentage}%</button>
+          `
+        )
+        .join("");
+
+      progressHtml = `
+        <div class="bdv-progress-box">
+          <div class="bdv-progress-top">
+            <span>${stageName}</span>
+            <span>${alertLabel}</span>
+          </div>
+          <div class="bdv-progress-track">
+            <div class="bdv-progress-fill" style="width: ${st.percentage}%;"></div>
+          </div>
+          <div class="bdv-stage-pills">${pillsHtml}</div>
+        </div>
+      `;
+    }
+
     cab.innerHTML = `
       <div class="container">
         <div class="bdv-cabinet-header">
@@ -426,6 +471,7 @@
             <h3 class="bdv-folder-headline">${currentTab.headline}</h3>
             <p class="bdv-folder-summary">${currentTab.summary}</p>
             <ul class="bdv-folder-list">${bulletsHtml}</ul>
+            ${progressHtml}
           </div>
         </div>
       </div>
@@ -434,6 +480,13 @@
     cab.querySelectorAll("[data-bdv-tab-index]").forEach((btn) => {
       btn.addEventListener("click", () => {
         activeTabIndex = Number(btn.getAttribute("data-bdv-tab-index")) || 0;
+        renderCabinet(getLang());
+      });
+    });
+
+    cab.querySelectorAll("[data-bdv-stage-index]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeStageIndex = Number(btn.getAttribute("data-bdv-stage-index")) || 0;
         renderCabinet(getLang());
       });
     });
@@ -515,8 +568,11 @@
         .catch(() => null),
       fetch("./bdv-company/foundations.json", { cache: "no-cache" })
         .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch("./bdv-company/workflow-progress.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
         .catch(() => null)
-    ]).then(([cabData, foundData]) => {
+    ]).then(([cabData, foundData, wfData]) => {
       ["es", "en"].forEach((langKey) => {
         if (foundData && foundData[langKey]) {
           copy[langKey] = Object.assign({}, copy[langKey], foundData[langKey]);
@@ -525,6 +581,9 @@
           copy[langKey] = Object.assign({}, copy[langKey], cabData[langKey]);
         }
       });
+      if (wfData && Array.isArray(wfData.progress_stages) && wfData.progress_stages.length) {
+        workflowStages = wfData.progress_stages;
+      }
       syncAll();
     });
   }
