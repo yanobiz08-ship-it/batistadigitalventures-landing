@@ -1,0 +1,84 @@
+{
+  "version": "1.0.0",
+  "organization": "Batista Digital Ventures LLC",
+  "jurisdiction": "Santa Barbara County, California",
+  "operational_rules": {
+    "zero_unfunded_starts": "Ningún trabajo arranca sin SOW por escrito y depósito inicial liquidado.",
+    "paid_when_paid": "Los honorarios a partners se desembolsan exclusivamente sobre fondos netos efectivamente cobrados por la LLC.",
+    "ip_reservation": "La titularidad de código y activos se retiene por la LLC hasta la liquidación del 100% del proyecto.",
+    "deemed_acceptance_window_days": 5,
+    "uber_dispatch_rule": "Los partners aceptan trabajos voluntariamente bajo demanda, pero la aceptación formal impone plazos vinculantes y estándares de calidad auditables."
+  },
+  "progress_stages": [
+    {
+      "stage": 1,
+      "code": "INTAKE_FIT",
+      "percentage": 10,
+      "name_es": "Recepción y Filtro de Alcance",
+      "name_en": "Intake & Scope Fit Assessment",
+      "deliverables": ["Brief de requerimientos", "Validación de arquitectura", "Estimación paramétrica"],
+      "notify_client": true,
+      "notify_admin": true
+    },
+    {
+      "stage": 2,
+      "code": "AGREEMENT_DEPOSIT",
+      "percentage": 25,
+      "name_es": "Firma de SOW, Depósito y Asignación",
+      "name_en": "SOW Execution, Deposit & Partner Dispatch",
+      "deliverables": ["Contrato/SOW firmado", "Cobro del anticipo registrado", "Asignación o aceptación por partner"],
+      "notify_client": true,
+      "notify_admin": true
+    },
+    {
+      "stage": 3,
+      "code": "ARCHITECTURE_SETUP",
+      "percentage": 45,
+      "name_es": "Arquitectura y Entorno Base",
+      "name_en": "System Architecture & Base Setup",
+      "deliverables": ["Repositorio y pipeline CI/CD", "Esquemas de base de datos", "Wireframes o prototipo base"],
+      "notify_client": true,
+      "notify_admin": true
+    },
+    {
+      "stage": 4,
+      "code": "CORE_BUILD_QA",
+      "percentage": 75,
+      "name_es": "Construcción y Auditoría Técnica Interna",
+      "name_en": "Core Engineering & Internal QA",
+      "deliverables": ["Lógica funcional de módulos", "Auditoría de responsividad móvil", "Entorno de staging funcional"],
+      "notify_client": true,
+      "notify_admin": true
+    },
+    {
+      "stage": 5,
+      "code": "CLIENT_REVIEW",
+      "percentage": 90,
+      "name_es": "Inspección de Entrega y Ventana de Revisión",
+      "name_en": "Client Inspection & Review Window",
+      "deliverables": ["Acceso a demo/staging", "Apertura de ventana de 5 días hábiles", "Resolución de ajustes de alcance"],
+      "notify_client": true,
+      "notify_admin": true
+    },
+    {
+      "stage": 6,
+      "code": "SETTLEMENT_HANDOFF",
+      "percentage": 100,
+      "name_es": "Liquidación Final, Traspaso y Despliegue",
+      "name_en": "Final Settlement, Handoff & Release",
+      "deliverables": ["Cobro del 100% verificado", "Traspaso de credenciales/código", "Despliegue a producción/tiendas", "Liquidación de payout a partner"],
+      "notify_client": true,
+      "notify_admin": true
+    }
+  ],
+  "notification_events": {
+    "channel_client": "Email corporativo automatizado con tracking ID y enlace a barra visual",
+    "channel_admin": "Alerta a contact@batistadigitalventures.com con desglose de hito, responsable y estado financiero",
+    "trigger_events": [
+      "Transición de etapa porcentual",
+      "Depósito o pago de hito confirmado",
+      "Activación de ventana de 5 días de revisión",
+      "Aceptación o rechazo de orden de trabajo por partner"
+    ]
+  }
+}
