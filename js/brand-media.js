@@ -679,7 +679,7 @@
         </form>
         <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result"></div>
         <p class="bdv-tracker-disclaimer">
-          * Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
+- Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
         </p>
       </div>
     `;
@@ -1064,6 +1064,136 @@
       });
   };
 
+  /* Solicitud de Servicios con Selección Múltiple y Notificación a Admin + Partners */
+  function applyServiceRequestModal() {
+    if (!document.getElementById("bdv-request-services-btn")) {
+      const heroCta = document.querySelector(".hero-cta");
+      if (heroCta) {
+        const reqBtn = document.createElement("button");
+        reqBtn.type = "button";
+        reqBtn.id = "bdv-request-services-btn";
+        reqBtn.className = "btn btn-primary";
+        reqBtn.textContent = "Solicitar nuestros servicios";
+        reqBtn.addEventListener("click", () => {
+          const m = document.getElementById("bdv-service-modal-root");
+          if (m) m.style.display = "flex";
+        });
+        heroCta.appendChild(reqBtn);
+      }
+    }
+
+    if (document.getElementById("bdv-service-modal-root")) return;
+
+    const servicesList = [
+      "Sitio Web Base / MVP ($450–$850)",
+      "Plataforma / Web Dinámica ($1,200–$2,800+)",
+      "Aplicación Móvil por Hitos ($2,500–$5,000+)",
+      "Panel de Administración / Automatización",
+      "Póliza Mensual / Soporte ($180–$450/mes)"
+    ];
+
+    const checkboxesHtml = servicesList
+      .map(
+        (srv, idx) => `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; font-size: 0.84rem; color: #e2e8f0;">
+            <input type="checkbox" id="bdv-srv-${idx}" value="${srv}" style="accent-color: #d4af37;" />
+            <span>${srv}</span>
+          </label>
+        `
+      )
+      .join("");
+
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "bdv-service-modal-root";
+    modalRoot.className = "bdv-modal-overlay";
+    modalRoot.style.display = "none";
+
+    modalRoot.innerHTML = `
+      <div class="bdv-tracker-card" style="max-width: 500px;">
+        <div class="bdv-modal-top">
+          <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">Solicitar nuestros servicios · BDV LLC</h3>
+          <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+        </div>
+        <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 12px 0;">
+          Marca lo que necesitas para tu negocio. Enviaremos tu solicitud a dirección y a nuestros programadores partners disponibles.
+        </p>
+        <form id="bdv-service-request-form" class="bdv-tracker-form">
+          <input type="text" id="bdv-srv-client-name" class="bdv-tracker-input" placeholder="Tu nombre completo" required />
+          <input type="email" id="bdv-srv-client-email" class="bdv-tracker-input" placeholder="Tu correo electrónico" required />
+          <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" placeholder="Nombre de tu negocio o proyecto (opcional)" />
+          <div style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;">
+            ${checkboxesHtml}
+          </div>
+          <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" placeholder="Cuéntanos brevemente qué quieres lograr o cuándo te gustaría iniciar..." style="resize: vertical;"></textarea>
+          <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn">Enviar Solicitud</button>
+        </form>
+        <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
+      </div>
+    `;
+
+    document.body.appendChild(modalRoot);
+
+    document.getElementById("bdv-service-close-btn").addEventListener("click", () => {
+      modalRoot.style.display = "none";
+    });
+
+    modalRoot.addEventListener("click", (e) => {
+      if (e.target === modalRoot) modalRoot.style.display = "none";
+    });
+
+    document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const clientName = (document.getElementById("bdv-srv-client-name").value || "").trim();
+      const clientEmail = (document.getElementById("bdv-srv-client-email").value || "").trim();
+      const businessName = (document.getElementById("bdv-srv-business-name").value || "").trim();
+      const notes = (document.getElementById("bdv-srv-notes").value || "").trim();
+      const selected = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      const statusEl = document.getElementById("bdv-srv-status-msg");
+      const submitBtn = document.getElementById("bdv-srv-submit-btn");
+
+      if (!selected.length) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#f87171";
+        statusEl.textContent = "Selecciona al menos un servicio de la lista.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.style.display = "block";
+      statusEl.style.color = "#94a3b8";
+      statusEl.textContent = "Enviando solicitud...";
+
+      fetch(BDV_ADMIN_API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "request_services",
+          clientName: clientName,
+          clientEmail: clientEmail,
+          businessName: businessName,
+          services: selected,
+          notes: notes
+        })
+      })
+        .then(r => r.json())
+        .then(res => {
+          submitBtn.disabled = false;
+          if (res.ok) {
+            statusEl.style.color = "#4ade80";
+            statusEl.textContent = "✓ Solicitud enviada. Te contactaremos pronto para revisar el alcance.";
+            e.target.reset();
+          } else {
+            statusEl.style.color = "#f87171";
+            statusEl.textContent = res.error || "No se pudo enviar la solicitud.";
+          }
+        })
+        .catch(() => {
+          submitBtn.disabled = false;
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = "Error de conexión al enviar la solicitud.";
+        });
+    });
+  }
+
   function loadCabinetData() {
     Promise.all([
       fetch("./bdv-company/cabinet-tabs.json", { cache: "no-cache" })
@@ -1103,6 +1233,7 @@
     applyLegalModals();
     applyClientTrackerModal();
     applyAdminPanel();
+    applyServiceRequestModal();
     cleanFooterLinksAndApplyLegal(lang);
 
     const eyebrow = document.querySelector(".eyebrow");
