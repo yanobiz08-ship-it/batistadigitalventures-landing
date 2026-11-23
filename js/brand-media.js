@@ -86,6 +86,16 @@
     const iconWrap = document.querySelector(".brand-icon-wrap");
     if (!iconWrap) return;
 
+    iconWrap.style.width = "44px";
+    iconWrap.style.height = "44px";
+    iconWrap.style.minWidth = "44px";
+    iconWrap.style.minHeight = "44px";
+    iconWrap.style.display = "inline-flex";
+    iconWrap.style.alignItems = "center";
+    iconWrap.style.justifyContent = "center";
+    iconWrap.style.overflow = "hidden";
+    iconWrap.style.borderRadius = "12px";
+
     let img = iconWrap.querySelector("img.bdv-header-logo-img");
     if (!img) {
       img = document.createElement("img");
@@ -97,20 +107,24 @@
       img.style.maxHeight = "44px";
       img.style.objectFit = "cover";
       img.style.display = "block";
-      iconWrap.prepend(img);
+      iconWrap.innerHTML = "";
+      iconWrap.appendChild(img);
     }
     img.alt = copy[lang].altLogo;
   }
 
   function applyBanner(lang) {
     if (document.getElementById("bdv-brand-banner-section")) return;
-    const mainEl = document.querySelector("main");
+    const mainEl = document.querySelector("main") || document.body;
     if (!mainEl) return;
 
     const t = copy[lang];
     const section = document.createElement("section");
     section.id = "bdv-brand-banner-section";
     section.className = "bdv-showcase-band";
+    section.style.display = "block";
+    section.style.visibility = "visible";
+    section.style.opacity = "1";
     section.innerHTML = `
       <div class="container">
         <div class="bdv-banner-frame">
@@ -123,15 +137,17 @@
             src="./assets/BDV Logo Banner.jpg"
             alt="${t.altBanner}"
             data-bdv-banner
-            loading="lazy"
+            loading="eager"
           />
         </div>
       </div>
     `;
 
-    const firstBand = mainEl.querySelector("section.band");
-    if (firstBand && firstBand.nextSibling) {
-      mainEl.insertBefore(section, firstBand.nextSibling);
+    const firstSection = mainEl.querySelector("section");
+    if (firstSection && firstSection.nextSibling) {
+      mainEl.insertBefore(section, firstSection.nextSibling);
+    } else if (mainEl.firstChild) {
+      mainEl.insertBefore(section, mainEl.firstChild);
     } else {
       mainEl.appendChild(section);
     }
