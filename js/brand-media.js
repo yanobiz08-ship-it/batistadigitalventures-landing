@@ -390,7 +390,8 @@
     const t = copy[lang];
     const tabs = Array.isArray(t.tabs) && t.tabs.length ? t.tabs : [];
     if (activeTabIndex >= tabs.length) activeTabIndex = 0;
-    const currentTab = tabs[activeTabIndex] || { headline: "", summary: "", bullets: [] };
+    const currentTab = tabs[activeTabIndex] || { label: "", headline: "", summary: "", bullets: [] };
+    const folderCode = `FOLDER 0${activeTabIndex + 1} / 0${tabs.length || 1}`;
 
     const markersHtml = tabs
       .map(
@@ -416,11 +417,16 @@
           <span class="bdv-banner-kicker">${t.cabKicker}</span>
           <h2 class="bdv-cabinet-title">${t.cabTitle}</h2>
         </div>
-        <div class="bdv-tabs-bar" role="tablist">${markersHtml}</div>
-        <div class="bdv-folder-sheet" role="tabpanel">
-          <h3 class="bdv-folder-headline">${currentTab.headline}</h3>
-          <p class="bdv-folder-summary">${currentTab.summary}</p>
-          <ul class="bdv-folder-list">${bulletsHtml}</ul>
+        <div class="bdv-cabinet-shell">
+          <div class="bdv-tabs-bar" role="tablist">${markersHtml}</div>
+          <div class="bdv-folder-sheet" role="tabpanel">
+            <div class="bdv-folder-top-strip">
+              <span class="bdv-folder-badge">${folderCode} · ${currentTab.label}</span>
+            </div>
+            <h3 class="bdv-folder-headline">${currentTab.headline}</h3>
+            <p class="bdv-folder-summary">${currentTab.summary}</p>
+            <ul class="bdv-folder-list">${bulletsHtml}</ul>
+          </div>
         </div>
       </div>
     `;
