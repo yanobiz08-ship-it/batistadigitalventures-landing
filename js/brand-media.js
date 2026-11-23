@@ -448,7 +448,17 @@
       .join("");
 
     const bulletsHtml = (currentTab.bullets || [])
-      .map((item) => `<li>${item}</li>`) .join("");  let progressHtml = ""; if (currentTab.id === "pricing" && workflowStages.length) { if (activeStageIndex >= workflowStages.length) activeStageIndex = 0; const st = workflowStages[activeStageIndex]; const stageName = lang === "en" ? st.name_en : st.name_es; const alertLabel = lang === "en" ? `Auto-alert: Client + contact@batistadigitalventures.com (${st.percentage}%)`
+      .map((item) => `<li>${item}</li>`)
+      .join("");
+
+    let progressHtml = "";
+    if (currentTab.id === "pricing" && workflowStages.length) {
+      if (activeStageIndex >= workflowStages.length) activeStageIndex = 0;
+      const st = workflowStages[activeStageIndex];
+      const stageName = lang === "en" ? st.name_en : st.name_es;
+      const alertLabel =
+        lang === "en"
+          ? `Auto-alert: Client + contact@batistadigitalventures.com (${st.percentage}%)`
           : `Alerta automática: Cliente + contact@batistadigitalventures.com (${st.percentage}%)`;
 
       const pillsHtml = workflowStages
@@ -456,4 +466,553 @@
           (item, idx) => `
             <button
               type="button"
-              class="bdv-stage-pill-btn ${idx === activeStageIndex ? "is-active
+              class="bdv-stage-pill-btn ${idx === activeStageIndex ? "is-active" : ""}"
+              data-bdv-stage-index="${idx}"
+            >${item.stage}. ${item.percentage}%</button>
+          `
+        )
+        .join("");
+
+      progressHtml = `
+        <div class="bdv-progress-box">
+          <div class="bdv-progress-top">
+            <span>${stageName}</span>
+            <span>${alertLabel}</span>
+          </div>
+          <div class="bdv-progress-track">
+            <div class="bdv-progress-fill" style="width: ${st.percentage}%;"></div>
+          </div>
+          <div class="bdv-stage-pills">${pillsHtml}</div>
+          <div style="margin-top: 14px;">
+            <button type="button" id="bdv-open-tracker-btn" class="bdv-tracker-launch-btn">
+              ${t.trackerBtnLabel || "🔑 Consultar Mi Proyecto (Solo Lectura)"}
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    cab.innerHTML = `
+      <div class="container">
+        <div class="bdv-cabinet-header">
+          <span class="bdv-banner-kicker">${t.cabKicker}</span>
+          <h2 class="bdv-cabinet-title">${t.cabTitle}</h2>
+        </div>
+        <div class="bdv-cabinet-shell">
+          <div class="bdv-tabs-bar" role="tablist">${markersHtml}</div>
+          <div class="bdv-folder-sheet" role="tabpanel">
+            <div class="bdv-folder-top-strip">
+              <span class="bdv-folder-badge">${folderCode} · ${currentTab.label}</span>
+            </div>
+            <h3 class="bdv-folder-headline">${currentTab.headline}</h3>
+            <p class="bdv-folder-summary">${currentTab.summary}</p>
+            <ul class="bdv-folder-list">${bulletsHtml}</ul>
+            ${progressHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    cab.querySelectorAll("[data-bdv-tab-index]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeTabIndex = Number(btn.getAttribute("data-bdv-tab-index")) || 0;
+        renderCabinet(getLang());
+      });
+    });
+
+    cab.querySelectorAll("[data-bdv-stage-index]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeStageIndex = Number(btn.getAttribute("data-bdv-stage-index")) || 0;
+        renderCabinet(getLang());
+      });
+    });
+
+    const openTrackerBtn = cab.querySelector("#bdv-open-tracker-btn");
+    if (openTrackerBtn) {
+      openTrackerBtn.addEventListener("click", () => {
+        const modal = document.getElementById("bdv-tracker-modal-root");
+        if (modal) modal.style.display = "flex";
+      });
+    }
+  }
+
+  function applyCompactHowWeOperate(lang) {
+    const sections = Array.from(document.querySelectorAll("main section"));
+    const targetSec = sections.find((sec) => {
+      if (sec.id && sec.id.startsWith("bdv-")) return false;
+      const txt = (sec.textContent || "");
+      return txt.includes("01") && txt.includes("02") && txt.includes("03") && txt.includes("04");
+    });
+    if (!targetSec) return;
+
+    const d = opsData[lang] || opsData.es;
+    if (activeOpsIndex >= d.items.length) activeOpsIndex = 0;
+    const current = d.items[activeOpsIndex];
+
+    targetSec.innerHTML = `
+      <div class="container">
+        <div class="bdv-ops-compact">
+          <div class="bdv-ops-head">
+            <h2 class="bdv-ops-title">${d.title}</h2>
+            <p class="bdv-ops-sub">${d.sub}</p>
+          </div>
+          <div class="bdv-ops-pills">
+            ${d.items
+              .map(
+                (it, idx) => `
+                  <button
+                    type="button"
+                    class="bdv-ops-pill ${idx === activeOpsIndex ? "is-active" : ""}"
+                    data-bdv-ops-idx="${idx}"
+                  >
+                    <span class="bdv-ops-num">${it.num}</span>
+                    <span>${it.short}</span>
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+          <div class="bdv-ops-detail">${current.desc}</div>
+        </div>
+      </div>
+    `;
+
+    targetSec.querySelectorAll("[data-bdv-ops-idx]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeOpsIndex = Number(btn.getAttribute("data-bdv-ops-idx")) || 0;
+        applyCompactHowWeOperate(getLang());
+      });
+    });
+  }
+
+  function cleanFooterLinksAndApplyLegal(lang) {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    footer.querySelectorAll("a, span").forEach((el) => {
+      const txt = (el.textContent || "").trim().toUpperCase();
+      if (txt === "MERQOX" || txt === "TRIVLO") {
+        el.style.display = "none";
+        el.remove();
+      }
+    });
+
+    let legalBar = document.getElementById("bdv-footer-legal-links");
+    if (!legalBar) {
+      legalBar = document.createElement("div");
+      legalBar.id = "bdv-footer-legal-links";
+      legalBar.className = "bdv-footer-legal";
+      legalBar.innerHTML = `
+        <button type="button" id="bdv-btn-terms" class="bdv-link-btn" data-legal-terms-btn>${copy[lang].legalTermsBtn}</button>
+        <span class="bdv-legal-dot">•</span>
+        <button type="button" id="bdv-btn-privacy" class="bdv-link-btn" data-legal-privacy-btn>${copy[lang].legalPrivacyBtn}</button>
+      `;
+
+      const container = footer.querySelector(".container") || footer;
+      container.appendChild(legalBar);
+
+      document.getElementById("bdv-btn-terms").addEventListener("click", () => {
+        const curLang = getLang();
+        document.getElementById("bdv-modal-title").textContent = copy[curLang].termsTitle;
+        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].termsContent;
+        document.getElementById("bdv-legal-modal-root").style.display = "flex";
+      });
+
+      document.getElementById("bdv-btn-privacy").addEventListener("click", () => {
+        const curLang = getLang();
+        document.getElementById("bdv-modal-title").textContent = copy[curLang].privacyTitle;
+        document.getElementById("bdv-modal-body").innerHTML = copy[curLang].privacyContent;
+        document.getElementById("bdv-legal-modal-root").style.display = "flex";
+      });
+    }
+  }
+
+  function applyLegalModals() {
+    if (document.getElementById("bdv-legal-modal-root")) return;
+
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "bdv-legal-modal-root";
+    modalRoot.className = "bdv-modal-overlay";
+    modalRoot.style.display = "none";
+    modalRoot.innerHTML = `
+      <div class="bdv-modal-window">
+        <div class="bdv-modal-top">
+          <h3 id="bdv-modal-title">Legal</h3>
+          <button type="button" id="bdv-modal-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+        </div>
+        <div id="bdv-modal-body" class="bdv-modal-content"></div>
+      </div>
+    `;
+    document.body.appendChild(modalRoot);
+
+    document.getElementById("bdv-modal-close-btn").addEventListener("click", () => {
+      modalRoot.style.display = "none";
+    });
+
+    modalRoot.addEventListener("click", (e) => {
+      if (e.target === modalRoot) modalRoot.style.display = "none";
+    });
+  }
+
+  /* Visor de solo lectura para el cliente */
+  function applyClientTrackerModal() {
+    if (document.getElementById("bdv-tracker-modal-root")) return;
+
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "bdv-tracker-modal-root";
+    modalRoot.className = "bdv-modal-overlay";
+    modalRoot.style.display = "none";
+
+    modalRoot.innerHTML = `
+      <div class="bdv-tracker-card">
+        <div class="bdv-modal-top">
+          <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">Visor de Progreso · BDV LLC</h3>
+          <button type="button" id="bdv-tracker-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+        </div>
+        <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;">
+          Acceso de solo lectura mediante tu correo y el código secreto temporal asignado al liquidar el depósito.
+        </p>
+        <form id="bdv-tracker-query-form" class="bdv-tracker-form">
+          <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="tu-correo@empresa.com" required />
+          <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="Código secreto (ej. BDV-7492)" required />
+          <button type="submit" class="bdv-tracker-btn">Consultar Avance</button>
+        </form>
+        <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result"></div>
+        <p class="bdv-tracker-disclaimer">
+          * Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.
+        </p>
+      </div>
+    `;
+    document.body.appendChild(modalRoot);
+
+    document.getElementById("bdv-tracker-close-btn").addEventListener("click", () => {
+      modalRoot.style.display = "none";
+    });
+
+    modalRoot.addEventListener("click", (e) => {
+      if (e.target === modalRoot) modalRoot.style.display = "none";
+    });
+
+    const form = document.getElementById("bdv-tracker-query-form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = (document.getElementById("bdv-track-email").value || "").trim().toLowerCase();
+      const pin = (document.getElementById("bdv-track-pin").value || "").trim().toUpperCase();
+      const resBox = document.getElementById("bdv-track-result-box");
+      const lang = getLang();
+
+      if (!email || !pin) return;
+
+      resBox.style.display = "block";
+      resBox.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Verificando credenciales...</p>`;
+
+      fetch(`${BDV_ADMIN_API_URL}?key=${BDV_ADMIN_KEY}`)
+        .then(r => r.json())
+        .then(res => {
+          if (!res.ok || !res.projects) {
+            throw new Error("No data");
+          }
+          const matched = res.projects.find(p => p.email.toLowerCase() === email && p.code.toUpperCase() === pin);
+          if (!matched) {
+            resBox.innerHTML = `
+              <p style="font-size: 0.82rem; color: #f87171; margin: 0;">
+                ${lang === "en" ? "Credentials not found or expired. Check your welcome email or contact management." : "Credenciales no encontradas o expiradas. Revisa tu correo de bienvenida o contacta a soporte."}
+              </p>
+            `;
+            return;
+          }
+
+          if (matched.accessStatus === "DISABLED" || matched.stage === 6) {
+            resBox.innerHTML = `
+              <span class="bdv-tracker-status-tag bdv-status-disabled">Acceso Expirado / Inhabilitado</span>
+              <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Proyecto Liquidado al 100%</h4>
+              <p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0;">El software fue entregado y las credenciales maestras fueron traspasadas. El visor temporal ha concluido. Para soporte técnico continuo, contacte una póliza mensual.</p>
+            `;
+          } else {
+            const stObj = workflowStages[matched.stage - 1] || workflowStages[0];
+            const stName = lang === "en" ? stObj.name_en : stObj.name_es;
+            resBox.innerHTML = `
+              <span class="bdv-tracker-status-tag bdv-status-active">Acceso Activo · Obra en Progreso</span>
+              <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Etapa ${matched.stage}/6: ${stName} (${stObj.percentage}%)</h4>
+              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ${matched.name} (${matched.id})</p>
+              <p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Estado Financiero:</strong> ${matched.paymentStatus}</p>
+              <div class="bdv-progress-track" style="margin-top: 8px;">
+                <div class="bdv-progress-fill" style="width: ${stObj.percentage}%;"></div>
+              </div>
+            `;
+          }
+        })
+        .catch(() => {
+          resBox.innerHTML = `
+            <p style="font-size: 0.82rem; color: #f87171; margin: 0;">
+              ${lang === "en" ? "Connection error. Please try again." : "Error al conectar con el servidor. Intenta de nuevo."}
+            </p>
+          `;
+        });
+    });
+  }
+
+  /* Admin Panel Web (Gestión Interna de Proyectos) */
+  function applyAdminPanel() {
+    const footer = document.querySelector("footer");
+    if (!footer || document.getElementById("bdv-admin-btn")) return;
+
+    const adminLink = document.createElement("div");
+    adminLink.style.textAlign = "center";
+    adminLink.style.marginTop = "15px";
+    adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn">⚙ Panel Admin</button>`;
+    (footer.querySelector(".container") || footer).appendChild(adminLink);
+
+    const modalRoot = document.createElement("div");
+    modalRoot.id = "bdv-admin-modal-root";
+    modalRoot.className = "bdv-modal-overlay";
+    modalRoot.style.display = "none";
+
+    modalRoot.innerHTML = `
+      <div class="bdv-admin-card">
+        <div class="bdv-modal-top">
+          <h3 style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Admin Panel · BDV LLC</h3>
+          <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>
+        </div>
+
+        <div id="bdv-admin-auth-view" style="margin-top: 15px;">
+          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa clave de administrador" />
+          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
+        </div>
+
+        <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+            <h4 style="margin: 0; font-size: 0.95rem;">Proyectos en Curso</h4>
+            <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻ Actualizar</button>
+          </div>
+          <div id="bdv-admin-projects-list">Cargando proyectos...</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalRoot);
+
+    document.getElementById("bdv-admin-btn").addEventListener("click", () => {
+      modalRoot.style.display = "flex";
+    });
+
+    document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
+      modalRoot.style.display = "none";
+    });
+
+    document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
+      const pass = document.getElementById("bdv-admin-pass").value;
+      if (pass === BDV_ADMIN_KEY) {
+        document.getElementById("bdv-admin-auth-view").style.display = "none";
+        document.getElementById("bdv-admin-dash-view").style.display = "block";
+        loadAdminProjects();
+      } else {
+        alert("Clave de administrador incorrecta.");
+      }
+    });
+
+    document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
+  }
+
+  function loadAdminProjects() {
+    const listEl = document.getElementById("bdv-admin-projects-list");
+    listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Consultando proyectos...</p>`;
+
+    fetch(`${BDV_ADMIN_API_URL}?key=${BDV_ADMIN_KEY}`)
+      .then(r => r.json())
+      .then(res => {
+        if (!res.ok || !res.projects || !res.projects.length) {
+          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos activos registrados en la hoja Projects.</p>`;
+          return;
+        }
+
+        listEl.innerHTML = res.projects.map(p => `
+          <div class="bdv-admin-project-item" data-row="${p.row}">
+            <div class="bdv-admin-grid-row">
+              <div>
+                <strong style="color: #f8fafc; font-size: 0.9rem;">${p.name}</strong>
+                <span style="font-size: 0.75rem; color: #94a3b8;">(${p.id})</span>
+                <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
+                  Email: ${p.email} | PIN: <span style="color: #e8c861; font-weight: 700;">${p.code}</span>
+                </div>
+              </div>
+              <span class="bdv-tracker-status-tag ${p.accessStatus === 'ACTIVE' ? 'bdv-status-active' : 'bdv-status-disabled'}">
+                ${p.accessStatus}
+              </span>
+            </div>
+
+            <div class="bdv-admin-grid-row" style="margin-top: 10px;">
+              <select class="bdv-admin-select" id="stage-select-${p.row}">
+                <option value="1" ${p.stage === 1 ? 'selected' : ''}>1. Intake (10%)</option>
+                <option value="2" ${p.stage === 2 ? 'selected' : ''}>2. SOW & PIN (25%)</option>
+                <option value="3" ${p.stage === 3 ? 'selected' : ''}>3. Arquitectura (45%)</option>
+                <option value="4" ${p.stage === 4 ? 'selected' : ''}>4. Core & QA (75%)</option>
+                <option value="5" ${p.stage === 5 ? 'selected' : ''}>5. Revisión (90%)</option>
+                <option value="6" ${p.stage === 6 ? 'selected' : ''}>6. Release 100% (Disable)</option>
+              </select>
+
+              <button type="button" class="bdv-admin-action-btn" onclick="updateProjectStage(${p.row})">
+                Guardar y Notificar
+              </button>
+            </div>
+          </div>
+        `).join("");
+      })
+      .catch(() => {
+        listEl.innerHTML = `<p style="font-size: 0.8rem; color: #f87171;">Error al conectar con la API de proyectos.</p>`;
+      });
+  }
+
+  window.updateProjectStage = function (row) {
+    const sel = document.getElementById(`stage-select-${row}`);
+    const stage = Number(sel.value);
+    const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
+
+    sel.disabled = true;
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: BDV_ADMIN_KEY,
+        action: "update",
+        row: row,
+        stage: stage,
+        accessStatus: accessStatus
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        sel.disabled = false;
+        if (res.ok) {
+          alert(`Etapa actualizada a ${stage}/6. Correos enviados automáticamente.`);
+          loadAdminProjects();
+        } else {
+          alert("Error al actualizar la etapa.");
+        }
+      })
+      .catch(() => {
+        sel.disabled = false;
+        alert("Error de red al actualizar.");
+      });
+  };
+
+  function loadCabinetData() {
+    Promise.all([
+      fetch("./bdv-company/cabinet-tabs.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch("./bdv-company/foundations.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null),
+      fetch("./bdv-company/workflow-progress.json", { cache: "no-cache" })
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null)
+    ]).then(([cabData, foundData, wfData]) => {
+      ["es", "en"].forEach((langKey) => {
+        if (foundData && foundData[langKey]) {
+          copy[langKey] = Object.assign({}, copy[langKey], foundData[langKey]);
+        }
+        if (cabData && cabData[langKey]) {
+          copy[langKey] = Object.assign({}, copy[langKey], cabData[langKey]);
+        }
+      });
+      if (wfData && Array.isArray(wfData.progress_stages) && wfData.progress_stages.length) {
+        workflowStages = wfData.progress_stages;
+      }
+      syncAll();
+    });
+  }
+
+  function syncAll() {
+    const lang = getLang();
+    const t = copy[lang];
+
+    applyLogo(lang);
+    applyBanner(lang);
+    applyProductsDrawer(lang);
+    renderCabinet(lang);
+    applyCompactHowWeOperate(lang);
+    applyLegalModals();
+    applyClientTrackerModal();
+    applyAdminPanel();
+    cleanFooterLinksAndApplyLegal(lang);
+
+    const eyebrow = document.querySelector(".eyebrow");
+    if (eyebrow) eyebrow.textContent = t.eyebrow;
+
+    const h1 = document.querySelector("h1");
+    if (h1) h1.textContent = t.h1;
+
+    const heroLead = document.querySelector(".hero-lead");
+    if (heroLead) heroLead.textContent = t.lead;
+
+    const navBtn = document.querySelector("header .nav-actions .btn, header .nav-actions a, header .btn-primary");
+    if (navBtn) navBtn.textContent = t.navCta;
+
+    const ctaButtons = document.querySelectorAll(".hero-cta a, .hero-cta button");
+    if (ctaButtons[0]) ctaButtons[0].textContent = t.ctaPrimary;
+    if (ctaButtons[1]) ctaButtons[1].textContent = t.ctaSecondary;
+
+    const kicker = document.querySelector("[data-bdv-kicker]");
+    const caption = document.querySelector("[data-bdv-caption]");
+    const banner = document.querySelector("[data-bdv-banner]");
+    if (kicker) kicker.textContent = t.kicker;
+    if (caption) caption.textContent = t.caption;
+    if (banner) banner.alt = t.altBanner;
+
+    const toggleLabel = document.querySelector("[data-bdv-toggle-label]");
+    if (toggleLabel) {
+      toggleLabel.textContent = isPanelOpen ? t.toggleClose : t.toggleOpen;
+    }
+
+    const termsBtn = document.querySelector("[data-legal-terms-btn]");
+    const privBtn = document.querySelector("[data-legal-privacy-btn]");
+    if (termsBtn) termsBtn.textContent = t.legalTermsBtn;
+    if (privBtn) privBtn.textContent = t.legalPrivacyBtn;
+
+    const pairs = [
+      ["[data-tr-pill]", t.trPill],
+      ["[data-tr-title]", t.trTitle],
+      ["[data-tr-desc]", t.trDesc],
+      ["[data-tr-t1]", t.trT1],
+      ["[data-tr-t2]", t.trT2],
+      ["[data-tr-t3]", t.trT3],
+      ["[data-tr-btn]", t.trBtn],
+      ["[data-mq-pill]", t.mqPill],
+      ["[data-mq-title]", t.mqTitle],
+      ["[data-mq-desc]", t.mqDesc],
+      ["[data-mq-t1]", t.mqT1],
+      ["[data-mq-t2]", t.mqT2],
+      ["[data-mq-t3]", t.mqT3],
+      ["[data-mq-btn]", t.mqBtn],
+      ["[data-gy-pill]", t.gyPill],
+      ["[data-gy-title]", t.gyTitle],
+      ["[data-gy-desc]", t.gyDesc],
+      ["[data-gy-t1]", t.gyT1],
+      ["[data-gy-t2]", t.gyT2],
+      ["[data-gy-t3]", t.gyT3],
+      ["[data-gy-t4]", t.gyT4],
+      ["[data-gy-btn]", t.gyBtn]
+    ];
+
+    pairs.forEach(([sel, val]) => {
+      const el = document.querySelector(sel);
+      if (el) el.textContent = val;
+    });
+  }
+
+  function init() {
+    syncAll();
+    loadCabinetData();
+    document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setTimeout(syncAll, 20);
+      });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
