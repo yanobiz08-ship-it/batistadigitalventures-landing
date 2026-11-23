@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Logo, banner, drawer y ajuste movil limpio */
+/* Batista Digital Ventures - Global Layout, Mobile Fixes, Foundations, Footer Clean & Modals */
 html,
 body {
   max-width: 100%;
@@ -83,7 +83,7 @@ body {
   border-radius: 12px;
 }
 
-/* Oculta la cuadricula fija original para mostrar productos solo al abrir el boton */
+/* Ocultar cuadricula estatica de proyectos */
 #ventures > .container > .ventures-grid {
   display: none !important;
 }
@@ -126,7 +126,202 @@ body {
   gap: 14px;
 }
 
-/* Ajustes especificos para celular (incluyendo iPhone 17 Pro) */
+/* =========================================
+   SECCIÓN INSTITUCIONAL (VISIÓN / PILARES)
+   ========================================= */
+.bdv-foundations-band {
+  padding: 40px 0 30px;
+}
+
+.bdv-sec-header {
+  margin-bottom: 20px;
+}
+
+.bdv-sec-title {
+  font-size: 1.55rem;
+  color: #f8fafc;
+  margin-top: 6px;
+  line-height: 1.25;
+}
+
+.bdv-vision-card {
+  background: linear-gradient(145deg, rgba(23, 32, 51, 0.8), rgba(11, 15, 23, 0.95));
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.bdv-vision-card h3 {
+  color: #e8c861;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.bdv-vision-card p {
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.bdv-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.bdv-inst-box {
+  background: #0d121d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.bdv-inst-box h3 {
+  color: #f8fafc;
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 6px;
+}
+
+.bdv-inst-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bdv-inst-box li {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.bdv-inst-box strong {
+  color: #e2e8f0;
+}
+
+/* =========================================
+   FOOTER LIMPIO, CENTRADO Y MODALES
+   ========================================= */
+footer {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.bdv-footer-legal {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-top: 18px !important;
+  padding: 10px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.bdv-link-btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  color: #94a3b8 !important;
+  font-size: 0.80rem !important;
+  cursor: pointer !important;
+  padding: 4px 6px !important;
+  margin: 0 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+  font-family: inherit !important;
+  line-height: 1.2 !important;
+  transition: color 0.2s ease !important;
+}
+
+.bdv-link-btn:hover {
+  color: #e8c861 !important;
+}
+
+.bdv-legal-dot {
+  color: #475569 !important;
+  font-size: 0.80rem !important;
+  user-select: none !important;
+}
+
+.bdv-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.bdv-modal-window {
+  background: #0b0f17;
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.bdv-modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.bdv-modal-top h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #e8c861;
+}
+
+.bdv-modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.bdv-modal-content {
+  padding: 20px;
+  overflow-y: auto;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.bdv-modal-content h4 {
+  color: #f8fafc;
+  margin-top: 14px;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   AJUSTES MÓVILES (IPHONE)
+   ========================================= */
 @media (max-width: 820px) {
   .nav-inner {
     min-height: 62px;
@@ -157,8 +352,6 @@ body {
     font-size: 0.78rem;
     line-height: 1.15;
     white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
   }
 
   .brand-sub {
@@ -167,8 +360,6 @@ body {
     letter-spacing: 0.05em;
     color: #e8c861;
     white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
   }
 
   .nav-actions {
@@ -193,13 +384,14 @@ body {
     font-size: 0.66rem !important;
     min-height: 30px !important;
     width: auto !important;
-    max-width: none !important;
-    border-radius: 9px !important;
     white-space: nowrap !important;
     line-height: 1.1 !important;
   }
 
-  /* Evita que grids o filas internas estiren mas alla del ancho del iPhone */
+  .bdv-grid-two {
+    grid-template-columns: 1fr;
+  }
+
   main .container > div,
   main .container > section,
   main section > .container > div {
@@ -219,7 +411,6 @@ body {
     min-width: 0 !important;
   }
 
-  /* Botones y enlaces dentro de tarjetas o secciones: que nunca se salgan del borde */
   main .btn,
   main a.btn,
   main button.btn,
@@ -267,7 +458,9 @@ body {
   .scope-card,
   .pillar,
   .metric-box,
-  .bdv-banner-frame {
+  .bdv-banner-frame,
+  .bdv-inst-box,
+  .bdv-vision-card {
     border-radius: 16px;
     padding: 16px 14px;
     max-width: 100%;
