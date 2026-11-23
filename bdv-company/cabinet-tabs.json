@@ -28,12 +28,12 @@
       {
         "id": "pricing",
         "label": "Proceso y Precios",
-        "headline": "Del primer mensaje al lanzamiento, con escalones accesibles.",
-        "summary": "Estructuramos proyectos por etapas para que personas comunes con aspiraciones y negocios reales puedan avanzar sin comprometer la calidad.",
+        "headline": "6 etapas de principio a fin, escalones accesibles y barra de progreso.",
+        "summary": "Cada encargo avanza en orden lógico (10% → 25% → 45% → 75% → 90% → 100%) con notificación automática al cliente y a Batista Digital Ventures LLC en cada cambio.",
         "bullets": [
-          "<strong>Flujo:</strong> Solicitud y filtro → Alcance (SOW) y anticipo → Hitos y pruebas → Liquidación y entrega.",
-          "<strong>Escalones orientativos:</strong> Web base/MVP ($450–$850), Web dinámica por fases ($1,200–$2,800+), App móvil por hitos ($2,500–$5,000+).",
-          "<strong>Soporte opcional:</strong> Mantenimiento y mejoras mensuales ($180–$450/mes) tras el lanzamiento."
+          "<strong>Etapas 1–2 (10%–25%):</strong> Recepción y filtro → Firma de SOW, anticipo y asignación/toma de trabajo.",
+          "<strong>Etapas 3–5 (45%–90%):</strong> Arquitectura base → Construcción y pruebas QA → Revisión del cliente (5 días hábiles).",
+          "<strong>Etapa 6 y Precios (100%):</strong> Liquidación y entrega. Web base/MVP ($450–$850), Web dinámica ($1,200–$2,800+), App por hitos ($2,500–$5,000+), Mantenimiento ($180–$450/mes)."
         ]
       },
       {
@@ -78,12 +78,12 @@
       {
         "id": "pricing",
         "label": "Process & Pricing",
-        "headline": "From initial inquiry to launch, with accessible entry tiers.",
-        "summary": "Phased delivery helps ambitious founders and everyday businesses start smart without sacrificing solid engineering.",
+        "headline": "6 end-to-end stages, accessible tiers, and automated progress alerts.",
+        "summary": "Every project follows a sequential path (10% → 25% → 45% → 75% → 90% → 100%) with automatic notifications to both the client and Batista Digital Ventures LLC on stage updates.",
         "bullets": [
-          "<strong>Workflow:</strong> Inquiry & fit check → Written SOW & deposit → Milestones & QA → Final balance & handoff.",
-          "<strong>Reference tiers:</strong> Starter/MVP web ($450–$850), Phased dynamic web ($1,200–$2,800+), Milestone mobile app ($2,500–$5,000+).",
-          "<strong>Optional care:</strong> Monthly maintenance and updates ($180–$450/mo) after launch."
+          "<strong>Stages 1–2 (10%–25%):</strong> Intake & scope fit → SOW execution, deposit & partner dispatch.",
+          "<strong>Stages 3–5 (45%–90%):</strong> Architecture setup → Core build & QA → Client review (5 business days).",
+          "<strong>Stage 6 & Tiers (100%):</strong> Final settlement & handoff. Starter/MVP web ($450–$850), Dynamic web ($1,200–$2,800+), Milestone app ($2,500–$5,000+), Care ($180–$450/mo)."
         ]
       },
       {
