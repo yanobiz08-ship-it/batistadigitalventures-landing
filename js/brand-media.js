@@ -7,7 +7,7 @@
       lead: "Batista Digital Ventures diseña, lanza y hace crecer software desde cero hasta producción—uniendo estrategia de negocio, desarrollo móvil, infraestructura en la nube y ejecución enfocada en resultados.",
       ctaPrimary: "Ver Proyectos Activos",
       ctaSecondary: "Ver Qué Hacemos",
-      navCta: "Hablemos",
+      navCta: "Colaborar",
       kicker: "IDENTIDAD OFICIAL · BATISTA DIGITAL VENTURES",
       caption: "Plataformas digitales, aplicaciones móviles y sistemas listos para crecer",
       altBanner: "Banner oficial de Batista Digital Ventures con emblema hexagonal dorado y nombre de marca",
@@ -281,7 +281,7 @@
     const heroLead = document.querySelector(".hero-lead");
     if (heroLead) heroLead.textContent = t.lead;
 
-    const navBtn = document.querySelector("header .btn-primary");
+    const navBtn = document.querySelector("header .nav-actions .btn, header .nav-actions a, header .btn-primary");
     if (navBtn) navBtn.textContent = t.navCta;
 
     const ctaButtons = document.querySelectorAll(".hero-cta a, .hero-cta button");
