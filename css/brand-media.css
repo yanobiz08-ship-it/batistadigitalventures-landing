@@ -626,3 +626,94 @@ footer {
   color: #f8fafc;
   border-color: #e8c861;
 }
+
+/* Compactación visual: CÓMO OPERAMOS (01-04) en sellos compactos */
+.bdv-ops-compact {
+  background: linear-gradient(165deg, rgba(19, 27, 43, 0.92), rgba(11, 15, 23, 0.98));
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.bdv-ops-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-bottom: 10px;
+}
+
+.bdv-ops-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e8c861;
+}
+
+.bdv-ops-sub {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.bdv-ops-pills {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bdv-ops-pill {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #101624;
+  color: #cbd5e1;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bdv-ops-pill span.bdv-ops-num {
+  color: #e8c861;
+  font-variant-numeric: tabular-nums;
+}
+
+.bdv-ops-pill.is-active {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: #e8c861;
+  color: #f8fafc;
+}
+
+.bdv-ops-detail {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(13, 18, 29, 0.85);
+  border-left: 3px solid #d4af37;
+  font-size: 0.83rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+@media (max-width: 820px) {
+  .bdv-ops-pills {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .bdv-ops-pill {
+    padding: 8px 8px !important;
+    font-size: 0.74rem !important;
+  }
+}
