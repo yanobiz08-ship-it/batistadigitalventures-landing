@@ -1377,9 +1377,9 @@
     applyCompactHowWeOperate(lang);
     applyLegalModals();
     applyClientTrackerModal();
+    cleanFooterLinksAndApplyLegal(lang);
     applyAdminPanel();
     applyServiceRequestModal();
-    cleanFooterLinksAndApplyLegal(lang);
 
     const eyebrow = document.querySelector(".eyebrow");
     if (eyebrow) eyebrow.textContent = t.eyebrow;
