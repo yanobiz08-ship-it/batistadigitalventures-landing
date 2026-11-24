@@ -3,13 +3,13 @@
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
 
 function escapeHtml(str) {
-  if (!str) return '';
+  if (!str) return "";
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .split("&").join("&amp;")
+    .split("<").join("&lt;")
+    .split(">").join("&gt;")
+    .split('"').join("&quot;")
+    .split("'").join("&#039;");
 }
   const copy = {
     es: {
