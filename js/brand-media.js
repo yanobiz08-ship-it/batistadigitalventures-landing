@@ -1,7 +1,7 @@
 /* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker, Dev Flow & Legal */
 (function () {
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
-  const BDV_DEFAULT_ADMIN_KEY = "BDV_MASTER_2026";
+  const BDV_DEFAULT_ADMIN_KEY = "950772";
 
   function escapeHtml(str) {
     if (!str) return "";
