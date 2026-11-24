@@ -2,16 +2,15 @@
 (function () {
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
 
-  function escapeHtml(str) {
-    if (!str) return "";
-    return String(str)
-      .replace(/&/g, "&")
-      .replace(/</g, "<")
-      .replace(/>/g, ">")
-      .replace(/"/g, """)
-      .replace(/'/g, "'");
-  }
-
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
   const copy = {
     es: {
       eyebrow: "PLATAFORMAS DIGITALES Y APPS MÓVILES",
