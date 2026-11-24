@@ -769,9 +769,8 @@ function escapeHtml(str) {
     if (!adminBtnWrap) {
       adminBtnWrap = document.createElement("div");
       adminBtnWrap.id = "bdv-admin-btn-wrap";
-      adminBtnWrap.style.textAlign = "center";
-      adminBtnWrap.style.margin = "20px 0 10px 0";
-      adminBtnWrap.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.9; padding: 7px 14px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.45); background: rgba(0,0,0,0.5); color: #e8c861; font-size: 0.82rem;">⚙ Panel Admin / Dev</button>`;
+      adminBtnWrap.style.cssText = "width: 100%; display: flex; justify-content: center; margin-top: 12px;";
+      adminBtnWrap.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.45; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #94a3b8; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>`;
       container.appendChild(adminBtnWrap);
     } else if (!container.contains(adminBtnWrap)) {
       container.appendChild(adminBtnWrap);
