@@ -765,16 +765,16 @@ function escapeHtml(str) {
 
     const container = footer.querySelector(".container") || footer;
 
-    let adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
+   let adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
     if (!adminBtnWrap) {
       adminBtnWrap = document.createElement("div");
       adminBtnWrap.id = "bdv-admin-btn-wrap";
       adminBtnWrap.style.cssText = "width: 100%; display: flex; justify-content: center; margin-top: 12px;";
-      adminBtnWrap.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.45; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #94a3b8; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>`;
+      adminBtnWrap.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.5; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.14) !important; background: transparent !important; color: #94a3b8 !important; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>`;
       container.appendChild(adminBtnWrap);
     } else if (!container.contains(adminBtnWrap)) {
       container.appendChild(adminBtnWrap);
-    }
+    } 
 
     let modalRoot = document.getElementById("bdv-admin-modal-root");
     if (!modalRoot) {
