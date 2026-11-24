@@ -766,102 +766,98 @@
 
     const container = footer.querySelector(".container") || footer;
 
-    // Asegurar que el botón exista en el footer
-    let adminBtn = document.getElementById("bdv-admin-btn");
-    if (!adminBtn) {
-      const adminLink = document.createElement("div");
-      adminLink.id = "bdv-admin-btn-wrap";
-      adminLink.style.textAlign = "center";
-      adminLink.style.marginTop = "15px";
-      adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.85; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.4); color: #e8c861; font-size: 0.8rem;">⚙ Panel Admin / Dev</button>`;
-      container.appendChild(adminLink);
-      adminBtn = document.getElementById("bdv-admin-btn");
-    } else {
-      // Si el contenedor se reescribió pero el botón quedó huérfano, reinsertarlo
-      const wrap = document.getElementById("bdv-admin-btn-wrap");
-      if (wrap && !container.contains(wrap)) {
-        container.appendChild(wrap);
-      }
+    let adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
+    if (!adminBtnWrap) {
+      adminBtnWrap = document.createElement("div");
+      adminBtnWrap.id = "bdv-admin-btn-wrap";
+      adminBtnWrap.style.textAlign = "center";
+      adminBtnWrap.style.margin = "20px 0 10px 0";
+      adminBtnWrap.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.9; padding: 7px 14px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.45); background: rgba(0,0,0,0.5); color: #e8c861; font-size: 0.82rem;">⚙ Panel Admin / Dev</button>`;
+      container.appendChild(adminBtnWrap);
+    } else if (!container.contains(adminBtnWrap)) {
+      container.appendChild(adminBtnWrap);
     }
 
-    // Asegurar que el modal exista en document.body (solo una vez)
     let modalRoot = document.getElementById("bdv-admin-modal-root");
-    if (modalRoot) return; // Si el modal ya existe, terminamos
-
-    modalRoot = document.createElement("div");
-    modalRoot.id = "bdv-admin-modal-root";
-    modalRoot.className = "bdv-modal-overlay";
-    modalRoot.style.display = "none";
-
-    modalRoot.innerHTML = `
-      <div class="bdv-admin-card">
-        <div class="bdv-modal-top">
-          <h3 id="bdv-admin-modal-title" style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Control Operativo · BDV LLC</h3>
-          <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>
-        </div>
-
-        <div id="bdv-admin-auth-view" style="margin-top: 15px;">
-          <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa tu clave (Admin o Programador)" />
-          <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
-          <div id="bdv-admin-auth-msg" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #f87171;"></div>
-        </div>
-
-        <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-            <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
-            <div>
-              <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status" style="margin-right: 6px;">🔐 Cambiar Clave</button>
-              <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻</button>
-            </div>
-          </div>
-
-          <!-- Módulo para cambiar contraseña -->
-          <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">
-            <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>
-            <div style="display: flex; gap: 8px;">
-              <input type="password" id="bdv-new-role-pass" class="bdv-tracker-input" placeholder="Nueva clave (mín. 6 letras/números)" style="flex: 1; padding: 6px 10px; font-size: 0.82rem;" />
-              <button type="button" class="bdv-admin-action-btn" onclick="submitPasswordChange()">Guardar Clave</button>
-            </div>
-            <div id="bdv-key-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>
-          </div>
-
-          <div id="bdv-admin-projects-list" style="margin-top: 14px;">Cargando proyectos...</div>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modalRoot);
-
-    document.getElementById("bdv-admin-btn").addEventListener("click", () => {
-      modalRoot.style.display = "flex";
-    });
-
-    document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
+    if (!modalRoot) {
+      modalRoot = document.createElement("div");
+      modalRoot.id = "bdv-admin-modal-root";
+      modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.display = "none";
-    });
 
-    document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
-      const pass = (document.getElementById("bdv-admin-pass").value || "").trim();
-      const authMsg = document.getElementById("bdv-admin-auth-msg");
-      if (!pass) {
-        if (authMsg) {
-          authMsg.style.display = "block";
-          authMsg.textContent = "Ingresa tu clave de acceso.";
+      modalRoot.innerHTML = `
+        <div class="bdv-admin-card">
+          <div class="bdv-modal-top">
+            <h3 id="bdv-admin-modal-title" style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Control Operativo · BDV LLC</h3>
+            <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>
+          </div>
+
+          <div id="bdv-admin-auth-view" style="margin-top: 15px;">
+            <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa tu clave (Admin o Programador)" />
+            <button type="button" id="bdv-admin-login-btn" class="bdv-tracker-btn" style="width: 100%; margin-top: 10px;">Acceder al Panel</button>
+            <div id="bdv-admin-auth-msg" style="display: none; margin-top: 10px; font-size: 0.82rem; color: #f87171;"></div>
+          </div>
+
+          <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+              <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
+              <div>
+                <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status" style="margin-right: 6px;">🔐 Cambiar Clave</button>
+                <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻</button>
+              </div>
+            </div>
+
+            <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">
+              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>
+              <div style="display: flex; gap: 8px;">
+                <input type="password" id="bdv-new-role-pass" class="bdv-tracker-input" placeholder="Nueva clave (mín. 6 letras/números)" style="flex: 1; padding: 6px 10px; font-size: 0.82rem;" />
+                <button type="button" class="bdv-admin-action-btn" onclick="submitPasswordChange()">Guardar Clave</button>
+              </div>
+              <div id="bdv-key-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>
+            </div>
+
+            <div id="bdv-admin-projects-list" style="margin-top: 14px;">Cargando proyectos...</div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modalRoot);
+
+      document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
+        modalRoot.style.display = "none";
+      });
+
+      document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
+        const pass = (document.getElementById("bdv-admin-pass").value || "").trim();
+        const authMsg = document.getElementById("bdv-admin-auth-msg");
+        if (!pass) {
+          if (authMsg) {
+            authMsg.style.display = "block";
+            authMsg.textContent = "Ingresa tu clave de acceso.";
+          }
+          return;
         }
-        return;
-      }
-      if (authMsg) authMsg.style.display = "none";
-      window.__bdvSessionKey = pass;
-      document.getElementById("bdv-admin-auth-view").style.display = "none";
-      document.getElementById("bdv-admin-dash-view").style.display = "block";
-      loadAdminProjects();
-    });
+        if (authMsg) authMsg.style.display = "none";
+        window.__bdvSessionKey = pass;
+        document.getElementById("bdv-admin-auth-view").style.display = "none";
+        document.getElementById("bdv-admin-dash-view").style.display = "block";
+        loadAdminProjects();
+      });
 
-    document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
+      document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
 
-    document.getElementById("bdv-toggle-key-change-btn").addEventListener("click", () => {
-      const box = document.getElementById("bdv-key-change-box");
-      box.style.display = box.style.display === "none" ? "block" : "none";
-    });
+      document.getElementById("bdv-toggle-key-change-btn").addEventListener("click", () => {
+        const box = document.getElementById("bdv-key-change-box");
+        box.style.display = box.style.display === "none" ? "block" : "none";
+      });
+    }
+
+    const btn = document.getElementById("bdv-admin-btn");
+    if (btn) {
+      btn.onclick = () => {
+        const m = document.getElementById("bdv-admin-modal-root");
+        if (m) m.style.display = "flex";
+      };
+    }
   }
 
   window.submitPasswordChange = function () {
@@ -1378,8 +1374,8 @@
     applyLegalModals();
     applyClientTrackerModal();
     cleanFooterLinksAndApplyLegal(lang);
-    applyAdminPanel();
     applyServiceRequestModal();
+    applyAdminPanel();
 
     const eyebrow = document.querySelector(".eyebrow");
     if (eyebrow) eyebrow.textContent = t.eyebrow;
