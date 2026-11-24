@@ -1,16 +1,15 @@
 /* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker, Dev Flow & Legal */
 (function () {
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
-  const BDV_DEFAULT_ADMIN_KEY = "950772";
 
   function escapeHtml(str) {
     if (!str) return "";
     return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/&/g, "&")
+      .replace(/</g, "<")
+      .replace(/>/g, ">")
+      .replace(/"/g, """)
+      .replace(/'/g, "'");
   }
 
   const copy = {
@@ -861,7 +860,7 @@
       return;
     }
 
-    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || "";
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
       body: JSON.stringify({
@@ -900,7 +899,7 @@
   function loadAdminProjects() {
     const listEl = document.getElementById("bdv-admin-projects-list");
     const roleLabel = document.getElementById("bdv-admin-role-label");
-    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || "";
 
     listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">Consultando proyectos...</p>`;
 
@@ -1001,7 +1000,7 @@
   window.updateProjectPin = function (row) {
     const input = document.getElementById(`pin-input-${row}`);
     const newCode = (input ? input.value : "").trim().toUpperCase();
-    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || "";
     const rowStatus = document.getElementById(`row-status-${row}`);
 
     fetch(BDV_ADMIN_API_URL, {
@@ -1039,7 +1038,7 @@
   };
 
   window.approveProjectProposal = function (row) {
-    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || "";
     const rowStatus = document.getElementById(`row-status-${row}`);
 
     fetch(BDV_ADMIN_API_URL, {
@@ -1079,7 +1078,7 @@
     const sel = document.getElementById(`stage-select-${row}`);
     const stage = Number(sel.value);
     const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
-    const sessionKey = window.__bdvSessionKey || BDV_DEFAULT_ADMIN_KEY;
+    const sessionKey = window.__bdvSessionKey || "";
     const isAdmin = Boolean(window.__bdvIsAdmin);
     const noteInput = document.getElementById(`dev-note-${row}`);
     const notes = noteInput ? noteInput.value.trim() : "";
