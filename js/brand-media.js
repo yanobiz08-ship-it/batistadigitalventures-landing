@@ -762,15 +762,33 @@
   /* Admin Panel Web y Portal de Programadores Partners con Cambio de Claves */
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
-    if (!footer || document.getElementById("bdv-admin-btn")) return;
+    if (!footer) return;
 
-    const adminLink = document.createElement("div");
-    adminLink.style.textAlign = "center";
-    adminLink.style.marginTop = "15px";
-    adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn">⚙ Panel Admin / Dev</button>`;
-    (footer.querySelector(".container") || footer).appendChild(adminLink);
+    const container = footer.querySelector(".container") || footer;
 
-    const modalRoot = document.createElement("div");
+    // Asegurar que el botón exista en el footer
+    let adminBtn = document.getElementById("bdv-admin-btn");
+    if (!adminBtn) {
+      const adminLink = document.createElement("div");
+      adminLink.id = "bdv-admin-btn-wrap";
+      adminLink.style.textAlign = "center";
+      adminLink.style.marginTop = "15px";
+      adminLink.innerHTML = `<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.85; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.4); background: rgba(0,0,0,0.4); color: #e8c861; font-size: 0.8rem;">⚙ Panel Admin / Dev</button>`;
+      container.appendChild(adminLink);
+      adminBtn = document.getElementById("bdv-admin-btn");
+    } else {
+      // Si el contenedor se reescribió pero el botón quedó huérfano, reinsertarlo
+      const wrap = document.getElementById("bdv-admin-btn-wrap");
+      if (wrap && !container.contains(wrap)) {
+        container.appendChild(wrap);
+      }
+    }
+
+    // Asegurar que el modal exista en document.body (solo una vez)
+    let modalRoot = document.getElementById("bdv-admin-modal-root");
+    if (modalRoot) return; // Si el modal ya existe, terminamos
+
+    modalRoot = document.createElement("div");
     modalRoot.id = "bdv-admin-modal-root";
     modalRoot.className = "bdv-modal-overlay";
     modalRoot.style.display = "none";
