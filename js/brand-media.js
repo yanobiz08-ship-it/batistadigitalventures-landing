@@ -165,7 +165,7 @@
           bullets: [
             "<strong>Vision:</strong> Build a trusted venture studio known for speed, engineering reliability, and straight talk.",
             "<strong>Values:</strong> Operational truth, capital and code discipline, and transparent agreements.",
-            "<strong>Pillars:</strong> Mobile and web architecture, proprietary products, and structured partnerships."
+            "<strong>Pillars:</strong> Mobile and web architecture, proprietary products, and structured partnerships.",
           ]
         },
         {
@@ -213,7 +213,6 @@
     { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Expiración de Acceso", name_en: "Final Settlement, Handoff & Portal Disablement", financial_trigger_es: "100% liquidado · Acceso temporal cerrado (no incluye mantenimiento)", financial_trigger_en: "100% settled · Temporary tracker disabled (maintenance not included)" }
   ];
 
-  /* Compactación visual: Cómo Operamos (01-04) */
   const opsData = {
     es: {
       title: "CÓMO OPERAMOS",
@@ -239,7 +238,6 @@
 
   let activeOpsIndex = 0;
 
-  /* Inglés por defecto si no se ha especificado español */
   function getLang() {
     const lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
     return lang.startsWith("es") ? "es" : "en";
@@ -672,7 +670,6 @@
     });
   }
 
-  /* Visor de solo lectura para el cliente (consulta privada por email + code) */
   function applyClientTrackerModal() {
     if (document.getElementById("bdv-tracker-modal-root")) return;
 
@@ -769,7 +766,6 @@
     });
   }
 
-  /* Admin Panel Web y Portal de Programadores Partners con Cambio de Claves y Alta de Proyectos */
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
     if (!footer) return;
@@ -831,6 +827,12 @@
               <div id="bdv-np-status-msg" style="display: none; margin-top: 8px; font-size: 0.8rem;"></div>
             </div>
 
+            <!-- Caja de Solicitudes Recibidas (requests) -->
+            <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">
+              <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes</h5>
+              <div id="bdv-admin-requests-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
             <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">
               <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>
               <div style="display: flex; gap: 8px;">
@@ -888,6 +890,29 @@
       };
     }
   }
+
+  window.autofillProjectFromRequest = function (clientEmail, businessName, clientName) {
+    const box = document.getElementById("bdv-create-project-box");
+    if (box) box.style.display = "block";
+
+    const emailInput = document.getElementById("bdv-np-email");
+    const nameEnInput = document.getElementById("bdv-np-name-en");
+    const nameEsInput = document.getElementById("bdv-np-name-es");
+    const codeInput = document.getElementById("bdv-np-code");
+
+    if (emailInput) emailInput.value = clientEmail;
+    const finalName = businessName || clientName || "Nuevo Proyecto";
+    if (nameEnInput) nameEnInput.value = finalName;
+    if (nameEsInput) nameEsInput.value = finalName;
+
+    // Generar un PIN temporal sugerido automático
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    if (codeInput && !codeInput.value) {
+      codeInput.value = "CL-" + randNum;
+    }
+
+    box.scrollIntoView({ behavior: "smooth" });
+  };
 
   window.submitNewProject = function () {
     const nameEnInput = document.getElementById("bdv-np-name-en");
@@ -1047,8 +1072,40 @@
             : "Programador Partner · Reporte para Revisión y Confirmación";
         }
 
+        // Renderizar las solicitudes entrantes si es admin y vienen en res.requests
+        const reqSection = document.getElementById("bdv-admin-requests-section");
+        const reqList = document.getElementById("bdv-admin-requests-list");
+
+        if (isAdmin && Array.isArray(res.requests) && res.requests.length && reqSection && reqList) {
+          reqSection.style.display = "block";
+          reqList.innerHTML = res.requests.map((r, idx) => {
+            const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
+            const srvList = Array.isArray(r.services) ? r.services.join(", ") : "";
+            const escapedEmail = escapeHtml(r.clientEmail || "");
+            const escapedBiz = escapeHtml(r.businessName || "");
+            const escapedClient = escapeHtml(r.clientName || "");
+
+            return `
+              <div style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div>
+                  <strong style="color: #f8fafc;">${escapedClient}</strong> 
+                  <span style="color: #94a3b8;">(${escapedEmail})</span>
+                  ${escapedBiz ? `<div style="color: #e8c861; font-size: 0.75rem;">Negocio: ${escapedBiz}</div>` : ""}
+                  ${srvList ? `<div style="color: #cbd5e1; font-size: 0.72rem;">Servicio: ${escapeHtml(srvList)}</div>` : ""}
+                  <div style="color: #64748b; font-size: 0.7rem;">${escapeHtml(r.id)} · ${dateStr}</div>
+                </div>
+                <button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #000 !important; font-weight: 700; padding: 4px 8px; font-size: 0.75rem;" onclick="autofillProjectFromRequest('${escapedEmail}', '${escapedBiz}', '${escapedClient}')">
+                  Usar en Nuevo Proyecto
+                </button>
+              </div>
+            `;
+          }).join("");
+        } else if (reqSection) {
+          reqSection.style.display = "none";
+        }
+
         if (!res.projects || !res.projects.length) {
-          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos registrados en la hoja Projects.</p>`;
+          listEl.innerHTML = `<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos registrados en la base de datos.</p>`;
           return;
         }
 
@@ -1267,7 +1324,6 @@
       });
   };
 
-  /* Solicitud de Servicios Bilingüe con Selección Múltiple y Notificación a Admin + Partners */
   function applyServiceRequestModal() {
     const lang = getLang();
 
