@@ -766,6 +766,36 @@
     });
   }
 
+  function showAdminToast(message, isSuccess) {
+    let banner = document.getElementById("bdv-admin-action-banner");
+    if (!banner) {
+      const dash = document.getElementById("bdv-admin-dash-view");
+      if (!dash) return;
+      banner = document.createElement("div");
+      banner.id = "bdv-admin-action-banner";
+      banner.style.cssText = "margin-top: 10px; padding: 10px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;";
+      dash.insertBefore(banner, dash.firstChild);
+    }
+    banner.style.display = "block";
+    banner.style.background = isSuccess ? "rgba(74, 222, 128, 0.14)" : "rgba(248, 113, 113, 0.14)";
+    banner.style.border = isSuccess ? "1px solid rgba(74, 222, 128, 0.45)" : "1px solid rgba(248, 113, 113, 0.45)";
+    banner.style.color = isSuccess ? "#4ade80" : "#f87171";
+    banner.textContent = message;
+  }
+
+  function refreshAdminSessionView(noticeText) {
+    const passInput = document.getElementById("bdv-admin-pass");
+    if (passInput) passInput.value = "";
+    const createBox = document.getElementById("bdv-create-project-box");
+    if (createBox) createBox.style.display = "none";
+    const keyBox = document.getElementById("bdv-key-change-box");
+    if (keyBox) keyBox.style.display = "none";
+    if (noticeText) {
+      showAdminToast(noticeText, true);
+    }
+    loadAdminProjects();
+  }
+
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
     if (!footer) return;
@@ -789,9 +819,12 @@
       modalRoot.id = "bdv-admin-modal-root";
       modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.display = "none";
+      modalRoot.style.overflowY = "auto";
+      modalRoot.style.alignItems = "flex-start";
+      modalRoot.style.padding = "18px 10px";
 
       modalRoot.innerHTML = `
-        <div class="bdv-admin-card">
+        <div class="bdv-admin-card" style="max-height: 88vh; overflow-y: auto; margin: auto;">
           <div class="bdv-modal-top">
             <h3 id="bdv-admin-modal-title" style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Control Operativo · BDV LLC</h3>
             <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>
@@ -827,7 +860,6 @@
               <div id="bdv-np-status-msg" style="display: none; margin-top: 8px; font-size: 0.8rem;"></div>
             </div>
 
-            <!-- Caja de Solicitudes Recibidas (requests) -->
             <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">
               <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes</h5>
               <div id="bdv-admin-requests-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>
@@ -848,11 +880,7 @@
       `;
       document.body.appendChild(modalRoot);
 
-      document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
-        modalRoot.style.display = "none";
-      });
-
-      document.getElementById("bdv-admin-login-btn").addEventListener("click", () => {
+      function triggerAdminLogin() {
         const pass = (document.getElementById("bdv-admin-pass").value || "").trim();
         const authMsg = document.getElementById("bdv-admin-auth-msg");
         if (!pass) {
@@ -867,6 +895,19 @@
         document.getElementById("bdv-admin-auth-view").style.display = "none";
         document.getElementById("bdv-admin-dash-view").style.display = "block";
         loadAdminProjects();
+      }
+
+      document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
+        modalRoot.style.display = "none";
+      });
+
+      document.getElementById("bdv-admin-login-btn").addEventListener("click", triggerAdminLogin);
+
+      document.getElementById("bdv-admin-pass").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          triggerAdminLogin();
+        }
       });
 
       document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
@@ -886,12 +927,19 @@
     if (btn) {
       btn.onclick = () => {
         const m = document.getElementById("bdv-admin-modal-root");
-        if (m) m.style.display = "flex";
+        if (m) {
+          m.style.display = "flex";
+          setTimeout(() => {
+            const passInput = document.getElementById("bdv-admin-pass");
+            if (passInput && document.getElementById("bdv-admin-auth-view").style.display !== "none") {
+              passInput.focus();
+            }
+          }, 60);
+        }
       };
     }
   }
 
-  // Almacén en memoria para evitar errores de comillas en HTML
   window.__bdvStoredRequests = [];
 
   window.autofillProjectByIndex = function (idx) {
@@ -936,7 +984,7 @@
       .then(res => res.json())
       .then(res => {
         if (res.ok) {
-          loadAdminProjects();
+          refreshAdminSessionView("✓ Solicitud eliminada correctamente.");
         } else {
           window.alert(res.error || "No se pudo eliminar la solicitud.");
         }
@@ -964,7 +1012,7 @@
       .then(res => res.json())
       .then(res => {
         if (res.ok) {
-          loadAdminProjects();
+          refreshAdminSessionView("✓ Proyecto eliminado correctamente.");
         } else if (rowStatus) {
           rowStatus.style.display = "block";
           rowStatus.style.color = "#f87171";
@@ -1032,18 +1080,16 @@
         if (res.ok) {
           if (statusMsg) {
             statusMsg.style.color = "#4ade80";
-            statusMsg.textContent = "✓ Proyecto creado exitosamente.";
+            statusMsg.textContent = "✓ Proyecto creado y activado.";
           }
           if (nameEnInput) nameEnInput.value = "";
           if (nameEsInput) nameEsInput.value = "";
           if (emailInput) emailInput.value = "";
           if (codeInput) codeInput.value = "";
           setTimeout(() => {
-            const box = document.getElementById("bdv-create-project-box");
-            if (box) box.style.display = "none";
             if (statusMsg) statusMsg.style.display = "none";
-            loadAdminProjects();
-          }, 1100);
+            refreshAdminSessionView("✓ Nuevo proyecto activado en el portafolio.");
+          }, 900);
         } else if (statusMsg) {
           statusMsg.style.color = "#f87171";
           statusMsg.textContent = res.error || "No se pudo crear el proyecto.";
@@ -1282,12 +1328,10 @@
             rowStatus.style.color = "#4ade80";
             rowStatus.textContent = `✓ PIN actualizado a ${res.code}`;
           }
-          setTimeout(loadAdminProjects, 1000);
-        } else {
-          if (rowStatus) {
-            rowStatus.style.color = "#f87171";
-            rowStatus.textContent = res.error || "No se pudo cambiar el PIN.";
-          }
+          setTimeout(() => refreshAdminSessionView(`✓ PIN actualizado a ${res.code}.`), 800);
+        } else if (rowStatus) {
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = res.error || "No se pudo cambiar el PIN.";
         }
       })
       .catch(() => {
@@ -1317,14 +1361,14 @@
         if (res.ok) {
           if (rowStatus) {
             rowStatus.style.color = "#4ade80";
-            rowStatus.textContent = `✓ Avance confirmado (Etapa ${res.stage}/6) y notificado.`;
+            rowStatus.textContent = `✓ Trabajo aprobado y activado en Etapa ${res.stage}/6.`;
           }
-          setTimeout(loadAdminProjects, 1200);
-        } else {
-          if (rowStatus) {
-            rowStatus.style.color = "#f87171";
-            rowStatus.textContent = res.error || "No se pudo confirmar la propuesta.";
-          }
+          setTimeout(() => {
+            refreshAdminSessionView(`✓ Trabajo aprobado en Etapa ${res.stage}/6. Caso actualizado.`);
+          }, 900);
+        } else if (rowStatus) {
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = res.error || "No se pudo confirmar la propuesta.";
         }
       })
       .catch(() => {
@@ -1373,18 +1417,19 @@
         sel.disabled = false;
         if (rowStatus) rowStatus.style.display = "block";
         if (res.ok) {
+          const msg = isAdmin
+            ? `✓ Trabajo aprobado y activado en Etapa ${stage}/6.`
+            : `✓ Avance enviado a revisión del administrador.`;
           if (rowStatus) {
             rowStatus.style.color = "#4ade80";
-            rowStatus.textContent = isAdmin
-              ? `✓ Etapa actualizada a ${stage}/6. Correos enviados.`
-              : `✓ Avance enviado a revisión del administrador.`;
+            rowStatus.textContent = msg;
           }
-          setTimeout(loadAdminProjects, 1200);
-        } else {
-          if (rowStatus) {
-            rowStatus.style.color = "#f87171";
-            rowStatus.textContent = res.error || "Error al procesar la solicitud.";
-          }
+          setTimeout(() => {
+            refreshAdminSessionView(msg);
+          }, 900);
+        } else if (rowStatus) {
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = res.error || "Error al procesar la solicitud.";
         }
       })
       .catch(() => {
@@ -1396,6 +1441,52 @@
         }
       });
   };
+
+  function openExecutiveConfirmationModal(clientName, reqId, lang) {
+    let confirmRoot = document.getElementById("bdv-exec-confirm-root");
+    if (!confirmRoot) {
+      confirmRoot = document.createElement("div");
+      confirmRoot.id = "bdv-exec-confirm-root";
+      confirmRoot.className = "bdv-modal-overlay";
+      confirmRoot.style.zIndex = "99999";
+      confirmRoot.style.overflowY = "auto";
+      confirmRoot.style.padding = "16px";
+      document.body.appendChild(confirmRoot);
+    }
+
+    const isEs = lang === "es";
+    const title = isEs
+      ? "Solicitud Recibida · Batista Digital Ventures LLC"
+      : "Request Confirmed · Batista Digital Ventures LLC";
+    const badge = isEs ? "CONFIRMACIÓN OFICIAL" : "OFFICIAL INTAKE";
+    const greeting = isEs
+      ? `Felicidades, ${escapeHtml(clientName)}. Hemos recibido su solicitud y le enviamos una confirmación a su correo electrónico.`
+      : `Congratulations, ${escapeHtml(clientName)}. We have received your request and sent an official confirmation to your email address.`;
+    const detail = isEs
+      ? `Nuestro equipo directivo y de ingeniería revisará su propuesta a la brevedad para validar el alcance, activar el proyecto y coordinar los siguientes pasos con usted. Folio de referencia: ${escapeHtml(reqId || "BDV")}.`
+      : `Our executive and engineering leadership will review your proposal promptly to validate scope, activate your engagement, and coordinate next steps with you. Reference ID: ${escapeHtml(reqId || "BDV")}.`;
+    const btnText = isEs ? "Entendido" : "Done";
+
+    confirmRoot.innerHTML = `
+      <div class="bdv-tracker-card" style="max-width: 480px; width: 100%; margin: auto; border: 1px solid rgba(212, 175, 55, 0.55); background: #0b0f17; padding: 22px; border-radius: 14px;">
+        <div style="font-size: 0.7rem; letter-spacing: 0.08em; color: #e8c861; font-weight: 700; margin-bottom: 6px;">${badge}</div>
+        <h3 style="margin: 0 0 10px 0; font-size: 1.15rem; color: #f8fafc;">${title}</h3>
+        <p style="font-size: 0.9rem; color: #e2e8f0; line-height: 1.5; margin: 0 0 10px 0;">${greeting}</p>
+        <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5; margin: 0 0 18px 0;">${detail}</p>
+        <button type="button" id="bdv-exec-confirm-close" class="bdv-tracker-btn" style="width: 100%;">${btnText}</button>
+      </div>
+    `;
+
+    confirmRoot.style.display = "flex";
+
+    document.getElementById("bdv-exec-confirm-close").addEventListener("click", () => {
+      confirmRoot.style.display = "none";
+    });
+
+    confirmRoot.addEventListener("click", (e) => {
+      if (e.target === confirmRoot) confirmRoot.style.display = "none";
+    });
+  }
 
   function applyServiceRequestModal() {
     const lang = getLang();
@@ -1412,7 +1503,7 @@
         submit: "Enviar Solicitud",
         selectOne: "Selecciona al menos un servicio de la lista.",
         sending: "Enviando solicitud...",
-        success: "✓ Solicitud enviada. Te contactaremos pronto para revisar el alcance.",
+        success: "✓ Solicitud enviada. Revisa tu correo para la confirmación.",
         fail: "No se pudo enviar la solicitud.",
         netErr: "Error de conexión al enviar la solicitud.",
         items: [
@@ -1434,7 +1525,7 @@
         submit: "Submit Request",
         selectOne: "Select at least one service from the list.",
         sending: "Sending request...",
-        success: "✓ Request sent. We will follow up soon to review scope.",
+        success: "✓ Request sent. Check your email for confirmation.",
         fail: "Could not send the request.",
         netErr: "Connection error while sending the request.",
         items: [
@@ -1472,9 +1563,12 @@
       modalRoot.id = "bdv-service-modal-root";
       modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.display = "none";
+      modalRoot.style.overflowY = "auto";
+      modalRoot.style.alignItems = "flex-start";
+      modalRoot.style.padding = "16px 10px";
 
       modalRoot.innerHTML = `
-        <div class="bdv-tracker-card" style="max-width: 500px;">
+        <div class="bdv-tracker-card" style="max-width: 500px; width: 100%; max-height: 88vh; overflow-y: auto; margin: auto;">
           <div class="bdv-modal-top">
             <h3 id="bdv-srv-modal-title" style="margin: 0; font-size: 1.05rem; color: #e8c861;"></h3>
             <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
@@ -1531,6 +1625,7 @@
           method: "POST",
           body: JSON.stringify({
             action: "request_services",
+            lang: curLang,
             clientName: clientName,
             clientEmail: clientEmail,
             businessName: businessName,
@@ -1545,6 +1640,8 @@
               statusEl.style.color = "#4ade80";
               statusEl.textContent = curS.success;
               e.target.reset();
+              modalRoot.style.display = "none";
+              openExecutiveConfirmationModal(clientName, res.id, curLang);
             } else {
               statusEl.style.color = "#f87171";
               statusEl.textContent = res.error || curS.fail;
