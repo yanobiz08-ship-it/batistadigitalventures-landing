@@ -784,25 +784,27 @@
         reqBtn.type = "button";
         reqBtn.id = "bdv-request-services-btn";
         reqBtn.className = "btn btn-primary";
-        reqBtn.addEventListener("click", () => {
-          const m = document.getElementById("bdv-service-modal-root");
-          if (m) {
-            m.style.setProperty("display", "block", "important");
-            m.scrollTop = 0;
-          }
-        });
         heroCta.appendChild(reqBtn);
       }
     }
-    if (reqBtn) reqBtn.textContent = s.btn;
+    if (reqBtn) {
+      reqBtn.textContent = s.btn;
+      reqBtn.onclick = () => {
+        const m = document.getElementById("bdv-service-modal-root");
+        if (m) {
+          m.style.setProperty("display", "block", "important");
+          m.scrollTop = 0;
+        }
+      };
+    }
 
-let modalRoot = document.getElementById("bdv-service-modal-root");
+    let modalRoot = document.getElementById("bdv-service-modal-root");
     if (!modalRoot) {
       modalRoot = document.createElement("div");
       modalRoot.id = "bdv-service-modal-root";
       modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.cssText =
-        "display: none; position: fixed; inset: 0; z-index: 9999; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 12px 48px 12px; background: rgba(0, 0, 0, 0.78);";
+        "display: none; position: fixed; inset: 0; z-index: 9999; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding: 20px 14px 70px 14px !important; background: rgba(0, 0, 0, 0.82) !important;";
 
       modalRoot.innerHTML = `
         <div id="bdv-service-modal-card" class="bdv-tracker-card" style="max-width: 500px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; margin: 0 auto !important;">
@@ -817,7 +819,7 @@ let modalRoot = document.getElementById("bdv-service-modal-root");
             <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" />
             <div id="bdv-srv-checkboxes" style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;"></div>
             <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" style="resize: vertical;"></textarea>
-            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; opacity: 1 !important;"></button>
+            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; opacity: 1 !important; margin-bottom: 12px;"></button>
           </form>
           <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
         </div>
@@ -879,7 +881,7 @@ let modalRoot = document.getElementById("bdv-service-modal-root");
               statusEl.style.color = "#4ade80";
               statusEl.textContent = curS.success;
               e.target.reset();
-              modalRoot.style.display = "none";
+              modalRoot.style.setProperty("display", "none", "important");
               openExecutiveConfirmationModal(clientName, res.id, curLang);
             } else {
               statusEl.style.color = "#f87171";
@@ -1022,7 +1024,6 @@ let modalRoot = document.getElementById("bdv-service-modal-root");
       if (el) el.textContent = val;
     });
 
-    // Si el panel de operaciones está activo, notificarlo
     if (window.BDV_OPS && typeof window.BDV_OPS.onLanguageChange === "function") {
       window.BDV_OPS.onLanguageChange();
     }
