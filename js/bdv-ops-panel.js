@@ -30,6 +30,7 @@
   }
 
   window.__bdvStoredRequests = [];
+  window.__bdvStoredProjects = [];
 
   function showAdminToast(message, isSuccess) {
     var banner = document.getElementById("bdv-admin-action-banner");
@@ -477,6 +478,35 @@
     var r = window.__bdvStoredRequests[idx];
     if (!r) return;
 
+    var reqEmail = (r.clientEmail || "").trim().toLowerCase();
+
+    // Verificación inteligente: si el cliente ya existe en projects
+    var existing = (window.__bdvStoredProjects || []).find(function (p) {
+      return (p.email || "").trim().toLowerCase() === reqEmail;
+    });
+
+    if (existing) {
+      var proceed = window.confirm(
+        "⚠️ ATENCIÓN: Este cliente (" + reqEmail + ") ya tiene un proyecto registrado:\n\n" +
+        "• Nombre: " + (existing.name || existing.id) + "\n" +
+        "• Etapa actual: Etapa " + (existing.stage || 1) + "/6\n" +
+        "• Estado de pago: " + (existing.paymentStatus || "PENDING") + "\n\n" +
+        "¿Deseas ir al proyecto existente para revisarlo o cobrarlo en vez de crear uno duplicado?\n\n" +
+        "[Aceptar] = Enfocar proyecto existente\n" +
+        "[Cancelar] = Continuar creando un nuevo proyecto para este cliente"
+      );
+
+      if (proceed) {
+        var el = document.querySelector('[data-row="' + existing.row + '"]');
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.style.outline = "2px solid #e8c861";
+          setTimeout(function () { el.style.outline = "none"; }, 3500);
+        }
+        return;
+      }
+    }
+
     var box = document.getElementById("bdv-create-project-box");
     if (box) box.style.display = "block";
 
@@ -561,6 +591,21 @@
       });
   };
 
+  window.collectProjectPayment = function (row) {
+    var proj = (window.__bdvStoredProjects || []).find(function (p) {
+      return Number(p.row) === Number(row);
+    });
+    if (!proj) {
+      window.alert("No se encontró la información del proyecto.");
+      return;
+    }
+    if (window.BDV_SOW && typeof window.BDV_SOW.collectMilestoneOrFinal === "function") {
+      window.BDV_SOW.collectMilestoneOrFinal(proj);
+    } else {
+      window.alert("El módulo de pagos BDV_SOW no está cargado.");
+    }
+  };
+
   window.submitNewProject = function () {
     var core = getCore();
     var nameEnInput = document.getElementById("bdv-np-name-en");
@@ -585,6 +630,29 @@
         statusMsg.textContent = "Completa el nombre del proyecto, el correo y un PIN de al menos 4 caracteres.";
       }
       return;
+    }
+
+    // Comprobación de duplicados al guardar
+    var duplicate = (window.__bdvStoredProjects || []).find(function (p) {
+      return (p.email || "").trim().toLowerCase() === email;
+    });
+
+    if (duplicate) {
+      var confirmCreation = window.confirm(
+        "⚠️ AVISO DE DUPLICADO:\n\n" +
+        "Ya existe un proyecto con este correo (" + email + "):\n" +
+        "• Nombre: " + (duplicate.name || duplicate.id) + "\n" +
+        "• Etapa actual: Etapa " + (duplicate.stage || 1) + "/6\n\n" +
+        "¿Estás seguro de que deseas crear un SEGUNDO proyecto para este mismo cliente?"
+      );
+      if (!confirmCreation) {
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.style.color = "#e8c861";
+          statusMsg.textContent = "Creación cancelada para evitar duplicar el proyecto.";
+        }
+        return;
+      }
     }
 
     if (submitBtn) submitBtn.disabled = true;
@@ -758,10 +826,12 @@
         }
 
         if (!res.projects || !res.projects.length) {
+          window.__bdvStoredProjects = [];
           listEl.innerHTML = '<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos registrados en la base de datos.</p>';
           return;
         }
 
+        window.__bdvStoredProjects = res.projects;
         var lang = core.getLang();
 
         listEl.innerHTML = res.projects.map(function (p) {
@@ -783,10 +853,11 @@
             : "";
 
           var adminActionButtons = isAdmin
-            ? '<div class="bdv-admin-grid-row" style="margin-top: 10px; gap: 6px;">' +
-              '<input type="text" id="pin-input-' + p.row + '" class="bdv-tracker-input" style="max-width: 140px; padding: 6px 8px; font-size: 0.8rem;" value="' + core.escapeHtml(p.code) + '" placeholder="PIN" />' +
+            ? '<div class="bdv-admin-grid-row" style="margin-top: 10px; gap: 6px; flex-wrap: wrap;">' +
+              '<input type="text" id="pin-input-' + p.row + '" class="bdv-tracker-input" style="max-width: 130px; padding: 6px 8px; font-size: 0.8rem;" value="' + core.escapeHtml(p.code) + '" placeholder="PIN" />' +
               '<button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(' + p.row + ')">Cambiar PIN</button>' +
               '<button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="generateSowForProject(' + p.row + ", '" + core.escapeHtml(p.name) + "', '" + core.escapeHtml(p.email) + "', '" + core.escapeHtml(displayName) + "', '" + core.escapeHtml(displayName) + "')\">📄 Generar SOW</button>" +
+              '<button type="button" class="bdv-admin-action-btn" style="background: rgba(212, 175, 55, 0.2) !important; color: #e8c861 !important; border: 1px solid rgba(212, 175, 55, 0.5); font-weight: 600;" onclick="collectProjectPayment(' + p.row + ')">💳 Cobrar Hito / Saldo</button>' +
               '<button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important;" onclick="deleteProjectItem(' + p.row + ')">Eliminar</button>' +
               "</div>"
             : "";
@@ -805,6 +876,7 @@
             '      <span style="font-size: 0.75rem; color: #94a3b8;">(' + core.escapeHtml(p.id) + ")</span>",
             '      <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">',
             (isAdmin ? "Email: " + core.escapeHtml(p.email) + " | " : "") + 'PIN: <span style="color: #e8c861; font-weight: 700;">' + core.escapeHtml(p.code) + "</span>",
+            '        <span style="color: #94a3b8; margin-left: 6px;">[' + core.escapeHtml(p.paymentStatus || "PENDING") + "]</span>",
             "      </div>",
             "    </div>",
             '    <span class="bdv-tracker-status-tag ' + (p.accessStatus === "ACTIVE" ? "bdv-status-active" : "bdv-status-disabled") + '">',
@@ -977,7 +1049,7 @@
 
   window.BDV_OPS = {
     onLanguageChange: function () {
-      if (window.__bdvSessionKey && document.getElementById("bdv-admin-dash-view")?.style.display === "block") {
+      if (window.__bdvSessionKey && document.getElementById("bdv-admin-dash-view") && document.getElementById("bdv-admin-dash-view").style.display === "block") {
         loadAdminProjects();
       }
     }
