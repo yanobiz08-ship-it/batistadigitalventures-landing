@@ -47,7 +47,79 @@
     banner.style.border = isSuccess ? "1px solid rgba(74, 222, 128, 0.45)" : "1px solid rgba(248, 113, 113, 0.45)";
     banner.style.color = isSuccess ? "#4ade80" : "#f87171";
     banner.textContent = message;
+    banner.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
+
+  function showOpsPromptCard(options) {
+    var opts = options || {};
+    var core = getCore();
+    var dash = document.getElementById("bdv-admin-dash-view") || document.getElementById("bdv-admin-modal-root");
+    if (!dash) {
+      if (typeof opts.onConfirm === "function") opts.onConfirm();
+      return;
+    }
+
+    var existingCard = document.getElementById("bdv-ops-inline-prompt");
+    if (existingCard) existingCard.remove();
+
+    var card = document.createElement("div");
+    card.id = "bdv-ops-inline-prompt";
+    card.style.cssText =
+      "margin-top: 12px; padding: 14px; border-radius: 10px; background: #0b0f17; border: 1px solid rgba(212, 175, 55, 0.65); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);";
+
+    var titleHtml =
+      '<div style="font-size: 0.88rem; font-weight: 700; color: #e8c861; margin-bottom: 6px;">' +
+      core.escapeHtml(opts.title || "Confirmación requerida") +
+      "</div>";
+
+    var bodyHtml =
+      '<div style="font-size: 0.8rem; color: #e2e8f0; line-height: 1.45; white-space: pre-line;">' +
+      core.escapeHtml(opts.message || "") +
+      "</div>";
+
+    var actionsHtml = '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">';
+    if (opts.confirmLabel) {
+      actionsHtml +=
+        '<button type="button" id="bdv-prompt-confirm-btn" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">' +
+        core.escapeHtml(opts.confirmLabel) +
+        "</button>";
+    }
+    if (opts.cancelLabel) {
+      actionsHtml +=
+        '<button type="button" id="bdv-prompt-cancel-btn" class="bdv-admin-toggle-status">' +
+        core.escapeHtml(opts.cancelLabel) +
+        "</button>";
+    }
+    actionsHtml += "</div>";
+
+    card.innerHTML = titleHtml + bodyHtml + actionsHtml;
+    dash.insertBefore(card, dash.firstChild);
+    card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+    var confirmBtn = document.getElementById("bdv-prompt-confirm-btn");
+    var cancelBtn = document.getElementById("bdv-prompt-cancel-btn");
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener("click", function () {
+        card.remove();
+        if (typeof opts.onConfirm === "function") opts.onConfirm();
+      });
+    }
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", function () {
+        card.remove();
+        if (typeof opts.onCancel === "function") opts.onCancel();
+      });
+    }
+  }
+
+  window.copySowLinkWithNotice = function (sowUrl) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(sowUrl).catch(function () { return null; });
+    }
+    showAdminToast("✓ Enlace SOW copiado al portapapeles: " + sowUrl, true);
+  };
 
   function refreshAdminSessionView(noticeText) {
     var passInput = document.getElementById("bdv-admin-pass");
@@ -98,6 +170,9 @@
 
     var toastBanner = document.getElementById("bdv-admin-action-banner");
     if (toastBanner) toastBanner.style.display = "none";
+
+    var inlinePrompt = document.getElementById("bdv-ops-inline-prompt");
+    if (inlinePrompt) inlinePrompt.remove();
   }
 
   function openAdminModal() {
@@ -396,7 +471,7 @@
           rowStatus.innerHTML =
             '✓ SOW Creado: <strong style="color: #f8fafc;">' + core.escapeHtml(res.sowId) + "</strong><br/>" +
             '<a href="' + core.escapeHtml(sowUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline; font-weight: bold;">Abrir Enlace SOW ↗</a>' +
-            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.7rem;" onclick="navigator.clipboard.writeText(\'' + core.escapeHtml(sowUrl) + '\'); alert(\'Enlace copiado al portapapeles\');">Copiar Enlace</button>';
+            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.7rem;" onclick="copySowLinkWithNotice(\'' + core.escapeHtml(sowUrl) + '\')">Copiar Enlace</button>';
         } else {
           rowStatus.style.color = "#f87171";
           rowStatus.textContent = res.error || "No se pudo generar el SOW.";
@@ -459,7 +534,7 @@
           statusMsg.innerHTML =
             "✓ <strong>" + core.escapeHtml(res.sowId) + "</strong> generado exitosamente.<br/>" +
             '<a href="' + core.escapeHtml(sowUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline;">Abrir SOW ↗</a>' +
-            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.72rem;" onclick="navigator.clipboard.writeText(\'' + core.escapeHtml(sowUrl) + '\'); alert(\'Enlace SOW copiado\');">Copiar Enlace</button>';
+            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.72rem;" onclick="copySowLinkWithNotice(\'' + core.escapeHtml(sowUrl) + '\')">Copiar Enlace</button>';
         } else {
           statusMsg.style.color = "#f87171";
           statusMsg.textContent = res.error || "No se pudo generar el SOW.";
@@ -474,39 +549,7 @@
       });
   };
 
-  window.autofillProjectByIndex = function (idx) {
-    var r = window.__bdvStoredRequests[idx];
-    if (!r) return;
-
-    var reqEmail = (r.clientEmail || "").trim().toLowerCase();
-
-    // Verificación inteligente: si el cliente ya existe en projects
-    var existing = (window.__bdvStoredProjects || []).find(function (p) {
-      return (p.email || "").trim().toLowerCase() === reqEmail;
-    });
-
-    if (existing) {
-      var proceed = window.confirm(
-        "⚠️ ATENCIÓN: Este cliente (" + reqEmail + ") ya tiene un proyecto registrado:\n\n" +
-        "• Nombre: " + (existing.name || existing.id) + "\n" +
-        "• Etapa actual: Etapa " + (existing.stage || 1) + "/6\n" +
-        "• Estado de pago: " + (existing.paymentStatus || "PENDING") + "\n\n" +
-        "¿Deseas ir al proyecto existente para revisarlo o cobrarlo en vez de crear uno duplicado?\n\n" +
-        "[Aceptar] = Enfocar proyecto existente\n" +
-        "[Cancelar] = Continuar creando un nuevo proyecto para este cliente"
-      );
-
-      if (proceed) {
-        var el = document.querySelector('[data-row="' + existing.row + '"]');
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-          el.style.outline = "2px solid #e8c861";
-          setTimeout(function () { el.style.outline = "none"; }, 3500);
-        }
-        return;
-      }
-    }
-
+  function fillProjectFormFromRequest(r) {
     var box = document.getElementById("bdv-create-project-box");
     if (box) box.style.display = "block";
 
@@ -525,70 +568,122 @@
       codeInput.value = "CL-" + randNum;
     }
 
-    box.scrollIntoView({ behavior: "smooth" });
+    if (box) box.scrollIntoView({ behavior: "smooth" });
+  }
+
+  window.autofillProjectByIndex = function (idx) {
+    var r = window.__bdvStoredRequests[idx];
+    if (!r) return;
+
+    var reqEmail = (r.clientEmail || "").trim().toLowerCase();
+    var existing = (window.__bdvStoredProjects || []).find(function (p) {
+      return (p.email || "").trim().toLowerCase() === reqEmail;
+    });
+
+    if (existing) {
+      showOpsPromptCard({
+        title: "Proyecto ya registrado para este cliente",
+        message:
+          "El correo " + reqEmail + " ya tiene un proyecto activo:\n" +
+          "• Proyecto: " + (existing.name || existing.id) + "\n" +
+          "• Etapa actual: Etapa " + (existing.stage || 1) + "/6\n" +
+          "• Estado de pago: " + (existing.paymentStatus || "PENDING") + "\n\n" +
+          "¿Deseas enfocar el proyecto existente para evitar duplicados o continuar cargando un nuevo proyecto?",
+        confirmLabel: "Ver Proyecto Existente",
+        cancelLabel: "Cargar de Todos Modos",
+        onConfirm: function () {
+          var el = document.querySelector('[data-row="' + existing.row + '"]');
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.style.outline = "2px solid #e8c861";
+            setTimeout(function () { el.style.outline = "none"; }, 3500);
+          }
+        },
+        onCancel: function () {
+          fillProjectFormFromRequest(r);
+        }
+      });
+      return;
+    }
+
+    fillProjectFormFromRequest(r);
   };
 
   window.deleteServiceRequestByIndex = function (idx) {
     var core = getCore();
     var r = window.__bdvStoredRequests[idx];
     if (!r || !r.id) return;
-    if (!window.confirm("¿Eliminar esta solicitud de forma permanente?")) return;
 
-    var sessionKey = window.__bdvSessionKey || "";
-    fetch(core.apiUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        key: sessionKey,
-        action: "delete_request",
-        requestId: r.id
-      })
-    })
-      .then(function (res) { return res.json(); })
-      .then(function (res) {
-        if (res.ok) {
-          refreshAdminSessionView("✓ Solicitud eliminada correctamente.");
-        } else {
-          window.alert(res.error || "No se pudo eliminar la solicitud.");
-        }
-      })
-      .catch(function () {
-        window.alert("Error de red al eliminar la solicitud.");
-      });
+    showOpsPromptCard({
+      title: "Eliminar solicitud entrante",
+      message: "¿Deseas eliminar de forma permanente la solicitud " + r.id + " de " + (r.clientName || r.clientEmail) + "?",
+      confirmLabel: "Sí, Eliminar",
+      cancelLabel: "Cancelar",
+      onConfirm: function () {
+        var sessionKey = window.__bdvSessionKey || "";
+        fetch(core.apiUrl, {
+          method: "POST",
+          body: JSON.stringify({
+            key: sessionKey,
+            action: "delete_request",
+            requestId: r.id
+          })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (res.ok) {
+              refreshAdminSessionView("✓ Solicitud eliminada correctamente.");
+            } else {
+              showAdminToast(res.error || "No se pudo eliminar la solicitud.", false);
+            }
+          })
+          .catch(function () {
+            showAdminToast("Error de red al eliminar la solicitud.", false);
+          });
+      }
+    });
   };
 
   window.deleteProjectItem = function (row) {
     if (!row) return;
-    if (!window.confirm("¿Eliminar este proyecto de forma permanente?")) return;
-
     var core = getCore();
-    var sessionKey = window.__bdvSessionKey || "";
-    var rowStatus = document.getElementById("row-status-" + row);
 
-    fetch(core.apiUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        key: sessionKey,
-        action: "delete_project",
-        row: row
-      })
-    })
-      .then(function (res) { return res.json(); })
-      .then(function (res) {
-        if (res.ok) {
-          refreshAdminSessionView("✓ Proyecto eliminado correctamente.");
-        } else if (rowStatus) {
-          rowStatus.style.display = "block";
-          rowStatus.style.color = "#f87171";
-          rowStatus.textContent = res.error || "No se pudo eliminar el proyecto.";
-        }
-      })
-      .catch(function () {
-        if (rowStatus) {
-          rowStatus.style.display = "block";
-          rowStatus.style.color = "#f87171";
-          rowStatus.textContent = "Error de red al eliminar el proyecto.";
-        }
-      });
+    showOpsPromptCard({
+      title: "Eliminar proyecto registrado",
+      message: "¿Deseas eliminar este proyecto de forma permanente? Esta acción no se puede deshacer.",
+      confirmLabel: "Sí, Eliminar Proyecto",
+      cancelLabel: "Cancelar",
+      onConfirm: function () {
+        var sessionKey = window.__bdvSessionKey || "";
+        var rowStatus = document.getElementById("row-status-" + row);
+
+        fetch(core.apiUrl, {
+          method: "POST",
+          body: JSON.stringify({
+            key: sessionKey,
+            action: "delete_project",
+            row: row
+          })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (res.ok) {
+              refreshAdminSessionView("✓ Proyecto eliminado correctamente.");
+            } else if (rowStatus) {
+              rowStatus.style.display = "block";
+              rowStatus.style.color = "#f87171";
+              rowStatus.textContent = res.error || "No se pudo eliminar el proyecto.";
+            }
+          })
+          .catch(function () {
+            if (rowStatus) {
+              rowStatus.style.display = "block";
+              rowStatus.style.color = "#f87171";
+              rowStatus.textContent = "Error de red al eliminar el proyecto.";
+            }
+          });
+      }
+    });
   };
 
   window.collectProjectPayment = function (row) {
@@ -596,17 +691,17 @@
       return Number(p.row) === Number(row);
     });
     if (!proj) {
-      window.alert("No se encontró la información del proyecto.");
+      showAdminToast("No se encontró la información del proyecto seleccionado.", false);
       return;
     }
     if (window.BDV_SOW && typeof window.BDV_SOW.collectMilestoneOrFinal === "function") {
       window.BDV_SOW.collectMilestoneOrFinal(proj);
     } else {
-      window.alert("El módulo de pagos BDV_SOW no está cargado.");
+      showAdminToast("El módulo de pagos BDV_SOW no está disponible.", false);
     }
   };
 
-  window.submitNewProject = function () {
+  function executeCreateProjectRequest(nameEn, nameEs, email, code, primaryName) {
     var core = getCore();
     var nameEnInput = document.getElementById("bdv-np-name-en");
     var nameEsInput = document.getElementById("bdv-np-name-es");
@@ -614,46 +709,7 @@
     var codeInput = document.getElementById("bdv-np-code");
     var statusMsg = document.getElementById("bdv-np-status-msg");
     var submitBtn = document.getElementById("bdv-np-submit-btn");
-
-    var nameEn = (nameEnInput ? nameEnInput.value : "").trim();
-    var nameEs = (nameEsInput ? nameEsInput.value : "").trim();
-    var email = (emailInput ? emailInput.value : "").trim().toLowerCase();
-    var code = (codeInput ? codeInput.value : "").trim().toUpperCase();
     var sessionKey = window.__bdvSessionKey || "";
-
-    var primaryName = nameEn || nameEs;
-
-    if (!primaryName || !email || code.length < 4) {
-      if (statusMsg) {
-        statusMsg.style.display = "block";
-        statusMsg.style.color = "#f87171";
-        statusMsg.textContent = "Completa el nombre del proyecto, el correo y un PIN de al menos 4 caracteres.";
-      }
-      return;
-    }
-
-    // Comprobación de duplicados al guardar
-    var duplicate = (window.__bdvStoredProjects || []).find(function (p) {
-      return (p.email || "").trim().toLowerCase() === email;
-    });
-
-    if (duplicate) {
-      var confirmCreation = window.confirm(
-        "⚠️ AVISO DE DUPLICADO:\n\n" +
-        "Ya existe un proyecto con este correo (" + email + "):\n" +
-        "• Nombre: " + (duplicate.name || duplicate.id) + "\n" +
-        "• Etapa actual: Etapa " + (duplicate.stage || 1) + "/6\n\n" +
-        "¿Estás seguro de que deseas crear un SEGUNDO proyecto para este mismo cliente?"
-      );
-      if (!confirmCreation) {
-        if (statusMsg) {
-          statusMsg.style.display = "block";
-          statusMsg.style.color = "#e8c861";
-          statusMsg.textContent = "Creación cancelada para evitar duplicar el proyecto.";
-        }
-        return;
-      }
-    }
 
     if (submitBtn) submitBtn.disabled = true;
     if (statusMsg) {
@@ -705,6 +761,60 @@
           statusMsg.textContent = "Error de conexión al crear el proyecto.";
         }
       });
+  }
+
+  window.submitNewProject = function () {
+    var nameEnInput = document.getElementById("bdv-np-name-en");
+    var nameEsInput = document.getElementById("bdv-np-name-es");
+    var emailInput = document.getElementById("bdv-np-email");
+    var codeInput = document.getElementById("bdv-np-code");
+    var statusMsg = document.getElementById("bdv-np-status-msg");
+
+    var nameEn = (nameEnInput ? nameEnInput.value : "").trim();
+    var nameEs = (nameEsInput ? nameEsInput.value : "").trim();
+    var email = (emailInput ? emailInput.value : "").trim().toLowerCase();
+    var code = (codeInput ? codeInput.value : "").trim().toUpperCase();
+
+    var primaryName = nameEn || nameEs;
+
+    if (!primaryName || !email || code.length < 4) {
+      if (statusMsg) {
+        statusMsg.style.display = "block";
+        statusMsg.style.color = "#f87171";
+        statusMsg.textContent = "Completa el nombre del proyecto, el correo y un PIN de al menos 4 caracteres.";
+      }
+      return;
+    }
+
+    var duplicate = (window.__bdvStoredProjects || []).find(function (p) {
+      return (p.email || "").trim().toLowerCase() === email;
+    });
+
+    if (duplicate) {
+      showOpsPromptCard({
+        title: "Aviso de proyecto existente para este correo",
+        message:
+          "Ya existe un proyecto con " + email + ":\n" +
+          "• Nombre: " + (duplicate.name || duplicate.id) + "\n" +
+          "• Etapa actual: Etapa " + (duplicate.stage || 1) + "/6\n\n" +
+          "¿Deseas crear un registro adicional de todos modos o cancelar para evitar duplicados?",
+        confirmLabel: "Crear de Todos Modos",
+        cancelLabel: "Cancelar",
+        onConfirm: function () {
+          executeCreateProjectRequest(nameEn, nameEs, email, code, primaryName);
+        },
+        onCancel: function () {
+          if (statusMsg) {
+            statusMsg.style.display = "block";
+            statusMsg.style.color = "#e8c861";
+            statusMsg.textContent = "Alta cancelada para proteger el proyecto existente.";
+          }
+        }
+      });
+      return;
+    }
+
+    executeCreateProjectRequest(nameEn, nameEs, email, code, primaryName);
   };
 
   window.submitPasswordChange = function () {
