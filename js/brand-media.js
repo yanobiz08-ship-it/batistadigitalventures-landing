@@ -2,15 +2,16 @@
 (function () {
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
 
-function escapeHtml(str) {
-  if (!str) return "";
-  return String(str)
-    .split("&").join("&amp;")
-    .split("<").join("&lt;")
-    .split(">").join("&gt;")
-    .split('"').join("&quot;")
-    .split("'").join("&#039;");
-}
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .split("&").join("&amp;")
+      .split("<").join("&lt;")
+      .split(">").join("&gt;")
+      .split('"').join("&quot;")
+      .split("'").join("&#039;");
+  }
+
   const copy = {
     es: {
       eyebrow: "PLATAFORMAS DIGITALES Y APPS MÓVILES",
@@ -238,9 +239,18 @@ function escapeHtml(str) {
 
   let activeOpsIndex = 0;
 
+  /* Inglés por defecto si no se ha especificado español */
   function getLang() {
     const lang = (document.documentElement.getAttribute("lang") || "").toLowerCase();
-    return lang.startsWith("en") ? "en" : "es";
+    return lang.startsWith("es") ? "es" : "en";
+  }
+
+  function getProjectDisplayName(p, lang) {
+    if (!p) return "";
+    if (lang === "es") {
+      return p.name_es || p.name || p.name_en || "";
+    }
+    return p.name_en || p.name || p.name_es || "";
   }
 
   function applyLogo(lang) {
@@ -553,7 +563,7 @@ function escapeHtml(str) {
     });
     if (!targetSec) return;
 
-    const d = opsData[lang] || opsData.es;
+    const d = opsData[lang] || opsData.en;
     if (activeOpsIndex >= d.items.length) activeOpsIndex = 0;
     const current = d.items[activeOpsIndex];
 
@@ -737,10 +747,11 @@ function escapeHtml(str) {
           } else {
             const stObj = workflowStages[matched.stage - 1] || workflowStages[0];
             const stName = lang === "en" ? stObj.name_en : stObj.name_es;
+            const projDisplayName = getProjectDisplayName(matched, lang);
             resBox.innerHTML = `
               <span class="bdv-tracker-status-tag bdv-status-active">Acceso Activo · Obra en Progreso</span>
               <h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Etapa ${matched.stage}/6: ${stName} (${stObj.percentage}%)</h4>
-              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ${escapeHtml(matched.name)} (${escapeHtml(matched.id)})</p>
+              <p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ${escapeHtml(projDisplayName)} (${escapeHtml(matched.id)})</p>
               <p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Estado Financiero:</strong> ${escapeHtml(matched.paymentStatus)}</p>
               <div class="bdv-progress-track" style="margin-top: 8px;">
                 <div class="bdv-progress-fill" style="width: ${stObj.percentage}%;"></div>
@@ -758,14 +769,14 @@ function escapeHtml(str) {
     });
   }
 
-  /* Admin Panel Web y Portal de Programadores Partners con Cambio de Claves */
+  /* Admin Panel Web y Portal de Programadores Partners con Cambio de Claves y Alta de Proyectos */
   function applyAdminPanel() {
     const footer = document.querySelector("footer");
     if (!footer) return;
 
     const container = footer.querySelector(".container") || footer;
 
-   let adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
+    let adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
     if (!adminBtnWrap) {
       adminBtnWrap = document.createElement("div");
       adminBtnWrap.id = "bdv-admin-btn-wrap";
@@ -774,7 +785,7 @@ function escapeHtml(str) {
       container.appendChild(adminBtnWrap);
     } else if (!container.contains(adminBtnWrap)) {
       container.appendChild(adminBtnWrap);
-    } 
+    }
 
     let modalRoot = document.getElementById("bdv-admin-modal-root");
     if (!modalRoot) {
@@ -797,12 +808,27 @@ function escapeHtml(str) {
           </div>
 
           <div id="bdv-admin-dash-view" style="display: none; margin-top: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
               <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
-              <div>
-                <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status" style="margin-right: 6px;">🔐 Cambiar Clave</button>
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <button type="button" id="bdv-toggle-create-project-btn" class="bdv-admin-action-btn" style="display: none; background: #22c55e !important; color: #052e16 !important; font-weight: 700;">+ Nuevo Proyecto</button>
+                <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status">🔐 Cambiar Clave</button>
                 <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻</button>
               </div>
+            </div>
+
+            <div id="bdv-create-project-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(34, 197, 94, 0.06); border: 1px dashed rgba(34, 197, 94, 0.45); border-radius: 8px;">
+              <h5 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #4ade80;">Alta de Nuevo Proyecto</h5>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <input type="text" id="bdv-np-name-en" class="bdv-tracker-input" placeholder="Project Name in English (default)" style="font-size: 0.8rem; padding: 6px 10px;" />
+                <input type="text" id="bdv-np-name-es" class="bdv-tracker-input" placeholder="Nombre del Proyecto en Español (opcional)" style="font-size: 0.8rem; padding: 6px 10px;" />
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input type="email" id="bdv-np-email" class="bdv-tracker-input" placeholder="Correo del Cliente" style="flex: 2; min-width: 180px; font-size: 0.8rem; padding: 6px 10px;" />
+                  <input type="text" id="bdv-np-code" class="bdv-tracker-input" placeholder="PIN (ej. CL-2026)" style="flex: 1; min-width: 110px; font-size: 0.8rem; padding: 6px 10px;" />
+                </div>
+                <button type="button" id="bdv-np-submit-btn" class="bdv-tracker-btn" style="padding: 8px; font-size: 0.82rem; margin-top: 2px;" onclick="submitNewProject()">Guardar y Activar Proyecto</button>
+              </div>
+              <div id="bdv-np-status-msg" style="display: none; margin-top: 8px; font-size: 0.8rem;"></div>
             </div>
 
             <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">
@@ -843,9 +869,14 @@ function escapeHtml(str) {
 
       document.getElementById("bdv-admin-refresh-btn").addEventListener("click", loadAdminProjects);
 
+      document.getElementById("bdv-toggle-create-project-btn").addEventListener("click", () => {
+        const box = document.getElementById("bdv-create-project-box");
+        if (box) box.style.display = box.style.display === "none" ? "block" : "none";
+      });
+
       document.getElementById("bdv-toggle-key-change-btn").addEventListener("click", () => {
         const box = document.getElementById("bdv-key-change-box");
-        box.style.display = box.style.display === "none" ? "block" : "none";
+        if (box) box.style.display = box.style.display === "none" ? "block" : "none";
       });
     }
 
@@ -857,6 +888,85 @@ function escapeHtml(str) {
       };
     }
   }
+
+  window.submitNewProject = function () {
+    const nameEnInput = document.getElementById("bdv-np-name-en");
+    const nameEsInput = document.getElementById("bdv-np-name-es");
+    const emailInput = document.getElementById("bdv-np-email");
+    const codeInput = document.getElementById("bdv-np-code");
+    const statusMsg = document.getElementById("bdv-np-status-msg");
+    const submitBtn = document.getElementById("bdv-np-submit-btn");
+
+    const nameEn = (nameEnInput ? nameEnInput.value : "").trim();
+    const nameEs = (nameEsInput ? nameEsInput.value : "").trim();
+    const email = (emailInput ? emailInput.value : "").trim().toLowerCase();
+    const code = (codeInput ? codeInput.value : "").trim().toUpperCase();
+    const sessionKey = window.__bdvSessionKey || "";
+
+    const primaryName = nameEn || nameEs;
+
+    if (!primaryName || !email || code.length < 4) {
+      if (statusMsg) {
+        statusMsg.style.display = "block";
+        statusMsg.style.color = "#f87171";
+        statusMsg.textContent = "Completa el nombre del proyecto, el correo y un PIN de al menos 4 caracteres.";
+      }
+      return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusMsg) {
+      statusMsg.style.display = "block";
+      statusMsg.style.color = "#94a3b8";
+      statusMsg.textContent = "Guardando proyecto en el sistema...";
+    }
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "create_project",
+        name: primaryName,
+        name_en: nameEn || primaryName,
+        name_es: nameEs || primaryName,
+        email: email,
+        code: code,
+        stage: 1
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        if (submitBtn) submitBtn.disabled = false;
+        if (statusMsg) statusMsg.style.display = "block";
+        if (res.ok) {
+          if (statusMsg) {
+            statusMsg.style.color = "#4ade80";
+            statusMsg.textContent = "✓ Proyecto creado exitosamente.";
+          }
+          if (nameEnInput) nameEnInput.value = "";
+          if (nameEsInput) nameEsInput.value = "";
+          if (emailInput) emailInput.value = "";
+          if (codeInput) codeInput.value = "";
+          setTimeout(() => {
+            const box = document.getElementById("bdv-create-project-box");
+            if (box) box.style.display = "none";
+            if (statusMsg) statusMsg.style.display = "none";
+            loadAdminProjects();
+          }, 1100);
+        } else if (statusMsg) {
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = res.error || "No se pudo crear el proyecto.";
+        }
+      })
+      .catch(() => {
+        if (submitBtn) submitBtn.disabled = false;
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = "Error de conexión al crear el proyecto.";
+        }
+      });
+  };
 
   window.submitPasswordChange = function () {
     const input = document.getElementById("bdv-new-role-pass");
@@ -925,6 +1035,12 @@ function escapeHtml(str) {
 
         const isAdmin = res.role === "admin";
         window.__bdvIsAdmin = isAdmin;
+
+        const createBtn = document.getElementById("bdv-toggle-create-project-btn");
+        if (createBtn) {
+          createBtn.style.display = isAdmin ? "inline-block" : "none";
+        }
+
         if (roleLabel) {
           roleLabel.textContent = isAdmin
             ? "Admin · Control de Etapas, PINs y Aprobaciones"
@@ -936,7 +1052,11 @@ function escapeHtml(str) {
           return;
         }
 
+        const lang = getLang();
+
         listEl.innerHTML = res.projects.map(p => {
+          const displayName = getProjectDisplayName(p, lang);
+
           let proposalObj = null;
           if (p.pendingProposal) {
             try { proposalObj = JSON.parse(p.pendingProposal); } catch (e) { proposalObj = null; }
@@ -970,7 +1090,7 @@ function escapeHtml(str) {
             <div class="bdv-admin-project-item" data-row="${p.row}">
               <div class="bdv-admin-grid-row">
                 <div>
-                  <strong style="color: #f8fafc; font-size: 0.9rem;">${escapeHtml(p.name)}</strong>
+                  <strong style="color: #f8fafc; font-size: 0.9rem;">${escapeHtml(displayName)}</strong>
                   <span style="font-size: 0.75rem; color: #94a3b8;">(${escapeHtml(p.id)})</span>
                   <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">
                     ${isAdmin ? `Email: ${escapeHtml(p.email)} | ` : ""}PIN: <span style="color: #e8c861; font-weight: 700;">${escapeHtml(p.code)}</span>
@@ -1198,7 +1318,7 @@ function escapeHtml(str) {
       }
     };
 
-    const s = serviceCopy[lang] || serviceCopy.es;
+    const s = serviceCopy[lang] || serviceCopy.en;
 
     let reqBtn = document.getElementById("bdv-request-services-btn");
     if (!reqBtn) {
@@ -1256,7 +1376,7 @@ function escapeHtml(str) {
       document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
         e.preventDefault();
         const curLang = getLang();
-        const curS = serviceCopy[curLang] || serviceCopy.es;
+        const curS = serviceCopy[curLang] || serviceCopy.en;
 
         const clientName = (document.getElementById("bdv-srv-client-name").value || "").trim();
         const clientEmail = (document.getElementById("bdv-srv-client-email").value || "").trim();
@@ -1437,6 +1557,10 @@ function escapeHtml(str) {
       const el = document.querySelector(sel);
       if (el) el.textContent = val;
     });
+
+    if (window.__bdvSessionKey && document.getElementById("bdv-admin-dash-view")?.style.display === "block") {
+      loadAdminProjects();
+    }
   }
 
   function init() {
