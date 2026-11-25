@@ -891,7 +891,13 @@
     }
   }
 
-  window.autofillProjectFromRequest = function (clientEmail, businessName, clientName) {
+  // Almacén en memoria para evitar errores de comillas en HTML
+  window.__bdvStoredRequests = [];
+
+  window.autofillProjectByIndex = function (idx) {
+    const r = window.__bdvStoredRequests[idx];
+    if (!r) return;
+
     const box = document.getElementById("bdv-create-project-box");
     if (box) box.style.display = "block";
 
@@ -900,18 +906,78 @@
     const nameEsInput = document.getElementById("bdv-np-name-es");
     const codeInput = document.getElementById("bdv-np-code");
 
-    if (emailInput) emailInput.value = clientEmail;
-    const finalName = businessName || clientName || "Nuevo Proyecto";
+    if (emailInput) emailInput.value = r.clientEmail || "";
+    const finalName = r.businessName || (Array.isArray(r.services) && r.services[0]) || r.clientName || "Nuevo Proyecto";
     if (nameEnInput) nameEnInput.value = finalName;
     if (nameEsInput) nameEsInput.value = finalName;
 
-    // Generar un PIN temporal sugerido automático
     const randNum = Math.floor(1000 + Math.random() * 9000);
     if (codeInput && !codeInput.value) {
       codeInput.value = "CL-" + randNum;
     }
 
     box.scrollIntoView({ behavior: "smooth" });
+  };
+
+  window.deleteServiceRequestByIndex = function (idx) {
+    const r = window.__bdvStoredRequests[idx];
+    if (!r || !r.id) return;
+    if (!window.confirm("¿Eliminar esta solicitud de forma permanente?")) return;
+
+    const sessionKey = window.__bdvSessionKey || "";
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "delete_request",
+        requestId: r.id
+      })
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          loadAdminProjects();
+        } else {
+          window.alert(res.error || "No se pudo eliminar la solicitud.");
+        }
+      })
+      .catch(() => {
+        window.alert("Error de red al eliminar la solicitud.");
+      });
+  };
+
+  window.deleteProjectItem = function (row) {
+    if (!row) return;
+    if (!window.confirm("¿Eliminar este proyecto de forma permanente?")) return;
+
+    const sessionKey = window.__bdvSessionKey || "";
+    const rowStatus = document.getElementById("row-status-" + row);
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "delete_project",
+        row: row
+      })
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          loadAdminProjects();
+        } else if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = res.error || "No se pudo eliminar el proyecto.";
+        }
+      })
+      .catch(() => {
+        if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = "Error de red al eliminar el proyecto.";
+        }
+      });
   };
 
   window.submitNewProject = function () {
@@ -1072,15 +1138,16 @@
             : "Programador Partner · Reporte para Revisión y Confirmación";
         }
 
-        // Renderizar las solicitudes entrantes si es admin y vienen en res.requests
         const reqSection = document.getElementById("bdv-admin-requests-section");
         const reqList = document.getElementById("bdv-admin-requests-list");
 
         if (isAdmin && Array.isArray(res.requests) && res.requests.length && reqSection && reqList) {
+          window.__bdvStoredRequests = res.requests;
           reqSection.style.display = "block";
           reqList.innerHTML = res.requests.map((r, idx) => {
             const dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
             const srvList = Array.isArray(r.services) ? r.services.join(", ") : "";
+            const escapedId = escapeHtml(r.id || "");
             const escapedEmail = escapeHtml(r.clientEmail || "");
             const escapedBiz = escapeHtml(r.businessName || "");
             const escapedClient = escapeHtml(r.clientName || "");
@@ -1088,15 +1155,20 @@
             return `
               <div style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <div>
-                  <strong style="color: #f8fafc;">${escapedClient}</strong> 
+                  <strong style="color: #f8fafc;">${escapedClient}</strong>
                   <span style="color: #94a3b8;">(${escapedEmail})</span>
                   ${escapedBiz ? `<div style="color: #e8c861; font-size: 0.75rem;">Negocio: ${escapedBiz}</div>` : ""}
                   ${srvList ? `<div style="color: #cbd5e1; font-size: 0.72rem;">Servicio: ${escapeHtml(srvList)}</div>` : ""}
-                  <div style="color: #64748b; font-size: 0.7rem;">${escapeHtml(r.id)} · ${dateStr}</div>
+                  <div style="color: #64748b; font-size: 0.7rem;">${escapedId} · ${dateStr}</div>
                 </div>
-                <button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #000 !important; font-weight: 700; padding: 4px 8px; font-size: 0.75rem;" onclick="autofillProjectFromRequest('${escapedEmail}', '${escapedBiz}', '${escapedClient}')">
-                  Usar en Nuevo Proyecto
-                </button>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #000 !important; font-weight: 700; padding: 4px 8px; font-size: 0.75rem;" onclick="autofillProjectByIndex(${idx})">
+                    Usar en Nuevo Proyecto
+                  </button>
+                  <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important; padding: 4px 8px; font-size: 0.75rem;" onclick="deleteServiceRequestByIndex(${idx})">
+                    Eliminar
+                  </button>
+                </div>
               </div>
             `;
           }).join("");
@@ -1134,6 +1206,7 @@
             ? `<div class="bdv-admin-grid-row" style="margin-top: 10px;">
                  <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 170px; padding: 6px 10px; font-size: 0.8rem;" value="${escapeHtml(p.code)}" placeholder="Nuevo PIN (ej. BDV-5521)" />
                  <button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(${p.row})">Cambiar PIN</button>
+                 <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important;" onclick="deleteProjectItem(${p.row})">Eliminar</button>
                </div>`
             : "";
 
@@ -1187,10 +1260,10 @@
   }
 
   window.updateProjectPin = function (row) {
-    const input = document.getElementById(`pin-input-${row}`);
+    const input = document.getElementById("pin-input-" + row);
     const newCode = (input ? input.value : "").trim().toUpperCase();
     const sessionKey = window.__bdvSessionKey || "";
-    const rowStatus = document.getElementById(`row-status-${row}`);
+    const rowStatus = document.getElementById("row-status-" + row);
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -1228,7 +1301,7 @@
 
   window.approveProjectProposal = function (row) {
     const sessionKey = window.__bdvSessionKey || "";
-    const rowStatus = document.getElementById(`row-status-${row}`);
+    const rowStatus = document.getElementById("row-status-" + row);
 
     fetch(BDV_ADMIN_API_URL, {
       method: "POST",
@@ -1264,14 +1337,14 @@
   };
 
   window.updateProjectStage = function (row) {
-    const sel = document.getElementById(`stage-select-${row}`);
+    const sel = document.getElementById("stage-select-" + row);
     const stage = Number(sel.value);
     const accessStatus = stage === 6 ? "DISABLED" : "ACTIVE";
     const sessionKey = window.__bdvSessionKey || "";
     const isAdmin = Boolean(window.__bdvIsAdmin);
-    const noteInput = document.getElementById(`dev-note-${row}`);
+    const noteInput = document.getElementById("dev-note-" + row);
     const notes = noteInput ? noteInput.value.trim() : "";
-    const rowStatus = document.getElementById(`row-status-${row}`);
+    const rowStatus = document.getElementById("row-status-" + row);
 
     sel.disabled = true;
 
