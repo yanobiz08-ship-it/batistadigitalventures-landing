@@ -27,7 +27,9 @@
       --max-w: 1180px;
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
     }
 
@@ -629,7 +631,6 @@
     <div class="container nav-inner">
       <a class="brand" href="#top" aria-label="Batista Digital Ventures">
         <span class="brand-icon-wrap" aria-hidden="true">
-          <!-- Bilingual-ready BDV Monogram Icon -->
           <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="2" y="2" width="28" height="28" rx="7" stroke="#E8C861" stroke-width="1.6"/>
             <path d="M9 9.5H15.2C17.4 9.5 18.8 10.7 18.8 12.6C18.8 14 18 15 16.7 15.5C18.3 16 19.3 17.2 19.3 19C19.3 21.1 17.7 22.5 15.3 22.5H9V9.5ZM11.6 14.5H14.8C15.9 14.5 16.5 13.9 16.5 13C16.5 12.1 15.9 11.5 14.7 11.5H11.6V14.5ZM11.6 20.4H15.1C16.3 20.4 17 19.8 17 18.8C17 17.8 16.3 17.2 15 17.2H11.6V20.4Z" fill="#F8FAFC"/>
@@ -930,6 +931,9 @@
         <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
       </div>
     </div>
+    <div id="bdv-admin-btn-wrap" style="width: 100%; display: flex; justify-content: center; margin-top: 12px;">
+      <button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.6; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.18) !important; background: transparent !important; color: #94a3b8 !important; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>
+    </div>
   </footer>
 
   <script>
@@ -1165,9 +1169,9 @@
       }
     })();
 
-applyLanguage(savedLang === "en" ? "en" : "es");
+    applyLanguage(savedLang === "en" ? "en" : "es");
   </script>
- <link rel="stylesheet" href="./css/brand-media.css" />
+  <link rel="stylesheet" href="./css/brand-media.css" />
   <script src="./js/brand-media.js" defer></script>
   <script src="./js/bdv-ops-panel.js" defer></script>
   <script src="./js/bdv-sow-signer.js" defer></script>
