@@ -786,25 +786,26 @@
         reqBtn.className = "btn btn-primary";
         reqBtn.addEventListener("click", () => {
           const m = document.getElementById("bdv-service-modal-root");
-          if (m) m.style.display = "flex";
+          if (m) {
+            m.style.setProperty("display", "block", "important");
+            m.scrollTop = 0;
+          }
         });
         heroCta.appendChild(reqBtn);
       }
     }
     if (reqBtn) reqBtn.textContent = s.btn;
 
-    let modalRoot = document.getElementById("bdv-service-modal-root");
+let modalRoot = document.getElementById("bdv-service-modal-root");
     if (!modalRoot) {
       modalRoot = document.createElement("div");
       modalRoot.id = "bdv-service-modal-root";
       modalRoot.className = "bdv-modal-overlay";
-      modalRoot.style.display = "none";
-      modalRoot.style.overflowY = "auto";
-      modalRoot.style.alignItems = "flex-start";
-      modalRoot.style.padding = "16px 10px";
+      modalRoot.style.cssText =
+        "display: none; position: fixed; inset: 0; z-index: 9999; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 12px 48px 12px; background: rgba(0, 0, 0, 0.78);";
 
       modalRoot.innerHTML = `
-        <div class="bdv-tracker-card" style="max-width: 500px; width: 100%; max-height: 88vh; overflow-y: auto; margin: auto;">
+        <div id="bdv-service-modal-card" class="bdv-tracker-card" style="max-width: 500px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; margin: 0 auto !important;">
           <div class="bdv-modal-top">
             <h3 id="bdv-srv-modal-title" style="margin: 0; font-size: 1.05rem; color: #e8c861;"></h3>
             <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
@@ -816,7 +817,7 @@
             <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" />
             <div id="bdv-srv-checkboxes" style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;"></div>
             <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" style="resize: vertical;"></textarea>
-            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn"></button>
+            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; opacity: 1 !important;"></button>
           </form>
           <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
         </div>
@@ -825,11 +826,13 @@
       document.body.appendChild(modalRoot);
 
       document.getElementById("bdv-service-close-btn").addEventListener("click", () => {
-        modalRoot.style.display = "none";
+        modalRoot.style.setProperty("display", "none", "important");
       });
 
       modalRoot.addEventListener("click", (e) => {
-        if (e.target === modalRoot) modalRoot.style.display = "none";
+        if (e.target === modalRoot) {
+          modalRoot.style.setProperty("display", "none", "important");
+        }
       });
 
       document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
