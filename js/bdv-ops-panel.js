@@ -3,7 +3,13 @@
   function getCore() {
     return window.BDV_CORE || {
       apiUrl: "https://bdv-backend-api.yanobiz08.workers.dev",
-      escapeHtml: (s) => s || "",
+      escapeHtml: (s) =>
+        String(s || "")
+          .split("&").join("&")
+          .split("<").join("<")
+          .split(">").join(">")
+          .split('"').join(""")
+          .split("'").join("'"),
       getLang: () => "en",
       getProjectDisplayName: (p) => (p ? p.name : ""),
       workflowStages: [
@@ -41,6 +47,8 @@
     if (passInput) passInput.value = "";
     const createBox = document.getElementById("bdv-create-project-box");
     if (createBox) createBox.style.display = "none";
+    const createSowBox = document.getElementById("bdv-create-sow-box");
+    if (createSowBox) createSowBox.style.display = "none";
     const keyBox = document.getElementById("bdv-key-change-box");
     if (keyBox) keyBox.style.display = "none";
     if (noticeText) {
@@ -74,6 +82,9 @@
 
     const createBox = document.getElementById("bdv-create-project-box");
     if (createBox) createBox.style.display = "none";
+
+    const createSowBox = document.getElementById("bdv-create-sow-box");
+    if (createSowBox) createSowBox.style.display = "none";
 
     const keyBox = document.getElementById("bdv-key-change-box");
     if (keyBox) keyBox.style.display = "none";
@@ -227,11 +238,13 @@
               <h4 id="bdv-admin-role-label" style="margin: 0; font-size: 0.95rem;">Proyectos</h4>
               <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
                 <button type="button" id="bdv-toggle-create-project-btn" class="bdv-admin-action-btn" style="display: none; background: #22c55e !important; color: #052e16 !important; font-weight: 700;">+ Nuevo Proyecto</button>
+                <button type="button" id="bdv-toggle-create-sow-btn" class="bdv-admin-action-btn" style="display: none; background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">+ Emitir SOW</button>
                 <button type="button" id="bdv-toggle-key-change-btn" class="bdv-admin-toggle-status">🔐 Cambiar Clave</button>
                 <button type="button" id="bdv-admin-refresh-btn" class="bdv-admin-action-btn">↻</button>
               </div>
             </div>
 
+            <!-- Caja: Crear Nuevo Proyecto -->
             <div id="bdv-create-project-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(34, 197, 94, 0.06); border: 1px dashed rgba(34, 197, 94, 0.45); border-radius: 8px;">
               <h5 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #4ade80;">Alta de Nuevo Proyecto</h5>
               <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -244,6 +257,23 @@
                 <button type="button" id="bdv-np-submit-btn" class="bdv-tracker-btn" style="padding: 8px; font-size: 0.82rem; margin-top: 2px;" onclick="submitNewProject()">Guardar y Activar Proyecto</button>
               </div>
               <div id="bdv-np-status-msg" style="display: none; margin-top: 8px; font-size: 0.8rem;"></div>
+            </div>
+
+            <!-- Caja: Emitir Nuevo SOW con Folio -->
+            <div id="bdv-create-sow-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(212, 175, 55, 0.08); border: 1px dashed rgba(212, 175, 55, 0.55); border-radius: 8px;">
+              <h5 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #e8c861;">📄 Emitir Statement of Work (SOW) y Generar Enlace de Firma</h5>
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <input type="text" id="bdv-ns-client-name" class="bdv-tracker-input" placeholder="Nombre Completo del Cliente" style="font-size: 0.8rem; padding: 6px 10px;" />
+                <input type="email" id="bdv-ns-client-email" class="bdv-tracker-input" placeholder="Correo Oficial del Cliente" style="font-size: 0.8rem; padding: 6px 10px;" />
+                <input type="text" id="bdv-ns-biz-name" class="bdv-tracker-input" placeholder="Nombre Comercial o Empresa" style="font-size: 0.8rem; padding: 6px 10px;" />
+                <textarea id="bdv-ns-scope" class="bdv-tracker-input" rows="2" placeholder="Resumen del alcance acordado en la entrevista..." style="font-size: 0.8rem; padding: 6px 10px; resize: vertical;"></textarea>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input type="number" id="bdv-ns-total" class="bdv-tracker-input" placeholder="Presupuesto Total USD (ej. 850)" style="flex: 1; min-width: 140px; font-size: 0.8rem; padding: 6px 10px;" />
+                  <input type="number" id="bdv-ns-deposit" class="bdv-tracker-input" placeholder="Depósito Inicial USD (ej. 300)" style="flex: 1; min-width: 140px; font-size: 0.8rem; padding: 6px 10px;" />
+                </div>
+                <button type="button" id="bdv-ns-submit-btn" class="bdv-tracker-btn" style="padding: 8px; font-size: 0.82rem; background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="submitNewSowManual()">Generar Folio y Enlace SOW</button>
+              </div>
+              <div id="bdv-ns-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>
             </div>
 
             <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">
@@ -306,6 +336,15 @@
 
       document.getElementById("bdv-toggle-create-project-btn").addEventListener("click", () => {
         const box = document.getElementById("bdv-create-project-box");
+        const sowBox = document.getElementById("bdv-create-sow-box");
+        if (sowBox) sowBox.style.display = "none";
+        if (box) box.style.display = box.style.display === "none" ? "block" : "none";
+      });
+
+      document.getElementById("bdv-toggle-create-sow-btn").addEventListener("click", () => {
+        const box = document.getElementById("bdv-create-sow-box");
+        const pBox = document.getElementById("bdv-create-project-box");
+        if (pBox) pBox.style.display = "none";
         if (box) box.style.display = box.style.display === "none" ? "block" : "none";
       });
 
@@ -332,6 +371,120 @@
       };
     }
   }
+
+  window.generateSowForProject = function (row, clientName, clientEmail, businessName, scopeSummary) {
+    const core = getCore();
+    const sessionKey = window.__bdvSessionKey || "";
+    const rowStatus = document.getElementById("row-status-" + row);
+
+    if (rowStatus) {
+      rowStatus.style.display = "block";
+      rowStatus.style.color = "#94a3b8";
+      rowStatus.textContent = "Generando SOW y creando enlace en el Worker...";
+    }
+
+    fetch(core.apiUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "create_sow",
+        projectRow: Number(row),
+        clientName: clientName || businessName || "Cliente",
+        clientEmail: clientEmail || "",
+        businessName: businessName || "",
+        scopeSummary: scopeSummary || "Desarrollo conforme a diagnóstico inicial.",
+        totalAmount: 650,
+        depositAmount: 250
+      })
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (!rowStatus) return;
+        if (res.ok && res.sowId) {
+          const sowUrl = res.sowUrl || `https://batistadigitalventures.com/?sow=${res.sowId}`;
+          rowStatus.style.color = "#4ade80";
+          rowStatus.innerHTML = `
+            ✓ SOW Creado: <strong style="color: #f8fafc;">${core.escapeHtml(res.sowId)}</strong><br/>
+            <a href="${core.escapeHtml(sowUrl)}" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline; font-weight: bold;">Abrir Enlace SOW ↗</a>
+            · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.7rem;" onclick="navigator.clipboard.writeText('${core.escapeHtml(sowUrl)}'); alert('Enlace copiado al portapapeles');">Copiar Enlace</button>
+          `;
+        } else {
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = res.error || "No se pudo generar el SOW.";
+        }
+      })
+      .catch(() => {
+        if (rowStatus) {
+          rowStatus.style.display = "block";
+          rowStatus.style.color = "#f87171";
+          rowStatus.textContent = "Error de red al emitir el SOW.";
+        }
+      });
+  };
+
+  window.submitNewSowManual = function () {
+    const core = getCore();
+    const name = (document.getElementById("bdv-ns-client-name").value || "").trim();
+    const email = (document.getElementById("bdv-ns-client-email").value || "").trim().toLowerCase();
+    const biz = (document.getElementById("bdv-ns-biz-name").value || "").trim();
+    const scope = (document.getElementById("bdv-ns-scope").value || "").trim();
+    const total = Number(document.getElementById("bdv-ns-total").value) || 0;
+    const deposit = Number(document.getElementById("bdv-ns-deposit").value) || 0;
+    const statusMsg = document.getElementById("bdv-ns-status-msg");
+    const sessionKey = window.__bdvSessionKey || "";
+
+    if (!name || !email) {
+      if (statusMsg) {
+        statusMsg.style.display = "block";
+        statusMsg.style.color = "#f87171";
+        statusMsg.textContent = "Ingresa el nombre del cliente y su correo electrónico.";
+      }
+      return;
+    }
+
+    if (statusMsg) {
+      statusMsg.style.display = "block";
+      statusMsg.style.color = "#94a3b8";
+      statusMsg.textContent = "Emitiendo SOW...";
+    }
+
+    fetch(core.apiUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        key: sessionKey,
+        action: "create_sow",
+        clientName: name,
+        clientEmail: email,
+        businessName: biz,
+        scopeSummary: scope || "Desarrollo de plataforma o servicio digital.",
+        totalAmount: total,
+        depositAmount: deposit
+      })
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (!statusMsg) return;
+        if (res.ok && res.sowId) {
+          const sowUrl = res.sowUrl || `https://batistadigitalventures.com/?sow=${res.sowId}`;
+          statusMsg.style.color = "#4ade80";
+          statusMsg.innerHTML = `
+            ✓ <strong>${core.escapeHtml(res.sowId)}</strong> generado exitosamente.<br/>
+            <a href="${core.escapeHtml(sowUrl)}" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline;">Abrir SOW ↗</a>
+            · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.72rem;" onclick="navigator.clipboard.writeText('${core.escapeHtml(sowUrl)}'); alert('Enlace SOW copiado');">Copiar Enlace</button>
+          `;
+        } else {
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = res.error || "No se pudo generar el SOW.";
+        }
+      })
+      .catch(() => {
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.style.color = "#f87171";
+          statusMsg.textContent = "Error de conexión al emitir el SOW.";
+        }
+      });
+  };
 
   window.autofillProjectByIndex = function (idx) {
     const r = window.__bdvStoredRequests[idx];
@@ -572,13 +725,14 @@
         window.__bdvIsAdmin = isAdmin;
 
         const createBtn = document.getElementById("bdv-toggle-create-project-btn");
-        if (createBtn) {
-          createBtn.style.display = isAdmin ? "inline-block" : "none";
-        }
+        if (createBtn) createBtn.style.display = isAdmin ? "inline-block" : "none";
+
+        const createSowBtn = document.getElementById("bdv-toggle-create-sow-btn");
+        if (createSowBtn) createSowBtn.style.display = isAdmin ? "inline-block" : "none";
 
         if (roleLabel) {
           roleLabel.textContent = isAdmin
-            ? "Admin · Control de Etapas, PINs y Aprobaciones"
+            ? "Admin · Control de Etapas, SOWs, PINs y Aprobaciones"
             : "Programador Partner · Reporte para Revisión y Confirmación";
         }
 
@@ -646,10 +800,11 @@
                </div>`
             : "";
 
-          const adminPinBox = isAdmin
-            ? `<div class="bdv-admin-grid-row" style="margin-top: 10px;">
-                 <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 170px; padding: 6px 10px; font-size: 0.8rem;" value="${core.escapeHtml(p.code)}" placeholder="Nuevo PIN (ej. BDV-5521)" />
+          const adminActionButtons = isAdmin
+            ? `<div class="bdv-admin-grid-row" style="margin-top: 10px; gap: 6px;">
+                 <input type="text" id="pin-input-${p.row}" class="bdv-tracker-input" style="max-width: 140px; padding: 6px 8px; font-size: 0.8rem;" value="${core.escapeHtml(p.code)}" placeholder="PIN" />
                  <button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(${p.row})">Cambiar PIN</button>
+                 <button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="generateSowForProject(${p.row}, '${core.escapeHtml(p.name)}', '${core.escapeHtml(p.email)}', '${core.escapeHtml(displayName)}', '${core.escapeHtml(displayName)}')">📄 Generar SOW</button>
                  <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important;" onclick="deleteProjectItem(${p.row})">Eliminar</button>
                </div>`
             : "";
@@ -675,7 +830,7 @@
                 </span>
               </div>
 
-              ${adminPinBox}
+              ${adminActionButtons}
               ${proposalBanner}
               ${devNotesInput}
 
