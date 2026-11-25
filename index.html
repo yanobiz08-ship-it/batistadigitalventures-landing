@@ -721,8 +721,8 @@
             <li><span class="check">◆</span><span data-i18n="th3">Cloudflare edge routing, DNS security, automation & lean API pipelines.</span></li>
             <li><span class="check">◆</span><span data-i18n="th4">Bilingual go-to-market assets, brand identity & high-retention storytelling.</span></li>
           </ul>
-          <a class="btn btn-secondary" style="width: 100%;" href="mailto:contact@batistadigitalventures.com" data-i18n="thesisCta">
-            Request Deck & Venture Brief → contact@batistadigitalventures.com
+          <a id="bdv-thesis-brief-btn" class="btn btn-secondary" style="width: 100%;" href="#contact" data-i18n="thesisCta">
+            Solicitar Deck y Venture Brief →
           </a>
         </aside>
       </div>
@@ -945,6 +945,27 @@
     </div>
   </footer>
 
+  <!-- Modal Formulario Deck & Venture Brief -->
+  <div id="bdv-service-modal" class="bdv-modal-overlay" style="display: none; position: fixed; inset: 0; z-index: 99999; overflow-y: auto; padding: 18px 12px; background: rgba(0, 0, 0, 0.85);">
+    <div class="bdv-tracker-card" style="max-width: 520px; width: 100%; margin: auto;">
+      <div class="bdv-modal-top">
+        <h3 id="bdv-svc-title" style="margin: 0; font-size: 1.05rem; color: #e8c861;">Solicitar Deck y Venture Brief · BDV LLC</h3>
+        <button type="button" id="bdv-svc-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+      </div>
+      <p id="bdv-svc-desc" style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;">
+        Completa tus datos y te enviaremos información o coordinaremos tu brief con Batista Digital Ventures LLC.
+      </p>
+      <form id="bdv-svc-form" style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="text" id="bdv-svc-name" class="bdv-tracker-input" placeholder="Tu nombre completo" required />
+        <input type="email" id="bdv-svc-email" class="bdv-tracker-input" placeholder="Tu correo electrónico" required />
+        <input type="text" id="bdv-svc-biz" class="bdv-tracker-input" placeholder="Empresa o proyecto (opcional)" />
+        <textarea id="bdv-svc-notes" class="bdv-tracker-input" rows="3" placeholder="¿Qué deseas construir, cotizar o revisar?" style="resize: vertical;"></textarea>
+        <button type="submit" id="bdv-svc-submit-btn" class="bdv-tracker-btn">Enviar Solicitud</button>
+      </form>
+      <div id="bdv-svc-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
+    </div>
+  </div>
+
   <script>
     const translations = {
       en: {
@@ -975,7 +996,7 @@
         th2: "Full store readiness: App Store & Google Play compliance, privacy & metadata.",
         th3: "Cloudflare edge routing, DNS security, automation & lean API pipelines.",
         th4: "Bilingual go-to-market assets, brand identity & high-retention storytelling.",
-        thesisCta: "Request Deck & Venture Brief → contact@batistadigitalventures.com",
+        thesisCta: "Request Deck & Venture Brief →",
         venturesKicker: "PORTFOLIO & BUILT WORK",
         venturesTitle: "Flagship products & live platforms.",
         venturesDesc: "Direct access to active digital properties built under our venture umbrella, alongside custom client and operational systems.",
@@ -1041,7 +1062,18 @@
         ctaTitle: "Let’s build or scale what comes next.",
         ctaDesc: "Reach out for strategic partnerships, venture collaborations, product builds, or platform inquiries.",
         ctaEmailBtn: "Email contact@batistadigitalventures.com",
-        footRights: "All rights reserved."
+        footRights: "All rights reserved.",
+        svcTitle: "Request Deck & Venture Brief · BDV LLC",
+        svcDesc: "Share your details and we will follow up with our venture brief or scope discussion.",
+        svcNamePh: "Your full name",
+        svcEmailPh: "Your email address",
+        svcBizPh: "Company or project (optional)",
+        svcNotesPh: "What would you like to build, scope, or review?",
+        svcSubmitBtn: "Submit Request",
+        svcSending: "Sending request...",
+        svcSuccess: "✓ Request submitted. We will follow up shortly.",
+        svcError: "Could not submit your request. Please try again.",
+        svcNetError: "Connection error. Please try again."
       },
       es: {
         pageTitle: "Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales",
@@ -1071,7 +1103,7 @@
         th2: "Preparación completa para tiendas: cumplimiento en App Store y Google Play, privacidad y metadatos.",
         th3: "Enrutamiento edge en Cloudflare, seguridad DNS, automatización y flujos API ligeros.",
         th4: "Activos bilingües de lanzamiento, identidad de marca y narrativa de alta retención.",
-        thesisCta: "Solicitar dossier y brief → contact@batistadigitalventures.com",
+        thesisCta: "Solicitar Deck y Venture Brief →",
         venturesKicker: "PORTAFOLIO Y TRABAJOS REALIZADOS",
         venturesTitle: "Productos insignia y plataformas en vivo.",
         venturesDesc: "Acceso directo a propiedades digitales activas desarrolladas bajo nuestro estudio, junto con sistemas operativos y de producto.",
@@ -1137,11 +1169,40 @@
         ctaTitle: "Construyamos o escalemos lo que sigue.",
         ctaDesc: "Escríbenos para alianzas estratégicas, colaboración en ventures, desarrollo de producto o consultas generales.",
         ctaEmailBtn: "Escribir a contact@batistadigitalventures.com",
-        footRights: "Todos los derechos reservados."
+        footRights: "Todos los derechos reservados.",
+        svcTitle: "Solicitar Deck y Venture Brief · BDV LLC",
+        svcDesc: "Completa tus datos y te enviaremos información o coordinaremos tu brief con Batista Digital Ventures LLC.",
+        svcNamePh: "Tu nombre completo",
+        svcEmailPh: "Tu correo electrónico",
+        svcBizPh: "Empresa o proyecto (opcional)",
+        svcNotesPh: "¿Qué deseas construir, cotizar o revisar?",
+        svcSubmitBtn: "Enviar Solicitud",
+        svcSending: "Enviando solicitud...",
+        svcSuccess: "✓ Solicitud enviada. Revisaremos tu mensaje a la brevedad.",
+        svcError: "No se pudo enviar la solicitud. Intenta de nuevo.",
+        svcNetError: "Error de conexión al enviar la solicitud."
       }
     };
 
     const buttons = document.querySelectorAll("[data-set-lang]");
+    function applyModalLanguage(dict) {
+      const svcTitle = document.getElementById("bdv-svc-title");
+      const svcDesc = document.getElementById("bdv-svc-desc");
+      const svcName = document.getElementById("bdv-svc-name");
+      const svcEmail = document.getElementById("bdv-svc-email");
+      const svcBiz = document.getElementById("bdv-svc-biz");
+      const svcNotes = document.getElementById("bdv-svc-notes");
+      const svcSubmit = document.getElementById("bdv-svc-submit-btn");
+
+      if (svcTitle && dict.svcTitle) svcTitle.textContent = dict.svcTitle;
+      if (svcDesc && dict.svcDesc) svcDesc.textContent = dict.svcDesc;
+      if (svcName && dict.svcNamePh) svcName.placeholder = dict.svcNamePh;
+      if (svcEmail && dict.svcEmailPh) svcEmail.placeholder = dict.svcEmailPh;
+      if (svcBiz && dict.svcBizPh) svcBiz.placeholder = dict.svcBizPh;
+      if (svcNotes && dict.svcNotesPh) svcNotes.placeholder = dict.svcNotesPh;
+      if (svcSubmit && dict.svcSubmitBtn) svcSubmit.textContent = dict.svcSubmitBtn;
+    }
+
     function applyLanguage(lang) {
       const dict = translations[lang] || translations.es;
       document.documentElement.lang = lang;
@@ -1154,6 +1215,8 @@
           el.textContent = dict[key];
         }
       });
+
+      applyModalLanguage(dict);
 
       buttons.forEach((btn) => {
         btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
@@ -1179,6 +1242,100 @@
     })();
 
     applyLanguage(savedLang === "en" ? "en" : "es");
+
+    (function () {
+      const briefBtn = document.getElementById("bdv-thesis-brief-btn");
+      const svcModal = document.getElementById("bdv-service-modal");
+      const closeBtn = document.getElementById("bdv-svc-close-btn");
+      const form = document.getElementById("bdv-svc-form");
+      const msgEl = document.getElementById("bdv-svc-msg");
+      const submitBtn = document.getElementById("bdv-svc-submit-btn");
+
+      function currentDict() {
+        const lang = (document.documentElement.getAttribute("lang") || "es").toLowerCase().startsWith("en") ? "en" : "es";
+        return translations[lang] || translations.es;
+      }
+
+      if (briefBtn && svcModal) {
+        briefBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          applyModalLanguage(currentDict());
+          if (msgEl) msgEl.style.display = "none";
+          svcModal.style.setProperty("display", "flex", "important");
+        });
+      }
+
+      if (closeBtn && svcModal) {
+        closeBtn.addEventListener("click", function () {
+          svcModal.style.setProperty("display", "none", "important");
+        });
+      }
+
+      if (svcModal) {
+        svcModal.addEventListener("click", function (e) {
+          if (e.target === svcModal) {
+            svcModal.style.setProperty("display", "none", "important");
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const dict = currentDict();
+          const core = window.BDV_CORE || { apiUrl: "https://bdv-backend-api.yanobiz08.workers.dev" };
+          const clientName = (document.getElementById("bdv-svc-name").value || "").trim();
+          const clientEmail = (document.getElementById("bdv-svc-email").value || "").trim().toLowerCase();
+          const businessName = (document.getElementById("bdv-svc-biz").value || "").trim();
+          const notes = (document.getElementById("bdv-svc-notes").value || "").trim();
+          const lang = (document.documentElement.getAttribute("lang") || "es").toLowerCase().startsWith("en") ? "en" : "es";
+
+          if (!clientName || !clientEmail) return;
+
+          if (submitBtn) submitBtn.disabled = true;
+          if (msgEl) {
+            msgEl.style.display = "block";
+            msgEl.style.color = "#94a3b8";
+            msgEl.textContent = dict.svcSending;
+          }
+
+          fetch(core.apiUrl, {
+            method: "POST",
+            body: JSON.stringify({
+              action: "request_services",
+              clientName,
+              clientEmail,
+              businessName,
+              services: ["Deck & Venture Brief"],
+              notes,
+              lang
+            })
+          })
+            .then((r) => r.json())
+            .then((res) => {
+              if (submitBtn) submitBtn.disabled = false;
+              if (!msgEl) return;
+              msgEl.style.display = "block";
+              if (res.ok) {
+                msgEl.style.color = "#4ade80";
+                msgEl.textContent = res.id ? `${dict.svcSuccess} (${res.id})` : dict.svcSuccess;
+                form.reset();
+              } else {
+                msgEl.style.color = "#f87171";
+                msgEl.textContent = res.error || dict.svcError;
+              }
+            })
+            .catch(() => {
+              if (submitBtn) submitBtn.disabled = false;
+              if (msgEl) {
+                msgEl.style.display = "block";
+                msgEl.style.color = "#f87171";
+                msgEl.textContent = dict.svcNetError;
+              }
+            });
+        });
+      }
+    })();
   </script>
   <link rel="stylesheet" href="./css/brand-media.css" />
   <script src="./js/brand-media.js" defer></script>
