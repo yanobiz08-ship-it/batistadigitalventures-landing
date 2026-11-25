@@ -1,4 +1,4 @@
-/* Batista Digital Ventures - Landing Core, Folder Cabinet Tabs, Workflow Progress, Ops Compact, Client Tracker, Dev Flow & Legal */
+/* Batista Digital Ventures - Landing Core, Cabinet Tabs, Workflow Progress, Ops Compact, Dev Flow & Legal */
 (function () {
   const BDV_ADMIN_API_URL = "https://bdv-backend-api.yanobiz08.workers.dev";
 
@@ -17,7 +17,6 @@
     return lang.startsWith("es") ? "es" : "en";
   }
 
-  // Compartir configuración y utilidades globales con bdv-ops-panel.js
   window.BDV_CORE = {
     apiUrl: BDV_ADMIN_API_URL,
     escapeHtml: escapeHtml,
@@ -684,7 +683,7 @@
       confirmRoot = document.createElement("div");
       confirmRoot.id = "bdv-exec-confirm-root";
       confirmRoot.className = "bdv-modal-overlay";
-      confirmRoot.style.zIndex = "99999";
+      confirmRoot.style.zIndex = "100000";
       confirmRoot.style.overflowY = "auto";
       confirmRoot.style.padding = "16px";
       document.body.appendChild(confirmRoot);
@@ -704,24 +703,136 @@
     const btnText = isEs ? "Entendido" : "Done";
 
     confirmRoot.innerHTML = `
-      <div class="bdv-tracker-card" style="max-width: 480px; width: 100%; margin: auto; border: 1px solid rgba(212, 175, 55, 0.55); background: #0b0f17; padding: 22px; border-radius: 14px;">
+      <div class="bdv-tracker-card" style="max-width: 480px; width: 100%; margin: 20px auto; border: 1px solid rgba(212, 175, 55, 0.55); background: #0b0f17; padding: 22px; border-radius: 14px;">
         <div style="font-size: 0.7rem; letter-spacing: 0.08em; color: #e8c861; font-weight: 700; margin-bottom: 6px;">${badge}</div>
         <h3 style="margin: 0 0 10px 0; font-size: 1.15rem; color: #f8fafc;">${title}</h3>
         <p style="font-size: 0.9rem; color: #e2e8f0; line-height: 1.5; margin: 0 0 10px 0;">${greeting}</p>
         <p style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5; margin: 0 0 18px 0;">${detail}</p>
-        <button type="button" id="bdv-exec-confirm-close" class="bdv-tracker-btn" style="width: 100%;">${btnText}</button>
+        <button type="button" id="bdv-exec-confirm-close" class="bdv-tracker-btn" style="width: 100%; background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">${btnText}</button>
       </div>
     `;
 
-    confirmRoot.style.display = "flex";
+    confirmRoot.style.setProperty("display", "block", "important");
 
-    document.getElementById("bdv-exec-confirm-close").addEventListener("click", () => {
-      confirmRoot.style.display = "none";
-    });
+    document.getElementById("bdv-exec-confirm-close").onclick = () => {
+      confirmRoot.style.setProperty("display", "none", "important");
+    };
 
-    confirmRoot.addEventListener("click", (e) => {
-      if (e.target === confirmRoot) confirmRoot.style.display = "none";
-    });
+    confirmRoot.onclick = (e) => {
+      if (e.target === confirmRoot) {
+        confirmRoot.style.setProperty("display", "none", "important");
+      }
+    };
+  }
+
+  let isSubmittingServiceRequest = false;
+
+  function processServiceRequestSubmission(e) {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
+    if (isSubmittingServiceRequest) return;
+
+    const modalRoot = document.getElementById("bdv-service-modal-root");
+    if (!modalRoot) return;
+
+    const serviceCopy = {
+      es: {
+        selectOne: "Selecciona al menos un servicio de la lista.",
+        sending: "Enviando solicitud...",
+        success: "✓ Solicitud enviada. Revisa tu correo para la confirmación.",
+        fail: "No se pudo enviar la solicitud.",
+        netErr: "Error de conexión al enviar la solicitud."
+      },
+      en: {
+        selectOne: "Select at least one service from the list.",
+        sending: "Sending request...",
+        success: "✓ Request sent. Check your email for confirmation.",
+        fail: "Could not send the request.",
+        netErr: "Connection error while sending the request."
+      }
+    };
+
+    const curLang = getLang();
+    const curS = serviceCopy[curLang] || serviceCopy.en;
+
+    const nameInput = document.getElementById("bdv-srv-client-name");
+    const emailInput = document.getElementById("bdv-srv-client-email");
+    const businessInput = document.getElementById("bdv-srv-business-name");
+    const notesInput = document.getElementById("bdv-srv-notes");
+    const statusEl = document.getElementById("bdv-srv-status-msg");
+    const submitBtn = document.getElementById("bdv-srv-submit-btn");
+
+    const clientName = (nameInput ? nameInput.value : "").trim();
+    const clientEmail = (emailInput ? emailInput.value : "").trim();
+    const businessName = (businessInput ? businessInput.value : "").trim();
+    const notes = (notesInput ? notesInput.value : "").trim();
+    const selected = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+    if (!clientName || !clientEmail) {
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#f87171";
+        statusEl.textContent = curLang === "es" ? "Completa tu nombre y correo." : "Please enter your name and email.";
+      }
+      return;
+    }
+
+    if (!selected.length) {
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#f87171";
+        statusEl.textContent = curS.selectOne;
+      }
+      return;
+    }
+
+    isSubmittingServiceRequest = true;
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusEl) {
+      statusEl.style.display = "block";
+      statusEl.style.color = "#94a3b8";
+      statusEl.textContent = curS.sending;
+    }
+
+    fetch(BDV_ADMIN_API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "request_services",
+        lang: curLang,
+        clientName: clientName,
+        clientEmail: clientEmail,
+        businessName: businessName,
+        services: selected,
+        notes: notes
+      })
+    })
+      .then(r => r.json())
+      .then(res => {
+        isSubmittingServiceRequest = false;
+        if (submitBtn) submitBtn.disabled = false;
+        if (res.ok) {
+          if (statusEl) {
+            statusEl.style.color = "#4ade80";
+            statusEl.textContent = curS.success;
+          }
+          const formEl = document.getElementById("bdv-service-request-form");
+          if (formEl) formEl.reset();
+          modalRoot.style.setProperty("display", "none", "important");
+          openExecutiveConfirmationModal(clientName, res.id, curLang);
+        } else if (statusEl) {
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = res.error || curS.fail;
+        }
+      })
+      .catch(() => {
+        isSubmittingServiceRequest = false;
+        if (submitBtn) submitBtn.disabled = false;
+        if (statusEl) {
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = curS.netErr;
+        }
+      });
   }
 
   function applyServiceRequestModal() {
@@ -737,11 +848,6 @@
         businessPh: "Nombre de tu negocio o proyecto (opcional)",
         notesPh: "Cuéntanos brevemente qué quieres lograr o cuándo te gustaría iniciar...",
         submit: "Enviar Solicitud",
-        selectOne: "Selecciona al menos un servicio de la lista.",
-        sending: "Enviando solicitud...",
-        success: "✓ Solicitud enviada. Revisa tu correo para la confirmación.",
-        fail: "No se pudo enviar la solicitud.",
-        netErr: "Error de conexión al enviar la solicitud.",
         items: [
           "Sitio Web Base / MVP ($450–$850)",
           "Plataforma / Web Dinámica ($1,200–$2,800+)",
@@ -759,11 +865,6 @@
         businessPh: "Business or project name (optional)",
         notesPh: "Tell us briefly what you want to build or when you plan to start...",
         submit: "Submit Request",
-        selectOne: "Select at least one service from the list.",
-        sending: "Sending request...",
-        success: "✓ Request sent. Check your email for confirmation.",
-        fail: "Could not send the request.",
-        netErr: "Connection error while sending the request.",
         items: [
           "Starter Website / MVP ($450–$850)",
           "Dynamic Platform / Web App ($1,200–$2,800+)",
@@ -804,22 +905,22 @@
       modalRoot.id = "bdv-service-modal-root";
       modalRoot.className = "bdv-modal-overlay";
       modalRoot.style.cssText =
-        "display: none; position: fixed; inset: 0; z-index: 9999; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; padding: 20px 14px 70px 14px !important; background: rgba(0, 0, 0, 0.82) !important;";
+        "display: none; position: fixed; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; touch-action: pan-y !important; pointer-events: auto !important; padding: 12px 12px 90px 12px !important; background: rgba(0, 0, 0, 0.85) !important;";
 
       modalRoot.innerHTML = `
-        <div id="bdv-service-modal-card" class="bdv-tracker-card" style="max-width: 500px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; margin: 0 auto !important;">
+        <div id="bdv-service-modal-card" class="bdv-tracker-card" style="position: relative; z-index: 2; max-width: 500px; width: 100%; height: auto !important; max-height: none !important; overflow: visible !important; pointer-events: auto !important; margin: 8px auto 24px auto !important; align-self: flex-start !important;">
           <div class="bdv-modal-top">
             <h3 id="bdv-srv-modal-title" style="margin: 0; font-size: 1.05rem; color: #e8c861;"></h3>
-            <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>
+            <button type="button" id="bdv-service-close-btn" class="bdv-modal-close" aria-label="Cerrar" style="pointer-events: auto !important;">✕</button>
           </div>
           <p id="bdv-srv-modal-desc" style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 12px 0;"></p>
-          <form id="bdv-service-request-form" class="bdv-tracker-form">
-            <input type="text" id="bdv-srv-client-name" class="bdv-tracker-input" required />
-            <input type="email" id="bdv-srv-client-email" class="bdv-tracker-input" required />
-            <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" />
-            <div id="bdv-srv-checkboxes" style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0;"></div>
-            <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" style="resize: vertical;"></textarea>
-            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; opacity: 1 !important; margin-bottom: 12px;"></button>
+          <form id="bdv-service-request-form" class="bdv-tracker-form" style="pointer-events: auto !important;">
+            <input type="text" id="bdv-srv-client-name" class="bdv-tracker-input" required style="pointer-events: auto !important;" />
+            <input type="email" id="bdv-srv-client-email" class="bdv-tracker-input" required style="pointer-events: auto !important;" />
+            <input type="text" id="bdv-srv-business-name" class="bdv-tracker-input" style="pointer-events: auto !important;" />
+            <div id="bdv-srv-checkboxes" style="display: flex; flex-direction: column; gap: 6px; margin: 4px 0; pointer-events: auto !important;"></div>
+            <textarea id="bdv-srv-notes" class="bdv-tracker-input" rows="3" style="resize: vertical; pointer-events: auto !important;"></textarea>
+            <button type="submit" id="bdv-srv-submit-btn" class="bdv-tracker-btn" style="position: relative; z-index: 5; background: #e8c861 !important; color: #070a10 !important; font-weight: 700; opacity: 1 !important; pointer-events: auto !important; cursor: pointer !important; margin-bottom: 16px;"></button>
           </form>
           <div id="bdv-srv-status-msg" style="display: none; margin-top: 10px; font-size: 0.82rem;"></div>
         </div>
@@ -837,63 +938,15 @@
         }
       });
 
-      document.getElementById("bdv-service-request-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const curLang = getLang();
-        const curS = serviceCopy[curLang] || serviceCopy.en;
+      const formEl = document.getElementById("bdv-service-request-form");
+      if (formEl) {
+        formEl.addEventListener("submit", processServiceRequestSubmission);
+      }
 
-        const clientName = (document.getElementById("bdv-srv-client-name").value || "").trim();
-        const clientEmail = (document.getElementById("bdv-srv-client-email").value || "").trim();
-        const businessName = (document.getElementById("bdv-srv-business-name").value || "").trim();
-        const notes = (document.getElementById("bdv-srv-notes").value || "").trim();
-        const selected = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-        const statusEl = document.getElementById("bdv-srv-status-msg");
-        const submitBtn = document.getElementById("bdv-srv-submit-btn");
-
-        if (!selected.length) {
-          statusEl.style.display = "block";
-          statusEl.style.color = "#f87171";
-          statusEl.textContent = curS.selectOne;
-          return;
-        }
-
-        submitBtn.disabled = true;
-        statusEl.style.display = "block";
-        statusEl.style.color = "#94a3b8";
-        statusEl.textContent = curS.sending;
-
-        fetch(BDV_ADMIN_API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "request_services",
-            lang: curLang,
-            clientName: clientName,
-            clientEmail: clientEmail,
-            businessName: businessName,
-            services: selected,
-            notes: notes
-          })
-        })
-          .then(r => r.json())
-          .then(res => {
-            submitBtn.disabled = false;
-            if (res.ok) {
-              statusEl.style.color = "#4ade80";
-              statusEl.textContent = curS.success;
-              e.target.reset();
-              modalRoot.style.setProperty("display", "none", "important");
-              openExecutiveConfirmationModal(clientName, res.id, curLang);
-            } else {
-              statusEl.style.color = "#f87171";
-              statusEl.textContent = res.error || curS.fail;
-            }
-          })
-          .catch(() => {
-            submitBtn.disabled = false;
-            statusEl.style.color = "#f87171";
-            statusEl.textContent = curS.netErr;
-          });
-      });
+      const subBtn = document.getElementById("bdv-srv-submit-btn");
+      if (subBtn) {
+        subBtn.addEventListener("click", processServiceRequestSubmission);
+      }
     }
 
     const prevChecked = Array.from(modalRoot.querySelectorAll('input[type="checkbox"]:checked')).map(cb => Number(cb.dataset.idx));
