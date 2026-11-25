@@ -1,4 +1,4 @@
-/* Batista Digital Ventures LLC - Digital SOW Viewer, E-Signature & Download */
+/* Batista Digital Ventures LLC - Digital SOW Viewer, E-Signature, Stripe Checkout & Download */
 (function () {
   function getCore() {
     return window.BDV_CORE || {
@@ -19,8 +19,18 @@
 
   let currentSowData = null;
 
+  function isSowPaid(sow) {
+    if (!sow) return false;
+    const statusText = String(sow.paymentStatus || "").toUpperCase();
+    return Boolean(sow.lastPaidAt) || statusText.includes("PAGADO") || statusText.includes("PAID");
+  }
+
   function buildPrintableOrTextDocument(sow) {
     const sig = sow.signature || null;
+    const paidInfo = isSowPaid(sow)
+      ? `${sow.paymentStatus || "PAGADO"} | Monto: $${sow.lastPaidAmountUsd || sow.depositAmount || 0} USD | Fecha: ${sow.lastPaidAt || "N/A"}`
+      : `Pendiente de pago (${sow.paymentStatus || "PENDING"})`;
+
     const lines = [
       "=================================================================",
       "STATEMENT OF WORK (SOW) / ACUERDO DE ALCANCE DE TRABAJO",
@@ -29,7 +39,8 @@
       "=================================================================",
       `Folio SOW: ${sow.sowId || ""}`,
       `Fecha de Emisión: ${sow.createdAt || ""}`,
-      `Estado: ${sow.status || "DRAFT"}`,
+      `Estado del Acuerdo: ${sow.status || "DRAFT"}`,
+      `Estado de Pago: ${paidInfo}`,
       "",
       "1. PARTES",
       `Proveedor: Batista Digital Ventures LLC (Lompoc, California)`,
@@ -90,6 +101,10 @@
       return;
     }
 
+    const paymentSummaryHtml = isSowPaid(sow)
+      ? `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")} ($${esc(sow.lastPaidAmountUsd || sow.depositAmount || 0)} USD)`
+      : `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "Pendiente")}`;
+
     win.document.write(`
       <!DOCTYPE html>
       <html lang="es">
@@ -112,7 +127,7 @@
         </div>
         <h1>STATEMENT OF WORK (SOW) — BATISTA DIGITAL VENTURES LLC</h1>
         <div class="meta">
-          <strong>Folio:</strong> ${esc(sow.sowId)} · <strong>Estado:</strong> ${esc(sow.status)} · <strong>Ubicación:</strong> Lompoc, California
+          <strong>Folio:</strong> ${esc(sow.sowId)} · <strong>Estado:</strong> ${esc(sow.status)} · <strong>Ubicación:</strong> Lompoc, California${paymentSummaryHtml}
         </div>
 
         <h2>1. Partes</h2>
@@ -134,10 +149,10 @@
 
         <h2>4. Términos Legales (California)</h2>
         <div class="box">
-          • <strong>Ventana de revisión:</strong> 5 días hábiles tras la notificación de entrega de un hito.<br/>
-          • <strong>Propiedad intelectual:</strong> Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo propiedad de Batista Digital Ventures LLC.<br/>
-          • <strong>Órdenes de cambio:</strong> Trabajos fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.<br/>
-          • <strong>Ley aplicable:</strong> Estado de California, EE. UU. (UETA / ESIGN).
+          - <strong>Ventana de revisión:</strong> 5 días hábiles tras la notificación de entrega de un hito.<br/>
+          - <strong>Propiedad intelectual:</strong> Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo propiedad de Batista Digital Ventures LLC.<br/>
+          - <strong>Órdenes de cambio:</strong> Trabajos fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.<br/>
+          - <strong>Ley aplicable:</strong> Estado de California, EE. UU. (UETA / ESIGN).
         </div>
 
         <h2>5. Firma Digital</h2>
@@ -155,6 +170,79 @@
       </html>
     `);
     win.document.close();
+  }
+
+  async function startStripeCheckoutForSow(sow) {
+    const core = getCore();
+    const statusEl = document.getElementById("bdv-sow-status-msg");
+    const payBtn = document.getElementById("bdv-sow-stripe-pay-btn");
+
+    if (!sow || !sow.sowId) return;
+
+    const depositAmount = Number(sow.depositAmount || 0);
+    if (!depositAmount || depositAmount < 0.5) {
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#f87171";
+        statusEl.textContent = "Este SOW no tiene un monto de depósito válido configurado para pago con tarjeta.";
+      }
+      return;
+    }
+
+    if (payBtn) {
+      payBtn.disabled = true;
+      payBtn.textContent = "Conectando con Stripe...";
+    }
+    if (statusEl) {
+      statusEl.style.display = "block";
+      statusEl.style.color = "#94a3b8";
+      statusEl.textContent = "Generando sesión segura de pago con Stripe...";
+    }
+
+    const baseCleanUrl = `${window.location.origin}${window.location.pathname}`;
+
+    try {
+      const resp = await fetch(core.apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create_checkout",
+          sowId: sow.sowId,
+          clientEmail: sow.clientEmail || "",
+          amountUsd: depositAmount,
+          paymentType: "deposit",
+          targetStage: 2,
+          itemTitle: `Depósito Inicial (${sow.sowId}) — ${sow.businessName || sow.clientName || "Batista Digital Ventures LLC"}`,
+          returnBaseUrl: baseCleanUrl
+        })
+      });
+
+      const res = await resp.json();
+      if (!res.ok || !res.checkoutUrl) {
+        if (payBtn) {
+          payBtn.disabled = false;
+          payBtn.textContent = `Pagar Depósito ($${depositAmount} USD) con Stripe`;
+        }
+        if (statusEl) {
+          statusEl.style.display = "block";
+          statusEl.style.color = "#f87171";
+          statusEl.textContent = res.error || "No se pudo iniciar la sesión de pago en Stripe.";
+        }
+        return;
+      }
+
+      window.location.href = res.checkoutUrl;
+    } catch (_) {
+      if (payBtn) {
+        payBtn.disabled = false;
+        payBtn.textContent = `Pagar Depósito ($${depositAmount} USD) con Stripe`;
+      }
+      if (statusEl) {
+        statusEl.style.display = "block";
+        statusEl.style.color = "#f87171";
+        statusEl.textContent = "Error de conexión al iniciar el pago con Stripe.";
+      }
+    }
   }
 
   function ensureSowModal() {
@@ -185,6 +273,7 @@
             <button type="button" id="bdv-sow-sign-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">Firmar Acuerdo Digitalmente</button>
           </div>
         </div>
+        <div id="bdv-sow-payment-wrap" style="display: none; margin-top: 14px; border-top: 1px dashed rgba(212, 175, 55, 0.35); padding-top: 14px;"></div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;">
           <button type="button" id="bdv-sow-print-btn" class="bdv-admin-toggle-status" style="flex: 1;">Descargar / Guardar PDF</button>
           <button type="button" id="bdv-sow-txt-btn" class="bdv-admin-toggle-status" style="flex: 1;">Descargar Comprobante (.txt)</button>
@@ -237,6 +326,7 @@
 
       fetch(core.apiUrl, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "sign_sow",
           sowId: currentSowData.sowId,
@@ -260,7 +350,7 @@
 
           statusEl.style.color = "#4ade80";
           statusEl.textContent =
-            "✓ Acuerdo firmado. Se envió copia a Batista Digital Ventures LLC y a tu correo. Ya puedes descargarlo.";
+            "✓ Acuerdo firmado. Se envió copia a Batista Digital Ventures LLC y a tu correo. Ahora puedes completar el pago con tarjeta.";
         })
         .catch(() => {
           btn.disabled = false;
@@ -270,6 +360,52 @@
     });
 
     return modal;
+  }
+
+  function renderPaymentSection(sow) {
+    const core = getCore();
+    const esc = core.escapeHtml;
+    const payWrap = document.getElementById("bdv-sow-payment-wrap");
+    if (!payWrap) return;
+
+    const isSigned = sow && sow.status === "SIGNED";
+    if (!isSigned) {
+      payWrap.style.display = "none";
+      payWrap.innerHTML = "";
+      return;
+    }
+
+    payWrap.style.display = "block";
+
+    if (isSowPaid(sow)) {
+      payWrap.innerHTML = `
+        <div style="padding: 12px 14px; border-radius: 10px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.45); color: #dcfce7;">
+          <strong>✓ Pago Registrado:</strong> ${esc(sow.paymentStatus || "PAGADO")}
+          ${sow.lastPaidAt ? `<div style="font-size: 0.74rem; color: #bbf7d0; margin-top: 4px;">Confirmado: ${esc(sow.lastPaidAt)}</div>` : ""}
+        </div>
+      `;
+      return;
+    }
+
+    const depositUsd = Number(sow.depositAmount || 0);
+    payWrap.innerHTML = `
+      <div style="padding: 14px; border-radius: 10px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.4);">
+        <div style="font-weight: 700; color: #e8c861; margin-bottom: 6px;">Liquidación de Depósito Inicial (Stripe Checkout)</div>
+        <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 12px;">
+          Acuerdo firmado. Completa el depósito acordado de <strong>$${esc(depositUsd)} USD</strong> a favor de <strong>Batista Digital Ventures LLC</strong> para activar la fase de ejecución.
+        </div>
+        <button type="button" id="bdv-sow-stripe-pay-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; width: 100%;">
+          Pagar Depósito ($${esc(depositUsd)} USD) con Stripe
+        </button>
+      </div>
+    `;
+
+    const payBtn = document.getElementById("bdv-sow-stripe-pay-btn");
+    if (payBtn) {
+      payBtn.addEventListener("click", () => {
+        startStripeCheckoutForSow(sow);
+      });
+    }
   }
 
   function renderSowContent(sow) {
@@ -291,6 +427,10 @@
          </div>`
       : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">Estado actual: Pendiente de firma digital.</div>`;
 
+    const payBadgeHtml = isSowPaid(sow)
+      ? `<div style="margin-top: 8px; color: #4ade80; font-size: 0.78rem;"><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")}</div>`
+      : `<div style="margin-top: 8px; color: #94a3b8; font-size: 0.76rem;"><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "Pendiente")}</div>`;
+
     if (bodyEl) {
       bodyEl.innerHTML = `
         <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
@@ -301,6 +441,7 @@
           <div style="margin-top: 8px; color: #e8c861;">
             <strong>Presupuesto Total:</strong> $${esc(sow.totalAmount || 0)} USD · <strong>Depósito Inicial (Etapa 2):</strong> $${esc(sow.depositAmount || 0)} USD
           </div>
+          ${payBadgeHtml}
           <div style="margin-top: 8px; font-size: 0.76rem; color: #94a3b8;">
             <strong>Condiciones clave:</strong> 6 etapas (10% → 25% → 45% → 75% → 90% → 100%), ventana de revisión de 5 días hábiles, transferencia de propiedad intelectual al liquidar el 100%, código secreto temporal que expira al cerrar (sin mantenimiento mensual incluido) y ley de California.
           </div>
@@ -312,10 +453,12 @@
     if (formWrap) {
       formWrap.style.display = sow.status === "SIGNED" ? "none" : "block";
     }
+
+    renderPaymentSection(sow);
   }
 
   window.BDV_SOW = {
-    openById: function (sowId) {
+    openById: function (sowId, postCheckoutStatus) {
       const core = getCore();
       const cleanId = String(sowId || "").trim().toUpperCase();
       if (!cleanId) return;
@@ -335,11 +478,24 @@
               bodyEl.innerHTML = `<p style="color: #f87171;">${core.escapeHtml(res.error || "No se encontró el documento SOW.")}</p>`;
             }
             const formWrap = document.getElementById("bdv-sow-sign-form-wrap");
+            const payWrap = document.getElementById("bdv-sow-payment-wrap");
             if (formWrap) formWrap.style.display = "none";
+            if (payWrap) payWrap.style.display = "none";
             return;
           }
           currentSowData = res.sow;
           renderSowContent(currentSowData);
+
+          if (statusEl && postCheckoutStatus === "success") {
+            statusEl.style.display = "block";
+            statusEl.style.color = "#4ade80";
+            statusEl.textContent =
+              "✓ Pago recibido en Stripe. Si el estado aún dice pendiente, se actualizará en unos segundos vía webhook.";
+          } else if (statusEl && postCheckoutStatus === "cancel") {
+            statusEl.style.display = "block";
+            statusEl.style.color = "#e8c861";
+            statusEl.textContent = "El pago fue cancelado. Puedes intentar nuevamente cuando estés listo.";
+          }
         })
         .catch(() => {
           if (bodyEl) {
@@ -348,11 +504,20 @@
         });
     },
 
+    payDeposit: function (sowObj) {
+      const target = sowObj || currentSowData;
+      if (!target) return;
+      currentSowData = target;
+      ensureSowModal();
+      startStripeCheckoutForSow(target);
+    },
+
     createFromAdmin: function (payload) {
       const core = getCore();
       const sessionKey = window.__bdvSessionKey || "";
       return fetch(core.apiUrl, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.assign({ key: sessionKey, action: "create_sow" }, payload))
       }).then((r) => r.json());
     }
@@ -362,8 +527,9 @@
     try {
       const params = new URLSearchParams(window.location.search || "");
       const sowParam = (params.get("sow") || "").trim().toUpperCase();
+      const checkoutParam = (params.get("checkout") || "").trim().toLowerCase();
       if (sowParam) {
-        window.BDV_SOW.openById(sowParam);
+        window.BDV_SOW.openById(sowParam, checkoutParam);
       }
     } catch (_) {}
   }
