@@ -480,33 +480,124 @@
       color: var(--text-secondary);
     }
 
-    /* Full Scope Matrix */
-    .scope-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
+    /* COMPLETE SCOPE OF WORK (ACORDEÓN COMPACTO) */
+    .bdv-scope-section {
+      padding: 54px 0 64px 0;
+      border-bottom: 1px solid var(--line);
     }
 
-    .scope-card {
-      background: var(--bg-card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      padding: 24px;
+    .bdv-scope-header {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 28px auto;
     }
 
-    .scope-card h3 {
-      margin: 0 0 12px;
-      font-size: 1.08rem;
-      color: var(--gold-bright);
+    .bdv-scope-h2 {
+      color: var(--text-primary);
+      font-size: clamp(1.4rem, 2.8vw, 1.95rem);
+      font-weight: 700;
+      margin: 8px 0;
+      letter-spacing: -0.015em;
     }
 
-    .scope-card ul {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 7px;
+    .bdv-scope-sub {
       color: var(--text-secondary);
       font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .bdv-scope-accordion {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bdv-scope-card {
+      background: rgba(18, 24, 38, 0.7);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+
+    .bdv-scope-card:hover {
+      border-color: var(--gold-border-strong);
+    }
+
+    .bdv-scope-card[open] {
+      background: rgba(212, 175, 55, 0.05);
+      border-color: var(--gold-border-strong);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .bdv-scope-card summary {
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+    }
+
+    .bdv-scope-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .scope-title {
+      color: var(--text-primary);
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .scope-title strong {
+      color: var(--gold-bright);
+      font-size: 0.8rem;
+      background: rgba(212, 175, 55, 0.15);
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .scope-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+
+    .bdv-scope-card[open] .scope-badge {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--gold-bright);
+      border-color: rgba(212, 175, 55, 0.45);
+    }
+
+    .scope-content {
+      padding: 12px 18px 18px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-top: 1px dashed rgba(212, 175, 55, 0.2);
+    }
+
+    .scope-chip {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line);
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      padding: 6px 12px;
+      border-radius: 8px;
     }
 
     /* Architecture & Pillars */
@@ -603,7 +694,6 @@
     @media (max-width: 960px) {
       .hero-grid,
       .ventures-grid,
-      .scope-grid,
       .pillars-grid {
         grid-template-columns: 1fr;
       }
@@ -791,77 +881,101 @@
       </div>
     </section>
 
-    <!-- Comprehensive Coverage -->
-    <section id="scope" class="band">
+    <!-- COMPLETE SCOPE OF WORK (ACORDEÓN COMPACTO & ELEGANTE) -->
+    <section id="scope" class="bdv-scope-section">
       <div class="container">
-        <div class="section-head">
+        <div class="bdv-scope-header">
           <div class="section-kicker" data-i18n="scopeKicker">COMPLETE SCOPE OF WORK</div>
-          <h2 data-i18n="scopeTitle">Every layer covered, down to the finest detail.</h2>
-          <p class="section-desc" data-i18n="scopeDesc">
+          <h2 class="bdv-scope-h2" data-i18n="scopeTitle">Every layer covered, down to the finest detail.</h2>
+          <p class="bdv-scope-sub" data-i18n="scopeDesc">
             From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.
           </p>
         </div>
 
-        <div class="scope-grid">
-          <div class="scope-card">
-            <h3 data-i18n="s1Title">1. Product Strategy & Venture Design</h3>
-            <ul>
-              <li data-i18n="s1a">Value proposition, user journeys & MVP scoping</li>
-              <li data-i18n="s1b">Monetization models, pricing & unit economics</li>
-              <li data-i18n="s1c">B2B merchant & B2C consumer workflow mapping</li>
-              <li data-i18n="s1d">Roadmap prioritization & release milestones</li>
-            </ul>
-          </div>
+        <div class="bdv-scope-accordion">
+          <!-- 01 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>01</strong> <span data-i18n="s1Title">1. Product Strategy & Venture Design</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s1a">Value proposition, user journeys & MVP scoping</span>
+              <span class="scope-chip" data-i18n="s1b">Monetization models, pricing & unit economics</span>
+              <span class="scope-chip" data-i18n="s1c">B2B merchant & B2C consumer workflow mapping</span>
+              <span class="scope-chip" data-i18n="s1d">Roadmap prioritization & release milestones</span>
+            </div>
+          </details>
 
-          <div class="scope-card">
-            <h3 data-i18n="s2Title">2. Mobile & Web Engineering</h3>
-            <ul>
-              <li data-i18n="s2a">Cross-platform mobile apps (React Native / TypeScript)</li>
-              <li data-i18n="s2b">High-converting landing pages & web portals</li>
-              <li data-i18n="s2c">Maps, geolocation, weather & AI API integrations</li>
-              <li data-i18n="s2d">Database schemas, auth flows & automated workflows</li>
-            </ul>
-          </div>
+          <!-- 02 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>02</strong> <span data-i18n="s2Title">2. Mobile & Web Engineering</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s2a">Cross-platform mobile apps (React Native / TypeScript)</span>
+              <span class="scope-chip" data-i18n="s2b">High-converting landing pages & web portals</span>
+              <span class="scope-chip" data-i18n="s2c">Maps, geolocation, weather & AI API integrations</span>
+              <span class="scope-chip" data-i18n="s2d">Database schemas, auth flows & automated workflows</span>
+            </div>
+          </details>
 
-          <div class="scope-card">
-            <h3 data-i18n="s3Title">3. App Stores & Release Governance</h3>
-            <ul>
-              <li data-i18n="s3a">Apple App Store Connect & TestFlight workflows</li>
-              <li data-i18n="s3b">Google Play Console setup, SKUs & testing tracks</li>
-              <li data-i18n="s3c">Privacy policies, data safety & merchant declarations</li>
-              <li data-i18n="s3d">Demo credentials, review notes & store metadata</li>
-            </ul>
-          </div>
+          <!-- 03 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>03</strong> <span data-i18n="s3Title">3. App Stores & Release Governance</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s3a">Apple App Store Connect & TestFlight workflows</span>
+              <span class="scope-chip" data-i18n="s3b">Google Play Console setup, SKUs & testing tracks</span>
+              <span class="scope-chip" data-i18n="s3c">Privacy policies, data safety & merchant declarations</span>
+              <span class="scope-chip" data-i18n="s3d">Demo credentials, review notes & store metadata</span>
+            </div>
+          </details>
 
-          <div class="scope-card">
-            <h3 data-i18n="s4Title">4. Domains, DNS, Security & Mail</h3>
-            <ul>
-              <li data-i18n="s4a">Domain onboarding & Cloudflare proxy/SSL setup</li>
-              <li data-i18n="s4b">GitHub Pages & static/edge hosting pipelines</li>
-              <li data-i18n="s4c">Email routing, aliases & SPF/DKIM/DMARC hygiene</li>
-              <li data-i18n="s4d">Error monitoring, uptime checks & cache control</li>
-            </ul>
-          </div>
+          <!-- 04 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>04</strong> <span data-i18n="s4Title">4. Domains, DNS, Security & Mail</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s4a">Domain onboarding & Cloudflare proxy/SSL setup</span>
+              <span class="scope-chip" data-i18n="s4b">GitHub Pages & static/edge hosting pipelines</span>
+              <span class="scope-chip" data-i18n="s4c">Email routing, aliases & SPF/DKIM/DMARC hygiene</span>
+              <span class="scope-chip" data-i18n="s4d">Error monitoring, uptime checks & cache control</span>
+            </div>
+          </details>
 
-          <div class="scope-card">
-            <h3 data-i18n="s5Title">5. Brand Identity & Visual Systems</h3>
-            <ul>
-              <li data-i18n="s5a">App icons (1024px+ master marks & variants)</li>
-              <li data-i18n="s5b">Horizontal logos, color tokens & typography systems</li>
-              <li data-i18n="s5c">Promotional flyers, pitch graphics & UI mockups</li>
-              <li data-i18n="s5d">Consistent visual language across web & mobile</li>
-            </ul>
-          </div>
+          <!-- 05 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>05</strong> <span data-i18n="s5Title">5. Brand Identity & Visual Systems</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s5a">App icons (1024px+ master marks & variants)</span>
+              <span class="scope-chip" data-i18n="s5b">Horizontal logos, color tokens & typography systems</span>
+              <span class="scope-chip" data-i18n="s5c">Promotional flyers, pitch graphics & UI mockups</span>
+              <span class="scope-chip" data-i18n="s5d">Consistent visual language across web & mobile</span>
+            </div>
+          </details>
 
-          <div class="scope-card">
-            <h3 data-i18n="s6Title">6. Bilingual Growth & Media Systems</h3>
-            <ul>
-              <li data-i18n="s6a">Native English & Spanish product copywriting</li>
-              <li data-i18n="s6b">Short-form vertical video scripts & walkthroughs</li>
-              <li data-i18n="s6c">Teleprompter scripts & direct-to-camera formats</li>
-              <li data-i18n="s6d">Merchant onboarding & partner communication kits</li>
-            </ul>
-          </div>
+          <!-- 06 -->
+          <details class="bdv-scope-card">
+            <summary>
+              <span class="scope-title"><strong>06</strong> <span data-i18n="s6Title">6. Bilingual Growth & Media Systems</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+            </summary>
+            <div class="scope-content">
+              <span class="scope-chip" data-i18n="s6a">Native English & Spanish product copywriting</span>
+              <span class="scope-chip" data-i18n="s6b">Short-form vertical video scripts & walkthroughs</span>
+              <span class="scope-chip" data-i18n="s6c">Teleprompter scripts & direct-to-camera formats</span>
+              <span class="scope-chip" data-i18n="s6d">Merchant onboarding & partner communication kits</span>
+            </div>
+          </details>
         </div>
       </div>
     </section>
@@ -1017,32 +1131,33 @@
         scopeKicker: "COMPLETE SCOPE OF WORK",
         scopeTitle: "Every layer covered, down to the finest detail.",
         scopeDesc: "From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.",
-        s1Title: "1. Product Strategy & Venture Design",
+        scopeBadge: "4 capabilities",
+        s1Title: "Product Strategy & Venture Design",
         s1a: "Value proposition, user journeys & MVP scoping",
         s1b: "Monetization models, pricing & unit economics",
         s1c: "B2B merchant & B2C consumer workflow mapping",
         s1d: "Roadmap prioritization & release milestones",
-        s2Title: "2. Mobile & Web Engineering",
+        s2Title: "Mobile & Web Engineering",
         s2a: "Cross-platform mobile apps (React Native / TypeScript)",
         s2b: "High-converting landing pages & web portals",
         s2c: "Maps, geolocation, weather & AI API integrations",
         s2d: "Database schemas, auth flows & automated workflows",
-        s3Title: "3. App Stores & Release Governance",
+        s3Title: "App Stores & Release Governance",
         s3a: "Apple App Store Connect & TestFlight workflows",
         s3b: "Google Play Console setup, SKUs & testing tracks",
         s3c: "Privacy policies, data safety & merchant declarations",
         s3d: "Demo credentials, review notes & store metadata",
-        s4Title: "4. Domains, DNS, Security & Mail",
+        s4Title: "Domains, DNS, Security & Mail",
         s4a: "Domain onboarding & Cloudflare proxy/SSL setup",
         s4b: "GitHub Pages & static/edge hosting pipelines",
         s4c: "Email routing, aliases & SPF/DKIM/DMARC hygiene",
         s4d: "Error monitoring, uptime checks & cache control",
-        s5Title: "5. Brand Identity & Visual Systems",
+        s5Title: "Brand Identity & Visual Systems",
         s5a: "App icons (1024px+ master marks & variants)",
         s5b: "Horizontal logos, color tokens & typography systems",
         s5c: "Promotional flyers, pitch graphics & UI mockups",
         s5d: "Consistent visual language across web & mobile",
-        s6Title: "6. Bilingual Growth & Media Systems",
+        s6Title: "Bilingual Growth & Media Systems",
         s6a: "Native English & Spanish product copywriting",
         s6b: "Short-form vertical video scripts & walkthroughs",
         s6c: "Teleprompter scripts & direct-to-camera formats",
@@ -1124,32 +1239,33 @@
         scopeKicker: "ALCANCE COMPLETO DE LA COMPAÑÍA",
         scopeTitle: "Cada capa cubierta hasta el último detalle.",
         scopeDesc: "Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.",
-        s1Title: "1. Estrategia de Producto y Diseño de Venture",
+        scopeBadge: "4 áreas",
+        s1Title: "Estrategia de Producto y Diseño de Venture",
         s1a: "Propuesta de valor, recorridos de usuario y alcance MVP",
         s1b: "Modelos de monetización, precios y economía unitaria",
         s1c: "Mapeo de flujos B2B para comercios y B2C para usuarios",
         s1d: "Priorización de roadmap e hitos de lanzamiento",
-        s2Title: "2. Ingeniería Móvil y Web",
+        s2Title: "Ingeniería Móvil y Web",
         s2a: "Apps móviles multiplataforma (React Native / TypeScript)",
         s2b: "Landing pages de alta conversión y portales web",
         s2c: "Integración de mapas, geolocalización, clima y APIs de IA",
         s2d: "Esquemas de base de datos, autenticación y automatizaciones",
-        s3Title: "3. Tiendas de Apps y Gobernanza",
+        s3Title: "Tiendas de Apps y Gobernanza",
         s3a: "Flujos en Apple App Store Connect y TestFlight",
         s3b: "Configuración en Google Play Console, SKUs y pruebas",
         s3c: "Políticas de privacidad, seguridad de datos y declaraciones",
         s3d: "Credenciales demo, notas de revisión y metadatos de tienda",
-        s4Title: "4. Dominios, DNS, Seguridad y Correo",
+        s4Title: "Dominios, DNS, Seguridad y Correo",
         s4a: "Alta de dominios, proxy y SSL/TLS en Cloudflare",
         s4b: "Despliegue en GitHub Pages y entrega estática/edge",
         s4c: "Enrutamiento de correo, alias y registros SPF/DKIM/DMARC",
         s4d: "Monitoreo de errores, disponibilidad y control de caché",
-        s5Title: "5. Identidad de Marca y Sistemas Visuales",
+        s5Title: "Identidad de Marca y Sistemas Visuales",
         s5a: "Iconos de app (piezas maestras 1024px+ y variantes)",
         s5b: "Logotipos horizontales, paletas de color y tipografía",
         s5c: "Flyers promocionales, piezas de presentación y mockups UI",
         s5d: "Coherencia visual entre web, móvil y material impreso/digital",
-        s6Title: "6. Crecimiento Bilingüe y Contenido",
+        s6Title: "Crecimiento Bilingüe y Contenido",
         s6a: "Redacción nativa en español e inglés para producto y marca",
         s6b: "Guiones de video vertical corto y recorridos visuales",
         s6c: "Guiones de teleprompter y formatos directos a cámara",
