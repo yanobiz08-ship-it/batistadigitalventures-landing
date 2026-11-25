@@ -151,7 +151,7 @@
         <div class="box">
           - <strong>Ventana de revisión:</strong> 5 días hábiles tras la notificación de entrega de un hito.<br/>
           - <strong>Propiedad intelectual:</strong> Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo propiedad de Batista Digital Ventures LLC.<br/>
-          - <strong>Órdenes de cambio:</strong> Trabajos fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.<br/>
+          - <strong>Órdenes de cambio:</strong> Trabajos extra fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.<br/>
           - <strong>Ley aplicable:</strong> Estado de California, EE. UU. (UETA / ESIGN).
         </div>
 
@@ -172,8 +172,61 @@
     win.document.close();
   }
 
-  async function startStripeCheckoutForSow(sow) {
+  async function requestStripeCheckoutSession(opts) {
     const core = getCore();
+    const options = opts || {};
+    const amountUsd = Number(options.amountUsd || 0);
+
+    if (!amountUsd || amountUsd < 0.5) {
+      return { ok: false, error: "Monto inválido para Stripe Checkout (mínimo $0.50 USD)." };
+    }
+
+    const sowIdClean = String(options.sowId || (currentSowData && currentSowData.sowId) || "")
+      .trim()
+      .toUpperCase();
+    const paymentType = String(options.paymentType || "deposit").trim();
+    const targetStage = Number(options.targetStage || 2);
+    const clientEmail = String(
+      options.clientEmail || (currentSowData && currentSowData.clientEmail) || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    const labelType =
+      paymentType === "final_settlement"
+        ? "Liquidación Final (100%)"
+        : paymentType === "milestone"
+          ? "Hito de Proyecto"
+          : "Depósito Inicial";
+
+    const itemTitle =
+      options.itemTitle ||
+      `${labelType}${sowIdClean ? ` (${sowIdClean})` : ""} — ${
+        options.businessName || options.clientName || (currentSowData && (currentSowData.businessName || currentSowData.clientName)) || "Batista Digital Ventures LLC"
+      }`;
+
+    const returnBaseUrl =
+      options.returnBaseUrl || `${window.location.origin}${window.location.pathname}`;
+
+    const resp = await fetch(core.apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "create_checkout",
+        sowId: sowIdClean,
+        clientEmail,
+        amountUsd,
+        paymentType,
+        targetStage,
+        itemTitle,
+        returnBaseUrl
+      })
+    });
+
+    return resp.json();
+  }
+
+  async function startStripeCheckoutForSow(sow) {
     const statusEl = document.getElementById("bdv-sow-status-msg");
     const payBtn = document.getElementById("bdv-sow-stripe-pay-btn");
 
@@ -199,25 +252,19 @@
       statusEl.textContent = "Generando sesión segura de pago con Stripe...";
     }
 
-    const baseCleanUrl = `${window.location.origin}${window.location.pathname}`;
-
     try {
-      const resp = await fetch(core.apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "create_checkout",
-          sowId: sow.sowId,
-          clientEmail: sow.clientEmail || "",
-          amountUsd: depositAmount,
-          paymentType: "deposit",
-          targetStage: 2,
-          itemTitle: `Depósito Inicial (${sow.sowId}) — ${sow.businessName || sow.clientName || "Batista Digital Ventures LLC"}`,
-          returnBaseUrl: baseCleanUrl
-        })
+      const res = await requestStripeCheckoutSession({
+        sowId: sow.sowId,
+        clientEmail: sow.clientEmail || "",
+        businessName: sow.businessName || "",
+        clientName: sow.clientName || "",
+        amountUsd: depositAmount,
+        paymentType: "deposit",
+        targetStage: 2,
+        itemTitle: `Depósito Inicial (${sow.sowId}) — ${sow.businessName || sow.clientName || "Batista Digital Ventures LLC"}`,
+        returnBaseUrl: `${window.location.origin}${window.location.pathname}`
       });
 
-      const res = await resp.json();
       if (!res.ok || !res.checkoutUrl) {
         if (payBtn) {
           payBtn.disabled = false;
@@ -510,6 +557,56 @@
       currentSowData = target;
       ensureSowModal();
       startStripeCheckoutForSow(target);
+    },
+
+    createCheckoutLink: function (opts) {
+      return requestStripeCheckoutSession(opts);
+    },
+
+    collectMilestoneOrFinal: async function (proyecto) {
+      const target = proyecto || currentSowData || {};
+      const labelTarget = target.name || target.sowId || target.businessName || "el proyecto";
+      const montoInput = prompt(`Monto en USD a cobrar para ${labelTarget}:`);
+      if (montoInput === null) return { ok: false, cancelled: true };
+
+      const amountUsd = Number(montoInput);
+      if (!amountUsd || amountUsd < 0.5) {
+        alert("Ingresa un monto válido en USD (mínimo $0.50).");
+        return { ok: false, error: "Monto inválido" };
+      }
+
+      const isFinal = confirm(
+        "¿Es la LIQUIDACIÓN FINAL (100%) del proyecto?\n\nAceptar = Liquidación Final (Etapa 6)\nCancelar = Hito intermedio"
+      );
+      const paymentType = isFinal ? "final_settlement" : "milestone";
+      const targetStage = isFinal ? 6 : Number(target.stage || 4);
+
+      const res = await requestStripeCheckoutSession({
+        sowId: target.sowId || "",
+        clientEmail: target.email || target.clientEmail || "",
+        businessName: target.businessName || "",
+        clientName: target.clientName || target.name || "",
+        amountUsd,
+        paymentType,
+        targetStage,
+        itemTitle: `${isFinal ? "Liquidación 100%" : "Hito de Proyecto"} — ${labelTarget}`
+      });
+
+      if (res && res.ok && res.checkoutUrl) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(res.checkoutUrl).catch(() => null);
+        }
+        const openNow = confirm(
+          `Enlace de Stripe generado y copiado al portapapeles:\n\n${res.checkoutUrl}\n\n¿Deseas abrirlo ahora?`
+        );
+        if (openNow) {
+          window.open(res.checkoutUrl, "_blank", "noopener,noreferrer");
+        }
+      } else {
+        alert("No se pudo generar el enlace de cobro: " + ((res && res.error) || "Error desconocido"));
+      }
+
+      return res;
     },
 
     createFromAdmin: function (payload) {
