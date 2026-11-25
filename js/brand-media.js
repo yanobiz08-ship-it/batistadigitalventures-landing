@@ -67,6 +67,41 @@
       gyT4: "Membresías (Vista Previa)",
       gyBtn: "Revisar gyroadsidesolutions.com/en ↗",
 
+      scopeKicker: "ALCANCE COMPLETO DE LA COMPAÑÍA",
+      scopeTitle: "Cada capa cubierta hasta el último detalle.",
+      scopeDesc: "Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.",
+      scopeBadge: "4 áreas",
+      s1Title: "Estrategia de Producto y Diseño de Venture",
+      s1a: "Propuesta de valor, recorridos de usuario y alcance MVP",
+      s1b: "Modelos de monetización, precios y economía unitaria",
+      s1c: "Mapeo de flujos B2B para comercios y B2C para usuarios",
+      s1d: "Priorización de roadmap e hitos de lanzamiento",
+      s2Title: "Ingeniería Móvil y Web",
+      s2a: "Apps móviles multiplataforma (React Native / TypeScript)",
+      s2b: "Landing pages de alta conversión y portales web",
+      s2c: "Integración de mapas, geolocalización, clima y APIs de IA",
+      s2d: "Esquemas de base de datos, autenticación y automatizaciones",
+      s3Title: "Tiendas de Apps y Gobernanza",
+      s3a: "Flujos en Apple App Store Connect y TestFlight",
+      s3b: "Configuración en Google Play Console, SKUs y pruebas",
+      s3c: "Políticas de privacidad, seguridad de datos y declaraciones",
+      s3d: "Credenciales demo, notas de revisión y metadatos de tienda",
+      s4Title: "Dominios, DNS, Seguridad y Correo",
+      s4a: "Alta de dominios, proxy y SSL/TLS en Cloudflare",
+      s4b: "Despliegue en GitHub Pages y entrega estática/edge",
+      s4c: "Enrutamiento de correo, alias y registros SPF/DKIM/DMARC",
+      s4d: "Monitoreo de errores, disponibilidad y control de caché",
+      s5Title: "Identidad de Marca y Sistemas Visuales",
+      s5a: "Iconos de app (piezas maestras 1024px+ y variantes)",
+      s5b: "Logotipos horizontales, paletas de color y tipografía",
+      s5c: "Flyers promocionales, piezas de presentación y mockups UI",
+      s5d: "Coherencia visual entre web, móvil y material impreso/digital",
+      s6Title: "Crecimiento Bilingüe y Contenido",
+      s6a: "Redacción nativa en español e inglés para producto y marca",
+      s6b: "Guiones de video vertical corto y recorridos visuales",
+      s6c: "Guiones de teleprompter y formatos directos a cámara",
+      s6d: "Kits de incorporación comercial y comunicación con aliados",
+
       cabKicker: "ARCHIVO EJECUTIVO · BATISTA DIGITAL VENTURES LLC",
       cabTitle: "Explora por pestaña sin desplazarte de más",
       trackerBtnLabel: "🔑 Consultar Mi Proyecto (Solo Lectura)",
@@ -159,6 +194,41 @@
       gyT3: "Google & Call Tracking",
       gyT4: "Memberships (Preview)",
       gyBtn: "Review gyroadsidesolutions.com/en ↗",
+
+      scopeKicker: "COMPLETE SCOPE OF WORK",
+      scopeTitle: "Every layer covered, down to the finest detail.",
+      scopeDesc: "From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.",
+      scopeBadge: "4 capabilities",
+      s1Title: "Product Strategy & Venture Design",
+      s1a: "Value proposition, user journeys & MVP scoping",
+      s1b: "Monetization models, pricing & unit economics",
+      s1c: "B2B merchant & B2C consumer workflow mapping",
+      s1d: "Roadmap prioritization & release milestones",
+      s2Title: "Mobile & Web Engineering",
+      s2a: "Cross-platform mobile apps (React Native / TypeScript)",
+      s2b: "High-converting landing pages & web portals",
+      s2c: "Maps, geolocation, weather & AI API integrations",
+      s2d: "Database schemas, auth flows & automated workflows",
+      s3Title: "App Stores & Release Governance",
+      s3a: "Apple App Store Connect & TestFlight workflows",
+      s3b: "Google Play Console setup, SKUs & testing tracks",
+      s3c: "Privacy policies, data safety & merchant declarations",
+      s3d: "Demo credentials, review notes & store metadata",
+      s4Title: "Domains, DNS, Security & Mail",
+      s4a: "Domain onboarding & Cloudflare proxy/SSL setup",
+      s4b: "GitHub Pages & static/edge hosting pipelines",
+      s4c: "Email routing, aliases & SPF/DKIM/DMARC hygiene",
+      s4d: "Error monitoring, uptime checks & cache control",
+      s5Title: "Brand Identity & Visual Systems",
+      s5a: "App icons (1024px+ master marks & variants)",
+      s5b: "Horizontal logos, color tokens & typography systems",
+      s5c: "Promotional flyers, pitch graphics & UI mockups",
+      s5d: "Consistent visual language across web & mobile",
+      s6Title: "Bilingual Growth & Media Systems",
+      s6a: "Native English & Spanish product copywriting",
+      s6b: "Short-form vertical video scripts & walkthroughs",
+      s6c: "Teleprompter scripts & direct-to-camera formats",
+      s6d: "Merchant onboarding & partner communication kits",
 
       cabKicker: "EXECUTIVE CABINET · BATISTA DIGITAL VENTURES LLC",
       cabTitle: "Switch tabs cleanly without endless scrolling",
@@ -560,12 +630,7 @@
   }
 
   function applyCompactHowWeOperate(lang) {
-    const sections = Array.from(document.querySelectorAll("main section"));
-    const targetSec = sections.find((sec) => {
-      if (sec.id && sec.id.startsWith("bdv-")) return false;
-      const txt = (sec.textContent || "");
-      return txt.includes("01") && txt.includes("02") && txt.includes("03") && txt.includes("04");
-    });
+    const targetSec = document.getElementById("standards");
     if (!targetSec) return;
 
     const d = opsData[lang] || opsData.en;
@@ -1069,12 +1134,46 @@
       ["[data-gy-t2]", t.gyT2],
       ["[data-gy-t3]", t.gyT3],
       ["[data-gy-t4]", t.gyT4],
-      ["[data-gy-btn]", t.gyBtn]
+      ["[data-gy-btn]", t.gyBtn],
+      ["[data-i18n='scopeKicker']", t.scopeKicker],
+      ["[data-i18n='scopeTitle']", t.scopeTitle],
+      ["[data-i18n='scopeDesc']", t.scopeDesc],
+      ["[data-i18n='scopeBadge']", t.scopeBadge],
+      ["[data-i18n='s1Title']", t.s1Title],
+      ["[data-i18n='s1a']", t.s1a],
+      ["[data-i18n='s1b']", t.s1b],
+      ["[data-i18n='s1c']", t.s1c],
+      ["[data-i18n='s1d']", t.s1d],
+      ["[data-i18n='s2Title']", t.s2Title],
+      ["[data-i18n='s2a']", t.s2a],
+      ["[data-i18n='s2b']", t.s2b],
+      ["[data-i18n='s2c']", t.s2c],
+      ["[data-i18n='s2d']", t.s2d],
+      ["[data-i18n='s3Title']", t.s3Title],
+      ["[data-i18n='s3a']", t.s3a],
+      ["[data-i18n='s3b']", t.s3b],
+      ["[data-i18n='s3c']", t.s3c],
+      ["[data-i18n='s3d']", t.s3d],
+      ["[data-i18n='s4Title']", t.s4Title],
+      ["[data-i18n='s4a']", t.s4a],
+      ["[data-i18n='s4b']", t.s4b],
+      ["[data-i18n='s4c']", t.s4c],
+      ["[data-i18n='s4d']", t.s4d],
+      ["[data-i18n='s5Title']", t.s5Title],
+      ["[data-i18n='s5a']", t.s5a],
+      ["[data-i18n='s5b']", t.s5b],
+      ["[data-i18n='s5c']", t.s5c],
+      ["[data-i18n='s5d']", t.s5d],
+      ["[data-i18n='s6Title']", t.s6Title],
+      ["[data-i18n='s6a']", t.s6a],
+      ["[data-i18n='s6b']", t.s6b],
+      ["[data-i18n='s6c']", t.s6c],
+      ["[data-i18n='s6d']", t.s6d]
     ];
 
     pairs.forEach(([sel, val]) => {
       const el = document.querySelector(sel);
-      if (el) el.textContent = val;
+      if (el && val) el.textContent = val;
     });
 
     if (window.BDV_OPS && typeof window.BDV_OPS.onLanguageChange === "function") {
