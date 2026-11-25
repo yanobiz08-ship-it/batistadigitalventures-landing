@@ -3,15 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Batista Digital Ventures — Platforms, Mobile Apps & Digital Systems</title>
-  <meta name="description" content="Batista Digital Ventures: engineering consumer and B2B platforms, mobile applications, product architecture, and digital ventures including MERQOX and TRIVLO." />
+  <title>Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales</title>
+  <meta name="description" content="Venture studio y desarrollo de plataformas web, apps móviles y sistemas digitales en Lompoc, California." />
+  <link rel="canonical" href="https://batistadigitalventures.com/" />
+  <meta name="theme-color" content="#070a10" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Batista Digital Ventures" />
+  <meta property="og:locale" content="es_US" />
+  <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:url" content="https://batistadigitalventures.com/" />
-  <meta property="og:title" content="Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas" />
+  <meta property="og:title" content="Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales" />
   <meta property="og:description" content="Venture studio y desarrollo de plataformas web, apps móviles y sistemas digitales en Lompoc, California." />
-  <meta property="og:image" content="https://batistadigitalventures.com/assets/BDV%20Logo.png" />
+  <meta property="og:image" content="https://batistadigitalventures.com/assets/img/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Logotipo de Batista Digital Ventures en dorado sobre fondo oscuro" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://batistadigitalventures.com/assets/BDV%20Logo.png" />
+  <meta name="twitter:title" content="Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales" />
+  <meta name="twitter:description" content="Venture studio y desarrollo de plataformas web, apps móviles y sistemas digitales en Lompoc, California." />
+  <meta name="twitter:image" content="https://batistadigitalventures.com/assets/img/og-image.jpg" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://batistadigitalventures.com/#organization",
+        "name": "Batista Digital Ventures LLC",
+        "alternateName": "Batista Digital Ventures",
+        "url": "https://batistadigitalventures.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://batistadigitalventures.com/assets/BDV%20Logo.png",
+          "width": 512,
+          "height": 512
+        },
+        "image": "https://batistadigitalventures.com/assets/img/og-image.jpg",
+        "email": "contact@batistadigitalventures.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lompoc",
+          "addressRegion": "CA",
+          "addressCountry": "US"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://batistadigitalventures.com/#website",
+        "url": "https://batistadigitalventures.com/",
+        "name": "Batista Digital Ventures",
+        "inLanguage": ["es", "en"],
+        "publisher": { "@id": "https://batistadigitalventures.com/#organization" }
+      }
+    ]
+  }
+  </script>
   <style>
     :root {
       --bg-base: #070a10;
@@ -729,9 +778,31 @@
         font-size: 0.86rem;
       }
     }
+
+    /* Accessibility helpers (phase 1) */
+    .bdv-sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid var(--gold-bright) !important;
+      outline-offset: 2px !important;
+    }
   </style>
-  <link rel="icon" type="image/png" href="./assets/BDV Logo.png" />
-  <link rel="apple-touch-icon" href="./assets/BDV Logo.png" />
 </head>
 <body>
   <header>
@@ -746,23 +817,23 @@
         </span>
         <span class="brand-text">
           <span class="brand-name">Batista Digital Ventures</span>
-          <span class="brand-sub" data-i18n="brandSub">VENTURE STUDIO · SYSTEMS</span>
+          <span class="brand-sub" data-i18n="brandSub">VENTURE STUDIO · SISTEMAS</span>
         </span>
       </a>
 
-      <nav class="nav-links" aria-label="Primary navigation">
-        <a href="#ventures" data-i18n="navVentures">Ventures & Work</a>
-        <a href="#scope" data-i18n="navScope">Full Coverage</a>
-        <a href="#standards" data-i18n="navStandards">Execution Standards</a>
-        <a href="#contact" data-i18n="navContact">Contact</a>
+      <nav class="nav-links" aria-label="Navegación principal" data-i18n-aria="ariaNav">
+        <a href="#ventures" data-i18n="navVentures">Proyectos y Trabajo</a>
+        <a href="#scope" data-i18n="navScope">Cobertura Integral</a>
+        <a href="#standards" data-i18n="navStandards">Estándares de Ejecución</a>
+        <a href="#contact" data-i18n="navContact">Contacto</a>
       </nav>
 
       <div class="nav-actions">
-        <div class="lang-switch" role="group" aria-label="Language toggle">
-          <button type="button" class="lang-btn active" data-set-lang="es">ES</button>
-          <button type="button" class="lang-btn" data-set-lang="en">EN</button>
+        <div class="lang-switch" role="group" aria-label="Idioma" data-i18n-aria="ariaLang">
+          <button type="button" class="lang-btn active" data-set-lang="es" aria-pressed="true" lang="es" title="Español">ES</button>
+          <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="false" lang="en" title="English">EN</button>
         </div>
-        <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com" data-i18n="navCta">Partner With Us</a>
+        <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com" data-i18n="navCta">Cotizar Proyecto</a>
       </div>
     </div>
   </header>
@@ -774,50 +845,50 @@
         <div>
           <div class="eyebrow">
             <span class="dot"></span>
-            <span data-i18n="heroEyebrow">B2B & CONSUMER VENTURE ARCHITECTURE</span>
+            <span data-i18n="heroEyebrow">PLATAFORMAS DIGITALES Y APPS MÓVILES</span>
           </div>
           <h1>
-            <span data-i18n="heroTitleLead">We architect high-conviction</span>
-            <span class="accent" data-i18n="heroTitleAccent">digital platforms & mobile ventures.</span>
+            <span data-i18n="heroTitleLead">Creamos y escalamos </span>
+            <span class="accent" data-i18n="heroTitleAccent">plataformas digitales y apps móviles con visión clara.</span>
           </h1>
           <p class="hero-lead" data-i18n="heroLead">
-            Batista Digital Ventures designs, builds, and scales software products from zero to production—combining disciplined unit economics, modern cloud and mobile engineering, and real-world market execution.
+            Batista Digital Ventures diseña, lanza y hace crecer software desde cero hasta producción—uniendo estrategia de negocio, desarrollo móvil, infraestructura en la nube y ejecución enfocada en resultados.
           </p>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="#ventures" data-i18n="heroPrimaryBtn">Explore Live Ventures</a>
-            <a class="btn btn-secondary" href="#scope" data-i18n="heroSecondaryBtn">Inspect Full Capabilities</a>
+            <a class="btn btn-primary" href="#ventures" data-i18n="heroPrimaryBtn">Ver Proyectos</a>
+            <a class="btn btn-secondary" href="#scope" data-i18n="heroSecondaryBtn">Ver Qué Hacemos</a>
           </div>
 
           <div class="metrics-strip">
             <div class="metric-box">
-              <div class="metric-val" data-i18n="m1Val">End-to-End</div>
-              <div class="metric-lbl" data-i18n="m1Lbl">Concept, UI/UX, backend, stores & growth</div>
+              <div class="metric-val" data-i18n="m1Val">De Punta a Punta</div>
+              <div class="metric-lbl" data-i18n="m1Lbl">Concepto, UI/UX, backend, tiendas y crecimiento</div>
             </div>
             <div class="metric-box">
               <div class="metric-val" data-i18n="m2Val">iOS · Android · Web</div>
-              <div class="metric-lbl" data-i18n="m2Lbl">Cross-platform apps & web properties</div>
+              <div class="metric-lbl" data-i18n="m2Lbl">Apps multiplataforma y propiedades web</div>
             </div>
             <div class="metric-box">
-              <div class="metric-val" data-i18n="m3Val">ES / EN Native</div>
-              <div class="metric-lbl" data-i18n="m3Lbl">Bilingual product & market reach</div>
+              <div class="metric-val" data-i18n="m3Val">ES / EN Nativo</div>
+              <div class="metric-lbl" data-i18n="m3Lbl">Producto bilingüe y alcance multilingüe</div>
             </div>
           </div>
         </div>
 
-        <aside class="thesis-card" aria-label="Venture thesis">
+        <aside class="thesis-card" aria-label="Tesis operativa" data-i18n-aria="ariaThesis">
           <div class="thesis-top">
-            <span class="thesis-label" data-i18n="thesisKicker">OPERATING THESIS</span>
-            <span class="badge-live" data-i18n="thesisBadge">PRODUCTION READY</span>
+            <span class="thesis-label" data-i18n="thesisKicker">TESIS OPERATIVA</span>
+            <span class="badge-live" data-i18n="thesisBadge">EN PRODUCCIÓN</span>
           </div>
-          <h2 class="thesis-title" data-i18n="thesisTitle">Built for durability, clarity, and capital efficiency.</h2>
+          <h2 class="thesis-title" data-i18n="thesisTitle">Construido para solidez, claridad y eficiencia de capital.</h2>
           <p class="thesis-copy" data-i18n="thesisCopy">
-            Every system under Batista Digital Ventures is engineered to solve concrete operational friction without bloated infrastructure or vanity complexity.
+            Cada sistema de Batista Digital Ventures está diseñado para resolver fricción operativa real sin infraestructura inflada ni complejidad innecesaria.
           </p>
           <ul class="thesis-list">
-            <li><span class="check">◆</span><span data-i18n="th1">Proprietary consumer and local-commerce applications with live domains.</span></li>
-            <li><span class="check">◆</span><span data-i18n="th2">Full store readiness: App Store & Google Play compliance, privacy & metadata.</span></li>
-            <li><span class="check">◆</span><span data-i18n="th3">Cloudflare edge routing, DNS security, automation & lean API pipelines.</span></li>
-            <li><span class="check">◆</span><span data-i18n="th4">Bilingual go-to-market assets, brand identity & high-retention storytelling.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th1">Aplicaciones propias de consumo y comercio local con dominios activos.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th2">Preparación completa para tiendas: cumplimiento en App Store y Google Play, privacidad y metadatos.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th3">Enrutamiento edge en Cloudflare, seguridad DNS, automatización y flujos API ligeros.</span></li>
+            <li><span class="check">◆</span><span data-i18n="th4">Activos bilingües de lanzamiento, identidad de marca y narrativa de alta retención.</span></li>
           </ul>
           <a id="bdv-thesis-brief-btn" class="btn btn-secondary" style="width: 100%;" href="#contact" data-i18n="thesisCta">
             Solicitar Deck y Venture Brief →
@@ -830,62 +901,14 @@
     <section id="ventures" class="band">
       <div class="container">
         <div class="section-head">
-          <div class="section-kicker" data-i18n="venturesKicker">PORTFOLIO & BUILT WORK</div>
-          <h2 data-i18n="venturesTitle">Flagship products & live platforms.</h2>
+          <div class="section-kicker" data-i18n="venturesKicker">PORTAFOLIO Y TRABAJOS REALIZADOS</div>
+          <h2 data-i18n="venturesTitle">Productos insignia y proyectos para clientes.</h2>
           <p class="section-desc" data-i18n="venturesDesc">
-            Direct access to active digital properties built under our venture umbrella, alongside custom client and operational systems.
+            Acceso directo a propiedades digitales activas desarrolladas bajo nuestro estudio, junto con sistemas operativos y de producto.
           </p>
         </div>
 
-        <div class="ventures-grid">
-          <article class="venture-card">
-            <div>
-              <div class="venture-top">
-                <span class="venture-pill" data-i18n="v1Pill">HYPERLOCAL MARKETPLACE</span>
-                <span class="venture-domain">merqox.com</span>
-              </div>
-              <h3>MERQOX</h3>
-              <p data-i18n="v1Desc">
-                Hyperlocal neighborhood commerce platform connecting local merchants and time-sensitive flash offers with nearby shoppers—pairing merchant operations, live discovery, and in-store QR pickup flows.
-              </p>
-              <div class="spec-tags">
-                <span class="spec-tag" data-i18n="v1T1">Merchant Dashboard</span>
-                <span class="spec-tag" data-i18n="v1T2">Flash Deals & Radar</span>
-                <span class="spec-tag" data-i18n="v1T3">Counter QR & Pickup</span>
-                <span class="spec-tag" data-i18n="v1T4">Neighborhood Feed</span>
-              </div>
-            </div>
-            <div>
-              <a class="btn btn-primary" href="https://merqox.com" target="_blank" rel="noopener noreferrer" data-i18n="v1Btn">
-                Visit merqox.com ↗
-              </a>
-            </div>
-          </article>
-
-          <article class="venture-card">
-            <div>
-              <div class="venture-top">
-                <span class="venture-pill" data-i18n="v2Pill">AI TRAVEL COMPANION</span>
-                <span class="venture-domain">trivlopro.com</span>
-              </div>
-              <h3>TRIVLO</h3>
-              <p data-i18n="v2Desc">
-                Intelligent travel companion application featuring conversational trip assistance, itinerary planning, location & weather intelligence, and full App Store & Google Play release governance.
-              </p>
-              <div class="spec-tags">
-                <span class="spec-tag" data-i18n="v2T1">Conversational Assistant</span>
-                <span class="spec-tag" data-i18n="v2T2">Itineraries & Places</span>
-                <span class="spec-tag" data-i18n="v2T3">iOS & Android Release</span>
-                <span class="spec-tag" data-i18n="v2T4">EN / ES Localization</span>
-              </div>
-            </div>
-            <div>
-              <a class="btn btn-primary" href="https://trivlopro.com" target="_blank" rel="noopener noreferrer" data-i18n="v2Btn">
-                Visit trivlopro.com ↗
-              </a>
-            </div>
-          </article>
-        </div>
+        <!-- Portfolio cards (TRIVLO, MERQOX, GY Roadside) are rendered by js/brand-media.js with a single, consistent status per product. -->
       </div>
     </section>
 
@@ -893,10 +916,10 @@
     <section id="scope" class="bdv-scope-section">
       <div class="container">
         <div class="bdv-scope-header">
-          <div class="section-kicker" data-i18n="scopeKicker">COMPLETE SCOPE OF WORK</div>
-          <h2 class="bdv-scope-h2" data-i18n="scopeTitle">Every layer covered, down to the finest detail.</h2>
+          <div class="section-kicker" data-i18n="scopeKicker">ALCANCE COMPLETO DE LA COMPAÑÍA</div>
+          <h2 class="bdv-scope-h2" data-i18n="scopeTitle">Cada capa cubierta hasta el último detalle.</h2>
           <p class="bdv-scope-sub" data-i18n="scopeDesc">
-            From initial product thesis and UI craft to backend pipelines, store compliance, DNS routing, and bilingual launch assets.
+            Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.
           </p>
         </div>
 
@@ -904,84 +927,84 @@
           <!-- 01 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>1</strong> <span data-i18n="s1Title">1. Product Strategy & Venture Design</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>1</strong> <span data-i18n="s1Title">Estrategia de Producto y Diseño de Venture</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s1a">Value proposition, user journeys & MVP scoping</span>
-              <span class="scope-chip" data-i18n="s1b">Monetization models, pricing & unit economics</span>
-              <span class="scope-chip" data-i18n="s1c">B2B merchant & B2C consumer workflow mapping</span>
-              <span class="scope-chip" data-i18n="s1d">Roadmap prioritization & release milestones</span>
+              <span class="scope-chip" data-i18n="s1a">Propuesta de valor, recorridos de usuario y alcance MVP</span>
+              <span class="scope-chip" data-i18n="s1b">Modelos de monetización, precios y economía unitaria</span>
+              <span class="scope-chip" data-i18n="s1c">Mapeo de flujos B2B para comercios y B2C para usuarios</span>
+              <span class="scope-chip" data-i18n="s1d">Priorización de roadmap e hitos de lanzamiento</span>
             </div>
           </details>
 
           <!-- 02 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>2</strong> <span data-i18n="s2Title">2. Mobile & Web Engineering</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>2</strong> <span data-i18n="s2Title">Ingeniería Móvil y Web</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s2a">Cross-platform mobile apps (React Native / TypeScript)</span>
-              <span class="scope-chip" data-i18n="s2b">High-converting landing pages & web portals</span>
-              <span class="scope-chip" data-i18n="s2c">Maps, geolocation, weather & AI API integrations</span>
-              <span class="scope-chip" data-i18n="s2d">Database schemas, auth flows & automated workflows</span>
+              <span class="scope-chip" data-i18n="s2a">Apps móviles multiplataforma (React Native / TypeScript)</span>
+              <span class="scope-chip" data-i18n="s2b">Landing pages de alta conversión y portales web</span>
+              <span class="scope-chip" data-i18n="s2c">Integración de mapas, geolocalización, clima y APIs de IA</span>
+              <span class="scope-chip" data-i18n="s2d">Esquemas de base de datos, autenticación y automatizaciones</span>
             </div>
           </details>
 
           <!-- 03 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>3</strong> <span data-i18n="s3Title">3. App Stores & Release Governance</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>3</strong> <span data-i18n="s3Title">Tiendas de Apps y Gobernanza</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s3a">Apple App Store Connect & TestFlight workflows</span>
-              <span class="scope-chip" data-i18n="s3b">Google Play Console setup, SKUs & testing tracks</span>
-              <span class="scope-chip" data-i18n="s3c">Privacy policies, data safety & merchant declarations</span>
-              <span class="scope-chip" data-i18n="s3d">Demo credentials, review notes & store metadata</span>
+              <span class="scope-chip" data-i18n="s3a">Flujos en Apple App Store Connect y TestFlight</span>
+              <span class="scope-chip" data-i18n="s3b">Configuración en Google Play Console, SKUs y pruebas</span>
+              <span class="scope-chip" data-i18n="s3c">Políticas de privacidad, seguridad de datos y declaraciones</span>
+              <span class="scope-chip" data-i18n="s3d">Credenciales demo, notas de revisión y metadatos de tienda</span>
             </div>
           </details>
 
           <!-- 04 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>4</strong> <span data-i18n="s4Title">4. Domains, DNS, Security & Mail</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>4</strong> <span data-i18n="s4Title">Dominios, DNS, Seguridad y Correo</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s4a">Domain onboarding & Cloudflare proxy/SSL setup</span>
-              <span class="scope-chip" data-i18n="s4b">GitHub Pages & static/edge hosting pipelines</span>
-              <span class="scope-chip" data-i18n="s4c">Email routing, aliases & SPF/DKIM/DMARC hygiene</span>
-              <span class="scope-chip" data-i18n="s4d">Error monitoring, uptime checks & cache control</span>
+              <span class="scope-chip" data-i18n="s4a">Alta de dominios, proxy y SSL/TLS en Cloudflare</span>
+              <span class="scope-chip" data-i18n="s4b">Despliegue en GitHub Pages y entrega estática/edge</span>
+              <span class="scope-chip" data-i18n="s4c">Enrutamiento de correo, alias y registros SPF/DKIM/DMARC</span>
+              <span class="scope-chip" data-i18n="s4d">Monitoreo de errores, disponibilidad y control de caché</span>
             </div>
           </details>
 
           <!-- 05 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>5</strong> <span data-i18n="s5Title">5. Brand Identity & Visual Systems</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>5</strong> <span data-i18n="s5Title">Identidad de Marca y Sistemas Visuales</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s5a">App icons (1024px+ master marks & variants)</span>
-              <span class="scope-chip" data-i18n="s5b">Horizontal logos, color tokens & typography systems</span>
-              <span class="scope-chip" data-i18n="s5c">Promotional flyers, pitch graphics & UI mockups</span>
-              <span class="scope-chip" data-i18n="s5d">Consistent visual language across web & mobile</span>
+              <span class="scope-chip" data-i18n="s5a">Iconos de app (piezas maestras 1024px+ y variantes)</span>
+              <span class="scope-chip" data-i18n="s5b">Logotipos horizontales, paletas de color y tipografía</span>
+              <span class="scope-chip" data-i18n="s5c">Flyers promocionales, piezas de presentación y mockups UI</span>
+              <span class="scope-chip" data-i18n="s5d">Coherencia visual entre web, móvil y material impreso/digital</span>
             </div>
           </details>
 
           <!-- 06 -->
           <details class="bdv-scope-card">
             <summary>
-              <span class="scope-title"><strong>6</strong> <span data-i18n="s6Title">6. Bilingual Growth & Media Systems</span></span>
-              <span class="scope-badge" data-i18n="scopeBadge">4 entregables</span>
+              <span class="scope-title"><strong>6</strong> <span data-i18n="s6Title">Crecimiento Bilingüe y Contenido</span></span>
+              <span class="scope-badge" data-i18n="scopeBadge">4 capacidades</span>
             </summary>
             <div class="scope-content">
-              <span class="scope-chip" data-i18n="s6a">Native English & Spanish product copywriting</span>
-              <span class="scope-chip" data-i18n="s6b">Short-form vertical video scripts & walkthroughs</span>
-              <span class="scope-chip" data-i18n="s6c">Teleprompter scripts & direct-to-camera formats</span>
-              <span class="scope-chip" data-i18n="s6d">Merchant onboarding & partner communication kits</span>
+              <span class="scope-chip" data-i18n="s6a">Redacción nativa en español e inglés para producto y marca</span>
+              <span class="scope-chip" data-i18n="s6b">Guiones de video vertical corto y recorridos visuales</span>
+              <span class="scope-chip" data-i18n="s6c">Guiones de teleprompter y formatos directos a cámara</span>
+              <span class="scope-chip" data-i18n="s6d">Kits de incorporación comercial y comunicación con aliados</span>
             </div>
           </details>
         </div>
@@ -992,33 +1015,33 @@
     <section id="standards" class="band">
       <div class="container">
         <div class="section-head">
-          <div class="section-kicker" data-i18n="stdKicker">HOW WE OPERATE</div>
-          <h2 data-i18n="stdTitle">Institutional rigor applied to agile builds.</h2>
+          <div class="section-kicker" data-i18n="stdKicker">CÓMO OPERAMOS</div>
+          <h2 data-i18n="stdTitle">Rigor institucional aplicado a entregas ágiles.</h2>
           <p class="section-desc" data-i18n="stdDesc">
-            Designed so founders, partners, and stakeholders can trust every release, metric, and deployment.
+            Diseñado para que fundadores, socios y aliados confíen en cada despliegue, métrica y decisión técnica.
           </p>
         </div>
 
         <div class="pillars-grid">
           <div class="pillar">
             <div class="pillar-num">01</div>
-            <h3 data-i18n="p1Title">Evidence-First Debugging</h3>
-            <p data-i18n="p1Desc">Root-cause verification, exact file & line inspection, and surgical diffs without guesswork.</p>
+            <h3 data-i18n="p1Title">Diagnóstico Basado en Evidencia</h3>
+            <p data-i18n="p1Desc">Verificación de causa raíz, revisión exacta de líneas y cambios quirúrgicos sin suposiciones.</p>
           </div>
           <div class="pillar">
             <div class="pillar-num">02</div>
-            <h3 data-i18n="p2Title">Lean Cost Architecture</h3>
-            <p data-i18n="p2Desc">Smart selection of free tiers, open tooling, and scalable services to protect early margins.</p>
+            <h3 data-i18n="p2Title">Arquitectura de Costo Eficiente</h3>
+            <p data-i18n="p2Desc">Uso inteligente de capas gratuitas, herramientas abiertas y servicios escalables para cuidar márgenes.</p>
           </div>
           <div class="pillar">
             <div class="pillar-num">03</div>
-            <h3 data-i18n="p3Title">Compliance & Trust</h3>
-            <p data-i18n="p3Desc">Clear data disclosures, verified domains, HTTPS encryption, and policy-aligned store listings.</p>
+            <h3 data-i18n="p3Title">Cumplimiento y Confianza</h3>
+            <p data-i18n="p3Desc">Transparencia de datos, dominios verificados, cifrado HTTPS y fichas alineadas a políticas.</p>
           </div>
           <div class="pillar">
             <div class="pillar-num">04</div>
-            <h3 data-i18n="p4Title">Ship & Iterate</h3>
-            <p data-i18n="p4Desc">Rapid testable increments from prototype to live traffic with measurable feedback loops.</p>
+            <h3 data-i18n="p4Title">Publicar e Iterar</h3>
+            <p data-i18n="p4Desc">Avances incrementales comprobables desde el prototipo hasta producción con retroalimentación real.</p>
           </div>
         </div>
       </div>
@@ -1029,15 +1052,15 @@
       <div class="container">
         <div class="contact-box">
           <div>
-            <div class="section-kicker" data-i18n="ctaKicker">DIRECT VENTURE & PARTNERSHIP DESK</div>
-            <h2 data-i18n="ctaTitle">Let’s build or scale what comes next.</h2>
+            <div class="section-kicker" data-i18n="ctaKicker">MESA DIRECTA DE VENTURES Y ALIANZAS</div>
+            <h2 data-i18n="ctaTitle">Construyamos o escalemos lo que sigue.</h2>
             <p data-i18n="ctaDesc">
-              Reach out for strategic partnerships, venture collaborations, product builds, or platform inquiries.
+              Escríbenos para alianzas estratégicas, colaboración en ventures, desarrollo de producto o consultas generales.
             </p>
           </div>
           <div class="contact-actions">
             <a class="btn btn-primary" href="mailto:contact@batistadigitalventures.com" data-i18n="ctaEmailBtn">
-              Email contact@batistadigitalventures.com
+              Escribir a contact@batistadigitalventures.com
             </a>
             <a class="btn btn-secondary" href="https://merqox.com" target="_blank" rel="noopener noreferrer">
               merqox.com
@@ -1054,16 +1077,13 @@
   <footer>
     <div class="container footer-inner">
       <div>
-        © <span id="yr">2026</span> Batista Digital Ventures · <span data-i18n="footRights">All rights reserved.</span>
+        © <span id="yr">2026</span> Batista Digital Ventures · <span data-i18n="footRights">Todos los derechos reservados.</span>
       </div>
       <div class="footer-links">
         <a href="https://merqox.com" target="_blank" rel="noopener noreferrer">MERQOX</a>
         <a href="https://trivlopro.com" target="_blank" rel="noopener noreferrer">TRIVLO</a>
         <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
       </div>
-    </div>
-    <div id="bdv-admin-btn-wrap" style="width: 100%; display: flex; justify-content: center; margin-top: 12px;">
-      <button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.6; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.18) !important; background: transparent !important; color: #94a3b8 !important; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>
     </div>
   </footer>
 
@@ -1092,18 +1112,21 @@
     const translations = {
       en: {
         pageTitle: "Batista Digital Ventures — Platforms, Mobile Apps & Digital Systems",
+        ariaNav: "Primary navigation",
+        ariaLang: "Language",
+        ariaThesis: "Operating thesis",
         brandSub: "VENTURE STUDIO · SYSTEMS",
         navVentures: "Ventures & Work",
         navScope: "Full Coverage",
         navStandards: "Execution Standards",
         navContact: "Contact",
-        navCta: "Partner With Us",
+        navCta: "Request a Proposal",
         heroEyebrow: "B2B & CONSUMER VENTURE ARCHITECTURE",
-        heroTitleLead: "We architect high-conviction ",
-        heroTitleAccent: "digital platforms & mobile ventures.",
-        heroLead: "Batista Digital Ventures designs, builds, and scales software products from zero to production—combining disciplined unit economics, modern cloud and mobile engineering, and real-world market execution.",
-        heroPrimaryBtn: "Explore Live Ventures",
-        heroSecondaryBtn: "Inspect Full Capabilities",
+        heroTitleLead: "We build and scale ",
+        heroTitleAccent: "digital platforms and mobile apps with conviction.",
+        heroLead: "Batista Digital Ventures designs, builds, and scales software from concept to production—combining disciplined business economics, modern mobile engineering, cloud infrastructure, and market execution.",
+        heroPrimaryBtn: "View Ventures",
+        heroSecondaryBtn: "Explore Full Scope",
         m1Val: "End-to-End",
         m1Lbl: "Concept, UI/UX, backend, stores & growth",
         m2Val: "iOS · Android · Web",
@@ -1120,7 +1143,7 @@
         th4: "Bilingual go-to-market assets, brand identity & high-retention storytelling.",
         thesisCta: "Request Deck & Venture Brief →",
         venturesKicker: "PORTFOLIO & BUILT WORK",
-        venturesTitle: "Flagship products & live platforms.",
+        venturesTitle: "Flagship products & client projects.",
         venturesDesc: "Direct access to active digital properties built under our venture umbrella, alongside custom client and operational systems.",
         v1Pill: "HYPERLOCAL MARKETPLACE",
         v1Desc: "Hyperlocal neighborhood commerce platform connecting local merchants and time-sensitive flash offers with nearby shoppers—pairing merchant operations, live discovery, and in-store QR pickup flows.",
@@ -1200,18 +1223,21 @@
       },
       es: {
         pageTitle: "Batista Digital Ventures — Plataformas, Apps Móviles y Sistemas Digitales",
+        ariaNav: "Navegación principal",
+        ariaLang: "Idioma",
+        ariaThesis: "Tesis operativa",
         brandSub: "VENTURE STUDIO · SISTEMAS",
         navVentures: "Proyectos y Trabajo",
         navScope: "Cobertura Integral",
         navStandards: "Estándares de Ejecución",
         navContact: "Contacto",
-        navCta: "Colaborar",
-        heroEyebrow: "ARQUITECTURA DE VENTURES B2B Y CONSUMO",
-        heroTitleLead: "Arquitectamos ",
-        heroTitleAccent: "plataformas digitales y apps móviles de alta convicción.",
-        heroLead: "Batista Digital Ventures diseña, construye y escala productos de software de cero a producción—combinando economía unitaria disciplinada, ingeniería móvil y nube moderna, y ejecución real en mercado.",
-        heroPrimaryBtn: "Ver Proyectos Activos",
-        heroSecondaryBtn: "Ver Cobertura Completa",
+        navCta: "Cotizar Proyecto",
+        heroEyebrow: "PLATAFORMAS DIGITALES Y APPS MÓVILES",
+        heroTitleLead: "Creamos y escalamos ",
+        heroTitleAccent: "plataformas digitales y apps móviles con visión clara.",
+        heroLead: "Batista Digital Ventures diseña, lanza y hace crecer software desde cero hasta producción—uniendo estrategia de negocio, desarrollo móvil, infraestructura en la nube y ejecución enfocada en resultados.",
+        heroPrimaryBtn: "Ver Proyectos",
+        heroSecondaryBtn: "Ver Qué Hacemos",
         m1Val: "De Punta a Punta",
         m1Lbl: "Concepto, UI/UX, backend, tiendas y crecimiento",
         m2Val: "iOS · Android · Web",
@@ -1228,7 +1254,7 @@
         th4: "Activos bilingües de lanzamiento, identidad de marca y narrativa de alta retención.",
         thesisCta: "Solicitar Deck y Venture Brief →",
         venturesKicker: "PORTAFOLIO Y TRABAJOS REALIZADOS",
-        venturesTitle: "Productos insignia y plataformas en vivo.",
+        venturesTitle: "Productos insignia y proyectos para clientes.",
         venturesDesc: "Acceso directo a propiedades digitales activas desarrolladas bajo nuestro estudio, junto con sistemas operativos y de producto.",
         v1Pill: "MARKETPLACE HIPERLOCAL",
         v1Desc: "Plataforma de comercio vecinal hiperlocal que conecta comercios locales y ofertas relámpago con compradores cercanos—integrando panel comercial, radar en vivo y recogida por código QR.",
@@ -1247,7 +1273,7 @@
         scopeKicker: "ALCANCE COMPLETO DE LA COMPAÑÍA",
         scopeTitle: "Cada capa cubierta hasta el último detalle.",
         scopeDesc: "Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.",
-        scopeBadge: "4 áreas",
+        scopeBadge: "4 capacidades",
         s1Title: "Estrategia de Producto y Diseño de Venture",
         s1a: "Propuesta de valor, recorridos de usuario y alcance MVP",
         s1b: "Modelos de monetización, precios y economía unitaria",
@@ -1340,10 +1366,19 @@
         }
       });
 
+      document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+        const key = el.getAttribute("data-i18n-aria");
+        if (dict[key] !== undefined) {
+          el.setAttribute("aria-label", dict[key]);
+        }
+      });
+
       applyModalLanguage(dict);
 
       buttons.forEach((btn) => {
-        btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+        const isActive = btn.getAttribute("data-set-lang") === lang;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
       });
 
       try {
@@ -1466,5 +1501,6 @@
   <script src="./js/bdv-ops-panel.js" defer></script>
   <script src="./js/bdv-sow-signer.js" defer></script>
   <script src="./js/gy-roadside.js" defer></script>
+  <script src="./js/bdv-a11y.js" defer></script>
 </body>
 </html>

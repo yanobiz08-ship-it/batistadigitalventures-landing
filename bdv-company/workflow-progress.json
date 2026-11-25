@@ -1,124 +1,54 @@
 {
   "version": "1.1.0",
-  "organization": "Batista Digital Ventures LLC",
-  "jurisdiction": "Santa Barbara County, California",
-  "operational_rules": {
-    "zero_unfunded_starts": "Ningún trabajo arranca sin SOW por escrito y depósito inicial liquidado.",
-    "paid_when_paid": "Los honorarios a partners se desembolsan exclusivamente sobre fondos netos efectivamente cobrados por la LLC.",
-    "ip_reservation": "La titularidad de código y activos se retiene por la LLC hasta la liquidación del 100% del proyecto.",
-    "deemed_acceptance_window_days": 5,
-    "uber_dispatch_rule": "Los partners aceptan trabajos voluntariamente bajo demanda, pero la aceptación formal impone plazos vinculantes y estándares de calidad auditables.",
-    "read_only_client_tracker": "Al liquidar el depósito de Etapa 2, se expide un código secreto para un portal de solo lectura donde el cliente consulta avance y fechas de pago. Dicho acceso se inhabilita de inmediato al liquidar el 100% (Etapa 6) y no cubre soporte post-entrega ni mantenimiento."
-  },
+  "_note": "Public, display-only copy of the 6 project stages used by js/brand-media.js. Internal operating rules, deliverables and notification settings are intentionally NOT published here.",
   "progress_stages": [
     {
       "stage": 1,
-      "code": "INTAKE_FIT",
       "percentage": 10,
       "name_es": "Recepción y Filtro de Alcance",
       "name_en": "Intake & Scope Fit Assessment",
-      "deliverables": [
-        "Brief de requerimientos",
-        "Validación de arquitectura",
-        "Estimación paramétrica"
-      ],
       "financial_trigger_es": "Sin costo · Diagnóstico y calificación preliminar",
-      "financial_trigger_en": "No cost · Intake & preliminary feasibility diagnosis",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "No cost · Intake & preliminary feasibility diagnosis"
     },
     {
       "stage": 2,
-      "code": "AGREEMENT_DEPOSIT",
       "percentage": 25,
       "name_es": "Firma de SOW, Depósito y Activación de Código Secreto",
       "name_en": "SOW Execution, Deposit & Secret Code Issuance",
-      "deliverables": [
-        "Contrato/SOW firmado",
-        "Cobro del anticipo registrado",
-        "Emisión de código secreto temporal de solo lectura",
-        "Asignación o aceptación por partner"
-      ],
       "financial_trigger_es": "Depósito inicial liquidado (25%–50%) → Emisión de PIN temporal",
-      "financial_trigger_en": "Advance deposit cleared (25%–50%) → Temporary access PIN issued",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "Advance deposit cleared (25%–50%) → Temporary access PIN issued"
     },
     {
       "stage": 3,
-      "code": "ARCHITECTURE_SETUP",
       "percentage": 45,
       "name_es": "Arquitectura y Entorno Base",
       "name_en": "System Architecture & Base Setup",
-      "deliverables": [
-        "Repositorio y pipeline CI/CD",
-        "Esquemas de base de datos",
-        "Wireframes o prototipo base"
-      ],
       "financial_trigger_es": "En desarrollo activo · Cubierto por anticipo",
-      "financial_trigger_en": "Active development · Covered by initial deposit",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "Active development · Covered by initial deposit"
     },
     {
       "stage": 4,
-      "code": "CORE_BUILD_QA",
       "percentage": 75,
       "name_es": "Construcción y Auditoría Técnica Interna",
       "name_en": "Core Engineering & Internal QA",
-      "deliverables": [
-        "Lógica funcional de módulos",
-        "Auditoría de responsividad móvil",
-        "Entorno de staging funcional"
-      ],
       "financial_trigger_es": "Próximo vencimiento: Saldo final para entrega",
-      "financial_trigger_en": "Next due: Final balance settlement prior to release",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "Next due: Final balance settlement prior to release"
     },
     {
       "stage": 5,
-      "code": "CLIENT_REVIEW",
       "percentage": 90,
       "name_es": "Inspección de Entrega y Ventana de Revisión",
       "name_en": "Client Inspection & Review Window",
-      "deliverables": [
-        "Acceso a demo/staging",
-        "Apertura de ventana de 5 días hábiles",
-        "Resolución de ajustes de alcance"
-      ],
       "financial_trigger_es": "Ventana de 5 días activa · Se requiere liquidar el 100% para despliegue final",
-      "financial_trigger_en": "5-day window open · 100% settlement required prior to production handoff",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "5-day window open · 100% settlement required prior to production handoff"
     },
     {
       "stage": 6,
-      "code": "SETTLEMENT_HANDOFF",
       "percentage": 100,
       "name_es": "Liquidación Final, Traspaso y Expiración de Acceso",
       "name_en": "Final Settlement, Handoff & Portal Disablement",
-      "deliverables": [
-        "Cobro del 100% verificado",
-        "Traspaso de credenciales/código",
-        "Despliegue a producción/tiendas",
-        "Liquidación de payout a partner",
-        "Inhabilitación de código secreto temporal"
-      ],
       "financial_trigger_es": "100% liquidado · Acceso temporal cerrado (no incluye mantenimiento)",
-      "financial_trigger_en": "100% settled · Temporary tracker disabled (maintenance not included)",
-      "notify_client": true,
-      "notify_admin": true
+      "financial_trigger_en": "100% settled · Temporary tracker disabled (maintenance not included)"
     }
-  ],
-  "notification_events": {
-    "channel_client": "Email corporativo automatizado con tracking ID, PIN temporal y calendario de pagos",
-    "channel_admin": "Alerta a contact@batistadigitalventures.com con desglose de hito, responsable y estado financiero",
-    "trigger_events": [
-      "Transición de etapa porcentual (1 a 6)",
-      "Emisión y activación de código secreto (Etapa 2)",
-      "Apertura y cierre de ventana de 5 días de revisión (Etapa 5)",
-      "Liquidación total del 100% e inhabilitación del acceso temporal (Etapa 6)"
-    ]
-  }
+  ]
 }
