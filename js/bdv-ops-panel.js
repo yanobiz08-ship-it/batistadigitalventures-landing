@@ -49,6 +49,39 @@
     loadAdminProjects();
   }
 
+  function resetAdminPanelState(modalRoot) {
+    window.__bdvSessionKey = "";
+    window.__bdvIsAdmin = false;
+
+    if (modalRoot) {
+      modalRoot.style.display = "none";
+      modalRoot.scrollTop = 0;
+      const card = modalRoot.querySelector(".bdv-admin-card");
+      if (card) card.scrollTop = 0;
+    }
+
+    const passInput = document.getElementById("bdv-admin-pass");
+    if (passInput) passInput.value = "";
+
+    const authMsg = document.getElementById("bdv-admin-auth-msg");
+    if (authMsg) authMsg.style.display = "none";
+
+    const authView = document.getElementById("bdv-admin-auth-view");
+    if (authView) authView.style.display = "block";
+
+    const dashView = document.getElementById("bdv-admin-dash-view");
+    if (dashView) dashView.style.display = "none";
+
+    const createBox = document.getElementById("bdv-create-project-box");
+    if (createBox) createBox.style.display = "none";
+
+    const keyBox = document.getElementById("bdv-key-change-box");
+    if (keyBox) keyBox.style.display = "none";
+
+    const toastBanner = document.getElementById("bdv-admin-action-banner");
+    if (toastBanner) toastBanner.style.display = "none";
+  }
+
   /* Visor de solo lectura para el cliente (email + PIN) */
   function applyClientTrackerModal() {
     if (document.getElementById("bdv-tracker-modal-root")) return;
@@ -251,7 +284,13 @@
       }
 
       document.getElementById("bdv-admin-close-btn").addEventListener("click", () => {
-        modalRoot.style.display = "none";
+        resetAdminPanelState(modalRoot);
+      });
+
+      modalRoot.addEventListener("click", (e) => {
+        if (e.target === modalRoot) {
+          resetAdminPanelState(modalRoot);
+        }
       });
 
       document.getElementById("bdv-admin-login-btn").addEventListener("click", triggerAdminLogin);
@@ -281,10 +320,11 @@
       btn.onclick = () => {
         const m = document.getElementById("bdv-admin-modal-root");
         if (m) {
+          resetAdminPanelState(m);
           m.style.display = "flex";
           setTimeout(() => {
             const passInput = document.getElementById("bdv-admin-pass");
-            if (passInput && document.getElementById("bdv-admin-auth-view").style.display !== "none") {
+            if (passInput) {
               passInput.focus();
             }
           }, 60);
