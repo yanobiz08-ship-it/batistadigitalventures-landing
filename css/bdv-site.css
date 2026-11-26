@@ -391,7 +391,7 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .guide-hero { border-top: 0; padding-top: 40px; }
 .guide-hero h1 { font-size: clamp(2rem, 6vw, 3.1rem); margin-bottom: 16px; }
 .guide h2 { font-size: clamp(1.5rem, 4.4vw, 2.2rem); margin-bottom: 14px; }
-.guide h3 { font-size: 1.12rem; }
+.guide h3:not(.project-title) { font-size: 1.12rem; }
 .guide .section-desc { margin-bottom: 18px; }
 .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0 0 22px; font-size: 0.84rem; color: var(--text-muted); }
 .breadcrumb li + li::before { content: "›"; margin-right: 6px; color: var(--text-muted); }
@@ -433,4 +433,16 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 @media (min-width: 980px) {
   .guide-hero { padding-top: 56px; }
   .cost-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* App development page (tools/site-src/apps.html); reuses the guide, service and portfolio styles. */
+.guide-hero .hero-cta { margin: 4px 0 22px; }
+.guide-facts { grid-template-columns: 1fr; }
+.svc-more { font-size: 0.86rem; justify-self: start; }
+.app-price { margin: 16px 0 18px; }
+.guide-ours.app-price .svc-price { margin: 0 0 6px; color: var(--text-secondary); font-size: 1rem; }
+.guide-ours.app-price > p:last-child { margin: 0; color: var(--text-secondary); font-weight: 500; }
+.app-price .price-offer, html:not(.offer-on) .app-price .price-normal { color: var(--gold-bright); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.app-market { margin-top: 8px; }
+@media (min-width: 640px) {
+  .guide-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

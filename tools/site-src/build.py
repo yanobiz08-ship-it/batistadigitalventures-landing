@@ -8,6 +8,7 @@ os.chdir(HERE)
 SHELL = open('template.html').read()  # <head>, header, footer and scripts shared by every page
 T = open('home.html').read()          # home page <main>
 G = open('guide.html').read()         # pricing guide <main>
+A = open('apps.html').read()          # app development <main>
 
 ICONS = {
  'shield': '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -52,19 +53,21 @@ OFFER_BANNER = """          <div class="offer-banner offer-only"><p><strong>§of
 T = T.replace('@@OFFER_BANNER@@', OFFER_BANNER)
 
 # services
+SVC_PAGES = {1: 'apps'}  # service card -> its own landing page (key in PAGES)
 svc = []
 for n, (icon, qv) in enumerate([('phone','app'),('monitor','web'),('grid','system'),('wrench','repair')], 1):
     badge = f'<span class="svc-badge">{t(f"svc{n}Badge")}</span>' if f'svc{n}Badge' in S else ''
     lis = ''.join(f'<li>@@ICON:check@@<span><span>{t(f"svc{n}{x}")}</span>' + (' ' + price(f'svc{n}{x}', 'span') if f'svc{n}{x}Price' in S else '') + '</span></li>'
                   for x in 'abcde' if f'svc{n}{x}' in S)
     typical = f'<p class="svc-typical">{t(f"svc{n}Typical")}</p>' if f'svc{n}Typical' in S else ''
+    more = f'\n              <a class="text-link svc-more" href="@@PAGE:{SVC_PAGES[n]}@@"><span>{t(f"svc{n}More")}</span> <span aria-hidden="true">→</span></a>' if n in SVC_PAGES else ''
     svc.append(f'''          <article class="service-card{' service-card-new' if badge else ''}">
             <div class="svc-top"><span class="svc-ico" aria-hidden="true">@@ICON:{icon}@@</span>{badge}</div>
             <h3>{t(f"svc{n}Title")}</h3>
             <p>{t(f"svc{n}Desc")}</p>
             <ul class="check-list">{lis}</ul>
             <div class="svc-foot">
-              <p class="svc-price"><span>{t("svcFrom")}</span> {price(f"svc{n}")} <small>{t(f"svc{n}Unit")}</small></p>{typical}
+              <p class="svc-price"><span>{t("svcFrom")}</span> {price(f"svc{n}")} <small>{t(f"svc{n}Unit")}</small></p>{typical}{more}
               <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}">{t("svcQuoteBtn")}</a>
             </div>
           </article>''')
@@ -152,16 +155,32 @@ for i, p in enumerate(pcts, 1):
             <p>{t(f"st{i}Text")}</p>
             <div class="stage-bar" aria-hidden="true"><span></span></div>
           </li>''')
-T = T.replace('@@STAGES@@', '\n'.join(st))
+# 6 stages + commitments, shared by the home page and the app page.
+PROCESS = """        <ol class="timeline">
+""" + '\n'.join(st) + """
+        </ol>
+        <div class="guarantees">
+          <p class="kicker">§guarKicker§</p>
+          <div class="guarantee-grid">
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:doc@@</span><h3>§guar1Title§</h3><p>§guar1Text§</p></div>
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:clock@@</span><h3>§guar2Title§</h3><p>§guar2Text§</p></div>
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:key@@</span><h3>§guar3Title§</h3><p>§guar3Text§</p></div>
+          </div>
+        </div>
+"""
+T = T.replace('@@PROCESS@@', PROCESS)
 
-faq = []
-for i in range(1, 7):
-    faq.append(f'''          <details class="faq-item"{' open' if i == 1 else ''}>
-            <summary>{t(f"q{i}")}</summary>
-            <p>{t(f"a{i}")}</p>{f'''
-            <p class="offer-only offer-note">{t(f"a{i}Offer")}</p>''' if f"a{i}Offer" in S else ""}
-          </details>''')
-T = T.replace('@@FAQ@@', '\n'.join(faq))
+def faq_html(items, indent=10):
+    """Visible FAQ (<details>); an answer's "<key>Offer" text is shown only while the offer runs.
+    Pages with FAQPage JSON-LD pass the same items to schema(), so the markup and the schema match."""
+    sp = ' ' * indent
+    return '\n'.join(f'''{sp}<details class="faq-item"{' open' if n == 0 else ''}>
+{sp}  <summary>{t(q)}</summary>
+{sp}  <p>{t(a)}</p>{f'''
+{sp}  <p class="offer-only offer-note">{t(a + "Offer")}</p>''' if a + "Offer" in S else ""}
+{sp}</details>''' for n, (q, a) in enumerate(items))
+
+T = T.replace('@@FAQ@@', faq_html([(f'q{i}', f'a{i}') for i in range(1, 7)]))
 
 
 # ---------- Pricing guide ----------
@@ -176,7 +195,35 @@ GUIDE_SOURCES = [
     ('gSrc6', 'https://www.smartling.com/blog/translation-rates'),
     ('gSrc7', 'https://developers.google.com/search/docs/fundamentals/do-i-need-seo'),
 ]
-GUIDE_FAQ = 5
+GUIDE_FAQ = [(f'gQ{k}', f'gA{k}') for k in range(1, 6)]
+# App page: market data and store rules from these sources; prices reuse svc1*.
+APP_SOURCES = [
+    ('apSrc1', 'https://clutch.co/directory/mobile-application-developers/pricing'),
+    ('gSrc1', 'https://www.siteground.com/academy/cost-to-build-website-web-app'),
+    ('apSrc3', 'https://developer.apple.com/support/enrollment/'),
+    ('apSrc4', 'https://developer.apple.com/distribute/app-review/'),
+    ('apSrc5', 'https://support.google.com/googleplay/android-developer/answer/6112435'),
+    ('apSrc6', 'https://support.google.com/googleplay/android-developer/answer/14151465'),
+]
+APP_FAQ = [('apQ1', 'apA1'), ('apQ2', 'apA2'), ('apQ3', 'apA3'), ('apQ4', 'apA4'), ('q3', 'a3')]
+
+def sources_html(sources):
+    items = '\n'.join(f'            <li id="fuente-{k}"><a href="{url}" target="_blank" rel="noopener noreferrer">{t(key)}</a> <span class="bdv-sr-only">{t("gNewTab")}</span></li>'
+                      for k, (key, url) in enumerate(sources, 1))
+    return f'          <ol class="guide-sources">\n{items}\n          </ol>'
+
+def breadcrumb(crumb):
+    return f'''          <nav class="breadcrumb" aria-label="{t("gCrumbAria")}">
+            <ol>
+              <li><a href="@@HOME@@">{t("gCrumbHome")}</a></li>
+              <li aria-current="page">{t(crumb)}</li>
+            </ol>
+          </nav>'''
+
+def fill_lists(page):
+    """@@LIST:<prefix>:<n or letters>@@ -> check-list items for <prefix>1..n or <prefix>a, b, ..."""
+    return re.sub(r'@@LIST:(\w+):(\w+)@@', lambda m: '\n'.join(li(m.group(1) + str(k)) for k in
+                  (range(1, int(m.group(2)) + 1) if m.group(2).isdigit() else m.group(2))), page)
 
 def li(key):
     return f'              <li>@@ICON:check@@<span>{t(key)}</span></li>'
@@ -199,24 +246,26 @@ CARDS = [
     cost_card(2, t('svc2Typical')),
     cost_card(3, t('gT3O')),
     cost_card(4, t('gT4O')),
-    cost_card(5, f'{from_price("svc3", "svc3Title")}<br />{t("svc3Typical")}<br />{from_price("svc1", "svc1Title")}<br />{t("svc1Typical")}'),
+    cost_card(5, f'{from_price("svc3", "svc3Title")}<br />{t("svc3Typical")}<br />{from_price("svc1", "svc1Title")}<br />{t("svc1Typical")}'
+                 f'<br /><a class="text-link" href="@@PAGE:apps@@"><span>{t("gAppsLink")}</span> <span aria-hidden="true">→</span></a>'),
 ]
 G = G.replace('@@OFFER_BANNER@@', OFFER_BANNER).replace('@@COST_CARDS@@', '\n'.join(CARDS))
-G = re.sub(r'@@LIST:(\w+):(\d)@@', lambda m: '\n'.join(li(f'{m.group(1)}{k}') for k in range(1, int(m.group(2)) + 1)), G)
+G = fill_lists(G).replace('@@BREADCRUMB@@', breadcrumb('gCrumb'))
 G = G.replace('@@PRICE:svc4e@@', price('svc4e', 'span'))
 G = G.replace('@@FLAGS@@', '\n'.join(f'            <li><span class="flag-ico" aria-hidden="true">@@ICON:alert@@</span><span>{t(f"gR{k}")}</span></li>' for k in range(1, 7)))
-G = G.replace('@@GUIDE_FAQ@@', '\n'.join(f'''            <details class="faq-item"{' open' if k == 1 else ''}>
-              <summary>{t(f"gQ{k}")}</summary>
-              <p>{t(f"gA{k}")}</p>
-            </details>''' for k in range(1, GUIDE_FAQ + 1)))
-G = G.replace('@@SOURCES@@', '\n'.join(f'            <li id="fuente-{k}"><a href="{url}" target="_blank" rel="noopener noreferrer">{t(key)}</a> <span class="bdv-sr-only">{t("gNewTab")}</span></li>'
-                                       for k, (key, url) in enumerate(GUIDE_SOURCES, 1)))
+G = G.replace('@@FAQ@@', faq_html(GUIDE_FAQ, 12)).replace('@@SOURCES@@', sources_html(GUIDE_SOURCES))
+
+# ---------- App development page ----------
+A = fill_lists(A).replace('@@BREADCRUMB@@', breadcrumb('apCrumb')).replace('@@PROCESS@@', PROCESS).replace('@@OFFER_BANNER@@', OFFER_BANNER)
+A = A.replace('@@PRICE:svc1@@', price('svc1', 'span')).replace('@@APP_PROJECTS@@', '\n'.join(PROJ[1::-1]))  # TRIVLO, MERQOX
+A = A.replace('@@FAQ@@', faq_html(APP_FAQ, 12)).replace('@@SOURCES@@', sources_html(APP_SOURCES))
 
 T = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], T)
 G = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], G)
+A = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], A)
 
 NF = open('404.html').read()
-used = set(re.findall(r'§(\w+)§', SHELL + T + G)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF)) | {'pageTitle', 'metaDesc', 'gTitle', 'gMetaDesc', 'gSrcAria'}
+used = set(re.findall(r'§(\w+)§', SHELL + T + G + A)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF)) | {'pageTitle', 'metaDesc', 'gTitle', 'gMetaDesc', 'apTitle', 'apMetaDesc', 'gSrcAria'}
 missing = used - set(S)
 assert not missing, missing
 # Keys used from JavaScript (passed to BDV_t / tr as quoted strings) count as used too; only those are
@@ -248,7 +297,9 @@ PAGES = {
               # Admin panel (#bdv-ops), client viewer and SOW links (?sow=) live on the home page only.
               'scripts': '  <script src="/js/bdv-ops-panel.js" defer></script>\n  <script src="/js/bdv-sow-signer.js" defer></script>\n', 'assets': 8},
     'guide': {'paths': {'es': 'cuanto-cuesta-una-pagina-web/', 'en': 'en/how-much-does-a-website-cost/'}, 'main': G, 'title': 'gTitle', 'desc': 'gMetaDesc',
-              'og_type': 'article', 'preload': '', 'scripts': '', 'assets': 6},
+              'og_type': 'article', 'preload': '', 'scripts': '', 'assets': 6, 'crumb': 'gCrumb', 'faq': GUIDE_FAQ},
+    'apps':  {'paths': {'es': 'desarrollo-de-apps/', 'en': 'en/app-development/'}, 'main': A, 'title': 'apTitle', 'desc': 'apMetaDesc',
+              'og_type': 'website', 'preload': '', 'scripts': '', 'assets': 6, 'crumb': 'apCrumb', 'faq': APP_FAQ},
 }
 GUIDE_DATE = '2026-11-25'  # datePublished / dateModified of the guide; update dateModified when its figures change
 
@@ -284,20 +335,24 @@ def schema(page, lang):
     graph = [org_node(i), founder,
              {'@type': 'WebSite', '@id': SITE + '#website', 'url': SITE, 'name': 'Batista Digital Ventures', 'inLanguage': ['es', 'en'], 'publisher': {'@id': SITE + '#organization'}},
              webpage]
-    if page == 'guide':
-        home = SITE + PAGES['home']['paths'][lang]
+    if 'crumb' in cfg:
         webpage['breadcrumb'] = {'@id': url + '#breadcrumb'}
-        graph += [
-            {'@type': 'Article', '@id': url + '#article', 'headline': S['gH1'][i], 'description': S['gMetaDesc'][i], 'inLanguage': lang,
-             'mainEntityOfPage': {'@id': url + '#webpage'}, 'image': SITE + 'assets/img/og-image.jpg', 'datePublished': GUIDE_DATE, 'dateModified': GUIDE_DATE,
-             'author': {'@id': SITE + '#founder'}, 'publisher': {'@id': SITE + '#organization'},
-             'citation': [u for _, u in GUIDE_SOURCES]},
-            {'@type': 'BreadcrumbList', '@id': url + '#breadcrumb', 'itemListElement': [
-                {'@type': 'ListItem', 'position': 1, 'name': S['gCrumbHome'][i], 'item': home},
-                {'@type': 'ListItem', 'position': 2, 'name': S['gCrumb'][i], 'item': url}]},
-            {'@type': 'FAQPage', '@id': url + '#faq', 'inLanguage': lang, 'isPartOf': {'@id': url + '#webpage'}, 'mainEntity': [
-                {'@type': 'Question', 'name': plain(f'gQ{k}', i), 'acceptedAnswer': {'@type': 'Answer', 'text': plain(f'gA{k}', i)}} for k in range(1, GUIDE_FAQ + 1)]},
-        ]
+        graph.append({'@type': 'BreadcrumbList', '@id': url + '#breadcrumb', 'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': S['gCrumbHome'][i], 'item': SITE + PAGES['home']['paths'][lang]},
+            {'@type': 'ListItem', 'position': 2, 'name': S[cfg['crumb']][i], 'item': url}]})
+    if 'faq' in cfg:
+        graph.append({'@type': 'FAQPage', '@id': url + '#faq', 'inLanguage': lang, 'isPartOf': {'@id': url + '#webpage'}, 'mainEntity': [
+            {'@type': 'Question', 'name': plain(q, i), 'acceptedAnswer': {'@type': 'Answer', 'text': plain(a, i)}} for q, a in cfg['faq']]})
+    if page == 'guide':
+        graph.append({'@type': 'Article', '@id': url + '#article', 'headline': S['gH1'][i], 'description': S['gMetaDesc'][i], 'inLanguage': lang,
+                      'mainEntityOfPage': {'@id': url + '#webpage'}, 'image': SITE + 'assets/img/og-image.jpg', 'datePublished': GUIDE_DATE, 'dateModified': GUIDE_DATE,
+                      'author': {'@id': SITE + '#founder'}, 'publisher': {'@id': SITE + '#organization'},
+                      'citation': [u for _, u in GUIDE_SOURCES]})
+    if page == 'apps':
+        # No price in the schema: it changes with offers and is only final in the SOW.
+        graph.append({'@type': 'Service', '@id': url + '#service', 'name': S['apH1'][i], 'serviceType': S['svc1Title'][i], 'description': S['apMetaDesc'][i],
+                      'provider': {'@id': SITE + '#organization'}, 'areaServed': {'@type': 'Country', 'name': 'United States'}, 'availableLanguage': ['es', 'en'],
+                      'url': url, 'mainEntityOfPage': {'@id': url + '#webpage'}})
     return '\n'.join('  ' + line for line in json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False, indent=2).splitlines())
 
 def render(page, lang):
@@ -309,16 +364,17 @@ def render(page, lang):
     for k, v in {'TITLE': f'§{cfg["title"]}§', 'DESC': f'§{cfg["desc"]}§', 'OG_TYPE': cfg['og_type'], 'PRELOAD': cfg['preload'], 'HOME_SCRIPTS': cfg['scripts'],
                  'LANG': lang, 'URL': SITE + paths[lang], 'URL_ES': SITE + paths['es'], 'URL_EN': SITE + paths['en'], 'SITE': SITE,
                  'PATH_ES': '/' + paths['es'], 'PATH_EN': '/' + paths['en'],
-                 'HOME': '' if page == 'home' else '/' + PAGES['home']['paths'][lang], 'GUIDE': '/' + PAGES['guide']['paths'][lang],
+                 'HOME': '' if page == 'home' else '/' + PAGES['home']['paths'][lang],
                  'OG_LOCALE': LOCALES[lang], 'OG_LOCALE_ALT': LOCALES[other], 'JSONLD': schema(page, lang),
                  f'ACTIVE_{lang.upper()}': ' active', f'ACTIVE_{other.upper()}': '',
                  f'CURRENT_{lang.upper()}': ' aria-current="page"', f'CURRENT_{other.upper()}': ''}.items():
         out = out.replace(f'@@{k}@@', v)
+    out = re.sub(r'@@PAGE:(\w+)@@', lambda m: '/' + PAGES[m.group(1)]['paths'][lang], out)
     out = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][i], quote=True), out)
     # Citations: [[n]] -> superscript link to source n in the guide's source list.
     out = re.sub(r'\s*\[\[(\d)\]\]', lambda m: f'<sup class="cite">[<a href="#fuente-{m.group(1)}"><span class="bdv-sr-only">{html.escape(S["gSrcAria"][i])} </span>{m.group(1)}</a>]</sup>', out)
     assert '@@' not in out and '§' not in out and '[[' not in out
-    if page != 'guide':
+    if page == 'home':
         assert 'class="cite"' not in out
     out, n_assets = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, out)
     assert n_assets == cfg['assets'], (page, n_assets)

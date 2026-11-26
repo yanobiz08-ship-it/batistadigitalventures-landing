@@ -7,6 +7,8 @@ Static site served by GitHub Pages (custom domain in `CNAME`). Everything in thi
   with `hreflang` so Google indexes both; the ES/EN switch is a normal link. `404.html` — bilingual, `noindex`.
 - `cuanto-cuesta-una-pagina-web/` and `en/how-much-does-a-website-cost/` — pricing guide (ES/EN pair) with
   cited market ranges, our prices from the same keys as the home page, visible FAQ, Article/BreadcrumbList/FAQPage JSON-LD.
+- `desarrollo-de-apps/` and `en/app-development/` — app development page (ES/EN): what we build, tech, the shared
+  6-stage process and commitments, store rules (cited), TRIVLO/MERQOX portfolio blocks, pricing, visible FAQ, Service/BreadcrumbList/FAQPage JSON-LD.
 - `js/bdv-i18n.js` — the ES/EN texts used by the scripts (`window.BDV_t`), for the page's `<html lang>`.
 - `js/brand-media.js` — shared helpers (`window.BDV_CORE`), the legal texts (Terms of Service, Privacy Policy,
   Accessibility Statement) opened by any `[data-legal="terms|privacy|accessibility"]` button, request confirmation modal.
@@ -22,7 +24,7 @@ Static site served by GitHub Pages (custom domain in `CNAME`). Everything in thi
 
 ## Editing texts
 Every page above, `404.html`, `sitemap.xml` and `js/bdv-i18n.js` are generated from `tools/site-src/`
-(`template.html` = `<head>`, header, footer and scripts shared by every page; `home.html` and `guide.html` = each
+(`template.html` = `<head>`, header, footer and scripts shared by every page; `home.html`, `guide.html` and `apps.html` = each
 page's `<main>` with `§key§` placeholders; `404.html`; `strings.py` = every text as `(es, en)`; `build.py` =
 cards/portfolio/process/FAQ generators, guide sources, JSON-LD, sitemap and the per-language pages; add a page in `PAGES`). Edit there and run
 `python3 tools/site-src/build.py`; it rewrites the generated files so Spanish and English never drift apart, and fails

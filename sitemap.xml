@@ -24,4 +24,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/how-much-does-a-website-cost/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
   </url>
+  <url>
+    <loc>https://batistadigitalventures.com/desarrollo-de-apps/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/app-development/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+  </url>
+  <url>
+    <loc>https://batistadigitalventures.com/en/app-development/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/app-development/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+  </url>
 </urlset>
