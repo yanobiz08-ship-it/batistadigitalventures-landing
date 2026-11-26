@@ -186,6 +186,10 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .offer-banner { margin: 14px 0 0; max-width: 640px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--gold-border-strong); background: var(--gold-soft); color: var(--text-secondary); font-size: 0.86rem; line-height: 1.45; }
 .offer-banner strong { display: block; color: var(--gold-bright); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
 .offer-note { color: var(--gold-bright); }
+.offer-banner p { margin: 0; }
+.offer-banner .offer-terms { margin-top: 6px; color: var(--text-muted); font-size: 0.78rem; }
+/* Inline links to the legal texts (js/brand-media.js opens them from any [data-legal] button). */
+.fine-print .bdv-link-btn, .offer-terms .bdv-link-btn { padding: 0; font-size: inherit; line-height: inherit; color: var(--gold-bright); }
 
 /* ---------- Portfolio ---------- */
 .project {
@@ -311,6 +315,7 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .footer-links { display: flex; flex-wrap: wrap; gap: 10px 20px; }
 .footer-links a:hover { color: var(--gold-bright); }
 .footer-bottom { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.footer-marks { max-width: 90ch; margin-top: 8px; font-size: 0.74rem; line-height: 1.5; }
 
 /* ---------- Tablet ---------- */
 @media (min-width: 640px) {
@@ -373,3 +378,4 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .case-quote { margin: 0 0 12px; padding: 12px 14px; border-left: 3px solid var(--gold); background: var(--gold-soft); border-radius: 0 10px 10px 0; }
 .case-quote p { color: var(--text-primary); font-style: italic; }
 .case-quote footer { color: var(--text-muted); font-size: 0.82rem; margin-top: 6px; }
+.case-disclosure { color: var(--text-secondary); font-size: 0.82rem; margin: -4px 0 12px; }

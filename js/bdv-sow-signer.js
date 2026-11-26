@@ -7,6 +7,17 @@
 
   let currentSowData = null;
 
+  // Key legal terms of every SOW (Spanish, like the rest of the SOW document), shared by the .txt
+  // receipt and the printable / PDF version.
+  const SOW_KEY_TERMS = [
+    ["Ventana de revisión", "5 días hábiles tras la notificación de entrega de un hito."],
+    ["Pagos y reembolsos", "Los pagos por etapa no son reembolsables; el depósito solo se reembolsa si el cliente cancela antes de iniciar la Etapa 3, según los Términos de Servicio."],
+    ["Propiedad intelectual", "Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo propiedad de Batista Digital Ventures LLC; los componentes de terceros y de código abierto se rigen por sus licencias."],
+    ["Órdenes de cambio", "Trabajos extra fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse."],
+    ["Términos de Servicio", "Los Términos de Servicio publicados en batistadigitalventures.com, vigentes a la fecha de firma, forman parte de este SOW; si se contradicen, prevalece este SOW."],
+    ["Ley aplicable y firma", "Estado de California, EE. UU. Firma y registros electrónicos válidos conforme a E-SIGN y UETA."]
+  ];
+
   function isSowPaid(sow) {
     if (!sow) return false;
     const statusText = String(sow.paymentStatus || "").toUpperCase();
@@ -45,10 +56,7 @@
       "- Etapas: 1. Intake (10%) -> 2. SOW & PIN (25%) -> 3. Arquitectura (45%) -> 4. Core & QA (75%) -> 5. Revisión 5 días hábiles (90%) -> 6. Liquidación 100% y entrega (PIN expira; no incluye mantenimiento mensual).",
       "",
       "4. TÉRMINOS CLAVE (LEY DE CALIFORNIA)",
-      "- Ventana de revisión: 5 días hábiles tras la entrega de un hito.",
-      "- Propiedad intelectual: Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo de Batista Digital Ventures LLC.",
-      "- Órdenes de cambio: Trabajos extra fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.",
-      "- Jurisdicción: Leyes del Estado de California, EE. UU. (UETA / ESIGN).",
+      ...SOW_KEY_TERMS.map(([label, text]) => `- ${label}: ${text}`),
       "",
       "5. CONSTANCIA DE FIRMA DIGITAL",
       sig
@@ -137,10 +145,7 @@
 
         <h2>4. Términos Legales (California)</h2>
         <div class="box">
-          - <strong>Ventana de revisión:</strong> 5 días hábiles tras la notificación de entrega de un hito.<br/>
-          - <strong>Propiedad intelectual:</strong> Se transfiere al liquidar el 100% del proyecto. Librerías y herramientas base siguen siendo propiedad de Batista Digital Ventures LLC.<br/>
-          - <strong>Órdenes de cambio:</strong> Trabajos extra fuera del alcance requieren Orden de Cambio firmada y pagada antes de ejecutarse.<br/>
-          - <strong>Ley aplicable:</strong> Estado de California, EE. UU. (UETA / ESIGN).
+          ${SOW_KEY_TERMS.map(([label, text]) => `- <strong>${label}:</strong> ${text}`).join("<br/>")}
         </div>
 
         <h2>5. Firma Digital</h2>
@@ -303,8 +308,9 @@
             <input type="text" id="bdv-sow-signer-title" class="bdv-tracker-input" placeholder="Tu cargo o relación (ej. Dueño / Director)" value="Owner / Client" />
             <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: #e2e8f0; cursor: pointer;">
               <input type="checkbox" id="bdv-sow-consent-check" style="margin-top: 3px; accent-color: #d4af37;" />
-              <span>He leído y acepto los términos de este Statement of Work (6 etapas, ventana de revisión de 5 días hábiles, transferencia de propiedad intelectual al liquidar el 100%, expiración del código secreto sin mantenimiento incluido y ley de California).</span>
+              <span data-i18n="sowConsent">${getCore().escapeHtml(window.BDV_t("sowConsent"))}</span>
             </label>
+            <button type="button" class="bdv-link-btn" style="align-self: flex-start;" data-legal="terms" data-i18n="legalTermsBtn">${getCore().escapeHtml(window.BDV_t("legalTermsBtn"))}</button>
             <button type="button" id="bdv-sow-sign-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">Firmar Acuerdo Digitalmente</button>
           </div>
         </div>
@@ -478,7 +484,7 @@
           </div>
           ${payBadgeHtml}
           <div style="margin-top: 8px; font-size: 0.76rem; color: #94a3b8;">
-            <strong>Condiciones clave:</strong> 6 etapas (10% → 25% → 45% → 75% → 90% → 100%), ventana de revisión de 5 días hábiles, transferencia de propiedad intelectual al liquidar el 100%, código secreto temporal que expira al cerrar (sin mantenimiento mensual incluido) y ley de California.
+            <strong>Condiciones clave:</strong> 6 etapas (10% → 25% → 45% → 75% → 90% → 100%), ventana de revisión de 5 días hábiles, pagos y reembolsos según los Términos de Servicio, transferencia de propiedad intelectual al liquidar el 100%, código secreto temporal que expira al cerrar (sin mantenimiento mensual incluido) y ley de California.
           </div>
           ${sigHtml}
         </div>

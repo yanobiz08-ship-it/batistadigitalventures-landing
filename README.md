@@ -5,7 +5,8 @@ Static site served by GitHub Pages (custom domain in `CNAME`). Everything in thi
 ## Structure
 - `index.html` — the page (Spanish static text = default language).
 - `js/bdv-i18n.js` — ES/EN dictionary + language switch (`data-i18n`, `data-i18n-ph`, `data-i18n-aria`, `data-i18n-alt`).
-- `js/brand-media.js` — shared helpers (`window.BDV_CORE`), legal texts/modals, request confirmation modal.
+- `js/brand-media.js` — shared helpers (`window.BDV_CORE`), the legal texts (Terms of Service, Privacy Policy,
+  Accessibility Statement) opened by any `[data-legal="terms|privacy|accessibility"]` button, request confirmation modal.
 - `js/bdv-site.js` — quote form, partner application form, service preselect, portfolio galleries.
 - `js/bdv-ops-panel.js` — client progress viewer and the private admin/partner panel.
 - `js/bdv-sow-signer.js` — SOW viewer, e-signature and Stripe checkout (`?sow=SOW-XXXX`).
@@ -35,4 +36,7 @@ The Worker source is not in this repo (see PR #2 for its backup, tests and rollb
 - **Admin / partner panel:** no public button. Open `https://batistadigitalventures.com/#bdv-ops` (the hash is removed
   right after the panel opens) or run `BDV_OPS.openAdmin()` in the console. Access is protected by the Worker keys.
   Client requests and partner applications are shown in separate lists.
+- **Offers and legal texts:** the holiday offer ends at `OFFER_END` in `tools/site-src/build.py`. Its dates and
+  conditions are also written in the Terms of Service ("Ofertas / Offers", `js/brand-media.js`) and in `offerTerms` /
+  `a4Offer` (`strings.py`); change them together, and update the "effective" month of any legal text you edit.
 - **Private documents** (contracts, drafts, internal rules) must never be committed here.

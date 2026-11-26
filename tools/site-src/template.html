@@ -77,7 +77,7 @@
   <a class="skip-link" href="#main" data-i18n="skipLink">§skipLink§</a>
   <header class="site-header">
     <div class="container nav-inner">
-      <a class="brand" href="#top" aria-label="Batista Digital Ventures">
+      <a class="brand" href="#top">
         <span class="brand-icon-wrap" aria-hidden="true">
           <img class="bdv-header-logo-img" src="./assets/img/bdv-logo-88.png" width="44" height="44" alt="" decoding="async" />
         </span>
@@ -156,7 +156,8 @@
           <p class="kicker" data-i18n="svcKicker">§svcKicker§</p>
           <h2 data-i18n="svcTitle">§svcTitle§</h2>
           <p class="section-desc" data-i18n="svcDesc">§svcDesc§</p>
-          <p class="offer-banner offer-only"><strong data-i18n="offerBadge">§offerBadge§</strong> <span data-i18n="offerLock">§offerLock§</span></p>
+          <div class="offer-banner offer-only"><p><strong data-i18n="offerBadge">§offerBadge§</strong> <span data-i18n="offerLock">§offerLock§</span></p>
+          <p class="offer-terms"><span data-i18n="offerTerms">§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms" data-i18n="legalTermsBtn">§legalTermsBtn§</button>.</p></div>
         </div>
         <div class="services-grid">
 @@SERVICES@@
@@ -244,6 +245,7 @@
           <div class="field"><label for="pf-notes" data-i18n="pfNotes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block" data-i18n="pfSubmit">§pfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
+          <p class="fine-print"><span data-i18n="pfFine">§pfFine§</span> <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>.</p>
         </form>
       </div>
     </section>
@@ -340,7 +342,7 @@
           <div class="field"><label for="qf-notes" data-i18n="qfNotes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="qfSubmit">§qfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
-          <p class="fine-print" data-i18n="qfPrivacy">§qfPrivacy§</p>
+          <p class="fine-print"><span data-i18n="qfPrivacy">§qfPrivacy§</span> <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>.</p>
         </form>
       </div>
     </section>
@@ -365,10 +367,13 @@
     <div class="container footer-bottom">
       <span>© <span id="yr">2026</span> Batista Digital Ventures LLC · <span data-i18n="footRights">§footRights§</span></span>
       <div class="bdv-footer-legal">
-        <button type="button" id="bdv-btn-terms" class="bdv-link-btn" data-i18n="legalTermsBtn">§legalTermsBtn§</button>
+        <button type="button" class="bdv-link-btn" data-legal="terms" data-i18n="legalTermsBtn">§legalTermsBtn§</button>
         <span class="bdv-legal-dot" aria-hidden="true">•</span>
-        <button type="button" id="bdv-btn-privacy" class="bdv-link-btn" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>
+        <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>
+        <span class="bdv-legal-dot" aria-hidden="true">•</span>
+        <button type="button" class="bdv-link-btn" data-legal="accessibility" data-i18n="legalA11yBtn">§legalA11yBtn§</button>
       </div>
+      <p class="footer-marks" data-i18n="footMarks">§footMarks§</p>
     </div>
   </footer>
 
