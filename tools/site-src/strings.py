@@ -24,6 +24,7 @@ S = {
 "heroAltMerqox": ("Pantalla de MERQOX: mapa de Lompoc con Súper Taco en vivo", "MERQOX screen: map of Lompoc with Súper Taco live"),
 "heroAltTrivlo": ("Pantalla de inicio de TRIVLO en un iPhone", "TRIVLO welcome screen on an iPhone"),
 "heroChipMerqox": ("MERQOX · Próximo lanzamiento", "MERQOX · Coming soon"),
+"demoData": ("Datos de demostración", "Demo data"),
 "heroChipTrivlo": ("TRIVLO · Próximo lanzamiento", "TRIVLO · Coming soon"),
 
 "trust1Title": ("Empresa formal", "Registered company"),

@@ -52,7 +52,7 @@ TR = [('trivlo-travel-beyond','trC1'),('trivlo-nara','trC2'),('trivlo-destinatio
       ('trivlo-itineraries','trC5'),('trivlo-offline-maps','trC6'),('trivlo-trip-planner','trC7'),('trivlo-boarding-pass','trC8')]
 GY = [('gy-hero','gyC1'),('gy-services','gyC2'),('gy-features','gyC3'),('gy-map-team','gyC4'),('gy-tire-service','gyC5')]
 
-def gallery(gid, items, framed, label):
+def gallery(gid, items, framed, label, note_key=None):
     figs = []
     for it in items:
         name, key = it[0], it[1]
@@ -63,12 +63,13 @@ def gallery(gid, items, framed, label):
             h = it[2] if len(it) > 2 else 644
             img = f'<img src="./{P}{name}.webp" width="360" height="{h}" loading="lazy" decoding="async" alt="{t(key)}" data-i18n-alt="{key}" />'
             figs.append(f'              <figure class="shot"><div class="phone">{img}</div><figcaption data-i18n="{key}">{t(key)}</figcaption></figure>')
+    note = f'\n            <p class="demo-note" data-i18n="{note_key}">{t(note_key)}</p>' if note_key else ''
     return f'''          <div class="gallery" data-gallery>
             <button type="button" class="gallery-btn gallery-prev" data-gallery-prev aria-controls="{gid}" aria-label="{t("galleryPrev")}" data-i18n-aria="galleryPrev">‹</button>
             <div class="gallery-track" id="{gid}" tabindex="0" role="region" aria-label="{label}">
 {chr(10).join(figs)}
             </div>
-            <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}" data-i18n-aria="galleryNext">›</button>
+            <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}" data-i18n-aria="galleryNext">›</button>{note}
           </div>'''
 
 def project(pid, name, kind, badge_key, badge_cls, desc, extra, status, link_key, url, gal, case=''):
@@ -107,7 +108,7 @@ CASE_GY = """
 PROJ = [
  project('proyecto-merqox','MERQOX','mqKind','badgeSoon','is-soon','mqDesc',
          '<span class="status-badge is-live" data-i18n="mqLiveNote">§mqLiveNote§</span>','mqStatusNote','mqLink','https://merqox.com',
-         gallery('merqox-gallery', MQ, False, 'MERQOX')),
+         gallery('merqox-gallery', MQ, False, 'MERQOX', 'demoData')),
  project('proyecto-trivlo','TRIVLO','trKind','badgeSoon','is-soon','trDesc','','trStatusNote','trLink','https://trivlopro.com',
          gallery('trivlo-gallery', TR, True, 'TRIVLO')),
  project('proyecto-gy','GY Roadside Solutions','gyKind','badgeLiveClient','is-live','gyDesc','','gyStatusNote','gyLink','https://gyroadsidesolutions.com',
