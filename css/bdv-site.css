@@ -175,6 +175,17 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
 .svc-foot { margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--gold-border); display: grid; gap: 12px; }
 .svc-price { color: var(--text-muted); font-size: 0.86rem; }
 .svc-price strong { color: var(--gold-bright); font-size: 1.5rem; letter-spacing: -0.02em; }
+.svc-typical { color: var(--text-muted); font-size: 0.78rem; line-height: 1.4; margin: -6px 0 0; }
+
+/* Holiday offer: hidden unless js/bdv-site.js sets html.offer-on (before data-offer-end). */
+.offer-only { display: none; }
+html.offer-on .offer-only { display: revert; }
+.price-normal, .price-offer { white-space: nowrap; }
+html.offer-on .price-normal { text-decoration: line-through 2px #e5484d; color: var(--text-muted); font-weight: 500; }
+html.offer-on .svc-price .price-normal { font-size: 1rem; }
+.offer-banner { margin: 14px 0 0; max-width: 640px; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--gold-border-strong); background: var(--gold-soft); color: var(--text-secondary); font-size: 0.86rem; line-height: 1.45; }
+.offer-banner strong { display: block; color: var(--gold-bright); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.offer-note { color: var(--gold-bright); }
 
 /* ---------- Portfolio ---------- */
 .project {

@@ -28,18 +28,34 @@ ICONS = {
 def t(k):  # data-i18n element content placeholder
     return f'§{k}§'
 
+# Holiday offer: one source of truth for its end. Offer prices (keys ending in "Offer") and every
+# .offer-only element are shown by js/bdv-site.js only before this instant; otherwise the page shows
+# the normal prices. End of January 6, 2027, Pacific time (PST, UTC-8).
+OFFER_END = '2027-01-07T00:00:00-08:00'
+T = T.replace('@@OFFER_END@@', OFFER_END)
+
+def price(key, tag='strong'):
+    """Normal price; during the offer it is struck through and followed by the offer price."""
+    if key + 'Offer' not in S:
+        return f'<{tag} data-i18n="{key}Price">{t(key + "Price")}</{tag}>'
+    normal = f'<{tag} class="price-normal"><span class="bdv-sr-only offer-only" data-i18n="priceNormalSr">{t("priceNormalSr")}</span> <span data-i18n="{key}Price">{t(key + "Price")}</span></{tag}>'
+    offer = f'<{tag} class="price-offer offer-only"><span class="bdv-sr-only" data-i18n="priceOfferSr">{t("priceOfferSr")}</span> <span data-i18n="{key}Offer">{t(key + "Offer")}</span></{tag}>'
+    return f'{normal} {offer}'
+
 # services
 svc = []
 for n, (icon, qv) in enumerate([('phone','app'),('monitor','web'),('grid','system'),('wrench','repair')], 1):
     badge = f'<span class="svc-badge" data-i18n="svc{n}Badge">{t(f"svc{n}Badge")}</span>' if f'svc{n}Badge' in S else ''
-    lis = ''.join(f'<li>@@ICON:check@@<span data-i18n="svc{n}{x}">{t(f"svc{n}{x}")}</span></li>' for x in 'abcd')
+    lis = ''.join(f'<li>@@ICON:check@@<span><span data-i18n="svc{n}{x}">{t(f"svc{n}{x}")}</span>' + (' ' + price(f'svc{n}{x}', 'span') if f'svc{n}{x}Price' in S else '') + '</span></li>'
+                  for x in 'abcde' if f'svc{n}{x}' in S)
+    typical = f'<p class="svc-typical" data-i18n="svc{n}Typical">{t(f"svc{n}Typical")}</p>' if f'svc{n}Typical' in S else ''
     svc.append(f'''          <article class="service-card{' service-card-new' if badge else ''}">
             <div class="svc-top"><span class="svc-ico" aria-hidden="true">@@ICON:{icon}@@</span>{badge}</div>
             <h3 data-i18n="svc{n}Title">{t(f"svc{n}Title")}</h3>
             <p data-i18n="svc{n}Desc">{t(f"svc{n}Desc")}</p>
             <ul class="check-list">{lis}</ul>
             <div class="svc-foot">
-              <p class="svc-price"><span data-i18n="svcFrom">{t("svcFrom")}</span> <strong data-i18n="svc{n}Price">{t(f"svc{n}Price")}</strong> <small data-i18n="svc{n}Unit">{t(f"svc{n}Unit")}</small></p>
+              <p class="svc-price"><span data-i18n="svcFrom">{t("svcFrom")}</span> {price(f"svc{n}")} <small data-i18n="svc{n}Unit">{t(f"svc{n}Unit")}</small></p>{typical}
               <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}" data-i18n="svcQuoteBtn">{t("svcQuoteBtn")}</a>
             </div>
           </article>''')
@@ -130,7 +146,8 @@ faq = []
 for i in range(1, 7):
     faq.append(f'''          <details class="faq-item"{' open' if i == 1 else ''}>
             <summary data-i18n="q{i}">{t(f"q{i}")}</summary>
-            <p data-i18n="a{i}">{t(f"a{i}")}</p>
+            <p data-i18n="a{i}">{t(f"a{i}")}</p>{f'''
+            <p class="offer-only offer-note" data-i18n="a{i}Offer">{t(f"a{i}Offer")}</p>''' if f"a{i}Offer" in S else ""}
           </details>''')
 T = T.replace('@@FAQ@@', '\n'.join(faq))
 
