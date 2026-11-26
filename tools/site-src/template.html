@@ -3,35 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>§pageTitle§</title>
-  <meta name="description" content="§metaDesc§" />
+  <title>@@TITLE@@</title>
+  <meta name="description" content="@@DESC@@" />
   <link rel="canonical" href="@@URL@@" />
   <link rel="alternate" hreflang="es" href="@@URL_ES@@" />
   <link rel="alternate" hreflang="en" href="@@URL_EN@@" />
   <link rel="alternate" hreflang="x-default" href="@@URL_ES@@" />
   <meta name="theme-color" content="#070a10" />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="@@OG_TYPE@@" />
   <meta property="og:site_name" content="Batista Digital Ventures" />
   <meta property="og:locale" content="@@OG_LOCALE@@" />
   <meta property="og:locale:alternate" content="@@OG_LOCALE_ALT@@" />
   <meta property="og:url" content="@@URL@@" />
-  <meta property="og:title" content="§pageTitle§" />
-  <meta property="og:description" content="§metaDesc§" />
+  <meta property="og:title" content="@@TITLE@@" />
+  <meta property="og:description" content="@@DESC@@" />
   <meta property="og:image" content="@@SITE@@assets/img/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="§ogImageAlt§" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="§pageTitle§" />
-  <meta name="twitter:description" content="§metaDesc§" />
+  <meta name="twitter:title" content="@@TITLE@@" />
+  <meta name="twitter:description" content="@@DESC@@" />
   <meta name="twitter:image" content="@@SITE@@assets/img/og-image.jpg" />
   <meta name="twitter:image:alt" content="§ogImageAlt§" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
-  <link rel="preload" as="image" href="/assets/img/portfolio/trivlo-hero-device.webp" type="image/webp" fetchpriority="high" />
-  <link rel="stylesheet" href="/css/bdv-site.css" />
+  @@PRELOAD@@<link rel="stylesheet" href="/css/bdv-site.css" />
   <link rel="stylesheet" href="/css/brand-media.css" />
   <script type="application/ld+json">
 @@JSONLD@@
@@ -41,7 +40,7 @@
   <a class="skip-link" href="#main">§skipLink§</a>
   <header class="site-header">
     <div class="container nav-inner">
-      <a class="brand" href="#top">
+      <a class="brand" href="@@HOME@@#top">
         <span class="brand-icon-wrap" aria-hidden="true">
           <img class="bdv-header-logo-img" src="/assets/img/bdv-logo-88.png" width="44" height="44" alt="" decoding="async" />
         </span>
@@ -52,266 +51,24 @@
       </a>
 
       <nav class="nav-links" aria-label="§ariaNav§">
-        <a href="#servicios">§navServices§</a>
-        <a href="#portafolio">§navWork§</a>
-        <a href="#proceso">§navProcess§</a>
-        <a href="#partners">§navPartners§</a>
-        <a href="#faq">§navFaq§</a>
+        <a href="@@HOME@@#servicios">§navServices§</a>
+        <a href="@@HOME@@#portafolio">§navWork§</a>
+        <a href="@@HOME@@#proceso">§navProcess§</a>
+        <a href="@@HOME@@#partners">§navPartners§</a>
+        <a href="@@HOME@@#faq">§navFaq§</a>
       </nav>
 
       <div class="nav-actions">
         <div class="lang-switch" role="group" aria-label="§ariaLang§">
-          <a class="lang-btn@@ACTIVE_ES@@" href="/" hreflang="es" lang="es" title="§langEsTitle§"@@CURRENT_ES@@>ES</a>
-          <a class="lang-btn@@ACTIVE_EN@@" href="/en/" hreflang="en" lang="en" title="§langEnTitle§"@@CURRENT_EN@@>EN</a>
+          <a class="lang-btn@@ACTIVE_ES@@" href="@@PATH_ES@@" hreflang="es" lang="es" title="§langEsTitle§"@@CURRENT_ES@@>ES</a>
+          <a class="lang-btn@@ACTIVE_EN@@" href="@@PATH_EN@@" hreflang="en" lang="en" title="§langEnTitle§"@@CURRENT_EN@@>EN</a>
         </div>
-        <a class="btn btn-primary nav-cta" href="#cotizar">§navCta§</a>
+        <a class="btn btn-primary nav-cta" href="@@HOME@@#cotizar">§navCta§</a>
       </div>
     </div>
   </header>
 
-  <main id="main">
-    <span id="top"></span>
-    <!-- HERO -->
-    <section class="hero" id="inicio">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="dot" aria-hidden="true"></span><span>§heroEyebrow§</span></p>
-          <h1>
-            <span>§heroTitleLead§</span><span class="accent">§heroTitleAccent§</span>
-          </h1>
-          <p class="hero-lead">§heroLead§</p>
-          <div class="hero-cta">
-            <a class="btn btn-primary btn-lg" href="#cotizar">§heroCtaQuote§</a>
-            <a class="btn btn-secondary btn-lg" href="#partners">§heroCtaDev§</a>
-          </div>
-          <p class="hero-note">§heroNote§</p>
-        </div>
-        <div class="hero-visual">
-          <div class="hero-glow" aria-hidden="true"></div>
-          <img class="hero-device" src="/assets/img/portfolio/trivlo-hero-device.webp" width="520" height="982" alt="§heroAltTrivlo§" fetchpriority="high" decoding="async" />
-          <figure class="phone phone-hero">
-            <img src="/assets/img/portfolio/merqox-map-hero.webp" width="520" height="1014" alt="§heroAltMerqox§" decoding="async" />
-          </figure>
-          <span class="hero-chip hero-chip-a"><span>§heroChipMerqox§</span><small class="demo-note">§demoData§</small></span>
-          <span class="hero-chip hero-chip-b">§heroChipTrivlo§</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- TRUST STRIP -->
-    <section class="trust-strip" aria-label="§ariaTrust§">
-      <div class="container">
-        <ul class="trust-list">
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:building@@</span><span><strong>§trust1Title§</strong><small>§trust1Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:pin@@</span><span><strong>§trust2Title§</strong><small>§trust2Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:doc@@</span><span><strong>§trust3Title§</strong><small>§trust3Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:steps@@</span><span><strong>§trust4Title§</strong><small>§trust4Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:key@@</span><span><strong>§trust5Title§</strong><small>§trust5Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:globe@@</span><span><strong>§trust6Title§</strong><small>§trust6Text§</small></span></li>
-          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">@@ICON:shield@@</span><span><strong>§trustDunsTitle§</strong><small>§trustDunsText§</small></span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- SERVICES -->
-    <section class="section" id="servicios">
-      <div class="container">
-        <div class="section-head">
-          <p class="kicker">§svcKicker§</p>
-          <h2>§svcTitle§</h2>
-          <p class="section-desc">§svcDesc§</p>
-          <div class="offer-banner offer-only"><p><strong>§offerBadge§</strong> <span>§offerLock§</span></p>
-          <p class="offer-terms"><span>§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms">§legalTermsBtn§</button>.</p></div>
-        </div>
-        <div class="services-grid">
-@@SERVICES@@
-        </div>
-        <p class="fine-print">§svcNote§</p>
-      </div>
-    </section>
-
-    <!-- PORTFOLIO -->
-    <section class="section section-alt" id="portafolio">
-      <div class="container">
-        <div class="section-head">
-          <p class="kicker">§workKicker§</p>
-          <h2>§workTitle§</h2>
-          <p class="section-desc">§workDesc§</p>
-        </div>
-@@PROJECTS@@
-      </div>
-    </section>
-
-    <!-- PROCESS -->
-    <section class="section" id="proceso">
-      <div class="container">
-        <div class="section-head">
-          <p class="kicker">§procKicker§</p>
-          <h2>§procTitle§</h2>
-          <p class="section-desc">§procDesc§</p>
-        </div>
-        <ol class="timeline">
-@@STAGES@@
-        </ol>
-        <div class="guarantees">
-          <p class="kicker">§guarKicker§</p>
-          <div class="guarantee-grid">
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:doc@@</span><h3>§guar1Title§</h3><p>§guar1Text§</p></div>
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:clock@@</span><h3>§guar2Title§</h3><p>§guar2Text§</p></div>
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:key@@</span><h3>§guar3Title§</h3><p>§guar3Text§</p></div>
-          </div>
-        </div>
-        <div class="tracker-cta">
-          <p>§trackerText§</p>
-          <button type="button" id="bdv-open-tracker-btn" class="btn btn-secondary">🔑 <span>§trackerBtn§</span></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- PARTNERS -->
-    <section class="section section-alt" id="partners">
-      <div class="container partners-grid">
-        <div class="partners-copy">
-          <p class="kicker">§partKicker§</p>
-          <h2>§partTitle§</h2>
-          <p class="section-desc">§partDesc§</p>
-          <h3 class="sub-title">§partStepsTitle§</h3>
-          <ol class="steps">
-            <li><span class="step-n">1</span><div><strong>§pStep1Title§</strong><p>§pStep1Text§</p></div></li>
-            <li><span class="step-n">2</span><div><strong>§pStep2Title§</strong><p>§pStep2Text§</p></div></li>
-            <li><span class="step-n">3</span><div><strong>§pStep3Title§</strong><p>§pStep3Text§</p></div></li>
-          </ol>
-          <h3 class="sub-title">§partStackTitle§</h3>
-          <ul class="chips">
-            <li>React Native</li><li>TypeScript</li><li>Cloudflare Workers</li><li>GitHub</li><li>Stripe</li><li>§stackAI§</li>
-          </ul>
-        </div>
-        <form id="bdv-partner-form" class="card-form" novalidate>
-          <h3>§partFormTitle§</h3>
-          <div class="field"><label for="pf-name">§pfName§</label><input id="pf-name" name="name" type="text" autocomplete="name" required /></div>
-          <div class="field"><label for="pf-email">§pfEmail§</label><input id="pf-email" name="email" type="email" autocomplete="email" required /></div>
-          <div class="field"><label for="pf-portfolio">§pfPortfolio§</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="§pfPortfolioPh§" required /></div>
-          <div class="field-row">
-            <div class="field"><label for="pf-specialty">§pfSpecialty§</label>
-              <select id="pf-specialty" name="specialty" required>
-                <option value="">§pfSpecChoose§</option>
-                <option value="mobile-react-native">§pfSpec1§</option>
-                <option value="web-frontend">§pfSpec2§</option>
-                <option value="backend-cloudflare">§pfSpec3§</option>
-                <option value="ui-ux">§pfSpec4§</option>
-                <option value="qa">§pfSpec5§</option>
-                <option value="web-repair">§pfSpec6§</option>
-                <option value="other">§pfSpec7§</option>
-              </select>
-            </div>
-            <div class="field"><label for="pf-tz">§pfTz§</label><input id="pf-tz" name="timezone" type="text" placeholder="§pfTzPh§" required /></div>
-          </div>
-          <div class="field"><label for="pf-notes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
-          <button type="submit" class="btn btn-primary btn-block">§pfSubmit§</button>
-          <p class="form-msg" role="status" aria-live="polite"></p>
-          <p class="fine-print"><span>§pfFine§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>
-        </form>
-      </div>
-    </section>
-
-    <!-- FOUNDER -->
-    <section class="section" id="fundador">
-      <div class="container founder-grid">
-        <figure class="founder-photo">
-          <img src="/assets/img/portfolio/yano-founder-240.webp" srcset="/assets/img/portfolio/yano-founder-240.webp 240w, /assets/img/portfolio/yano-founder-400.webp 400w" sizes="(min-width: 980px) 168px, 104px" width="240" height="240" loading="lazy" decoding="async" alt="§fAlt§" />
-        </figure>
-        <div class="founder-head">
-          <p class="kicker">§fKicker§</p>
-          <h2>§fName§</h2>
-          <p class="founder-role">§fRole§</p>
-        </div>
-        <div class="founder-copy">
-          <p class="founder-bio">§fBio§</p>
-          <ul class="founder-social">
-            <li><a href="https://www.linkedin.com/in/yano-batista" rel="noopener" target="_blank" aria-label="§fLinkedInAria§">@@ICON:linkedin@@<span>LinkedIn</span></a></li>
-          </ul>
-          <a class="btn btn-secondary" href="#cotizar">§fCta§</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section section-alt" id="faq">
-      <div class="container faq-wrap">
-        <div class="section-head">
-          <p class="kicker">§faqKicker§</p>
-          <h2>§faqTitle§</h2>
-        </div>
-        <div class="faq-list">
-@@FAQ@@
-        </div>
-      </div>
-    </section>
-
-    <!-- QUOTE / CONTACT -->
-    <section class="section quote-section" id="cotizar">
-      <div class="container quote-grid">
-        <div class="quote-copy">
-          <p class="kicker">§qKicker§</p>
-          <h2>§qTitle§</h2>
-          <p class="section-desc">§qDesc§</p>
-          <ol class="next-steps">
-            <li>§qNext1§</li>
-            <li>§qNext2§</li>
-            <li>§qNext3§</li>
-          </ol>
-          <p class="quote-email"><span>§qEmailLabel§</span><br /><a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a></p>
-        </div>
-        <form id="bdv-quote-form" class="card-form" novalidate>
-          <div class="field-row">
-            <div class="field"><label for="qf-name">§qfName§</label><input id="qf-name" name="name" type="text" autocomplete="name" required /></div>
-            <div class="field"><label for="qf-email">§qfEmail§</label><input id="qf-email" name="email" type="email" autocomplete="email" required /></div>
-          </div>
-          <div class="field"><label for="qf-biz">§qfBiz§</label><input id="qf-biz" name="business" type="text" autocomplete="organization" /></div>
-          <div class="field"><label for="qf-service">§qfService§</label>
-            <select id="qf-service" name="service" required>
-              <option value="">§qfServiceChoose§</option>
-              <option value="app">§qfSvcApp§</option>
-              <option value="web">§qfSvcWeb§</option>
-              <option value="system">§qfSvcSystem§</option>
-              <option value="repair">§qfSvcRepair§</option>
-              <option value="maintenance">§qfSvcMaint§</option>
-              <option value="deck">§qfSvcDeck§</option>
-              <option value="other">§qfSvcOther§</option>
-            </select>
-          </div>
-          <div class="field-row">
-            <div class="field"><label for="qf-budget">§qfBudget§</label>
-              <select id="qf-budget" name="budget">
-                <option value="">§qfBudgetChoose§</option>
-                <option value="<500">§qfB1§</option>
-                <option value="500-1500">§qfB2§</option>
-                <option value="1500-3000">§qfB3§</option>
-                <option value="3000-5000">§qfB4§</option>
-                <option value=">5000">§qfB5§</option>
-                <option value="unknown">§qfB6§</option>
-              </select>
-            </div>
-            <div class="field"><label for="qf-timeline">§qfTimeline§</label>
-              <select id="qf-timeline" name="timeline">
-                <option value="">§qfTimelineChoose§</option>
-                <option value="urgent-24-48h">§qfT1§</option>
-                <option value="<1m">§qfT2§</option>
-                <option value="1-3m">§qfT3§</option>
-                <option value=">3m">§qfT4§</option>
-                <option value="flexible">§qfT5§</option>
-              </select>
-            </div>
-          </div>
-          <div class="field"><label for="qf-notes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
-          <button type="submit" class="btn btn-primary btn-block btn-lg">§qfSubmit§</button>
-          <p class="form-msg" role="status" aria-live="polite"></p>
-          <p class="fine-print"><span>§qfPrivacy§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>
-        </form>
-      </div>
-    </section>
-  </main>
-
+@@MAIN@@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
@@ -320,11 +77,11 @@
         <p>§footLocation§</p>
       </div>
       <nav class="footer-links" aria-label="§ariaFooter§">
-        <a href="#servicios">§navServices§</a>
-        <a href="#portafolio">§navWork§</a>
-        <a href="#proceso">§navProcess§</a>
-        <a href="#partners">§navPartners§</a>
-        <a href="#faq">§navFaq§</a>
+        <a href="@@HOME@@#servicios">§navServices§</a>
+        <a href="@@HOME@@#portafolio">§navWork§</a>
+        <a href="@@HOME@@#proceso">§navProcess§</a>
+        <a href="@@HOME@@#partners">§navPartners§</a>
+        <a href="@@HOME@@#faq">§navFaq§</a>
         <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
       </nav>
     </div>
@@ -344,8 +101,6 @@
   <script src="/js/bdv-i18n.js"></script>
   <script src="/js/brand-media.js" defer></script>
   <script src="/js/bdv-site.js" defer></script>
-  <script src="/js/bdv-ops-panel.js" defer></script>
-  <script src="/js/bdv-sow-signer.js" defer></script>
-  <script src="/js/bdv-a11y.js" defer></script>
+@@HOME_SCRIPTS@@  <script src="/js/bdv-a11y.js" defer></script>
 </body>
 </html>
