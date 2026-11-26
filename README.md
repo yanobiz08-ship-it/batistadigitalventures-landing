@@ -43,6 +43,10 @@ The Worker source is not in this repo (see PR #2 for its backup, tests and rollb
 - **Admin / partner panel:** no public button. Open `https://batistadigitalventures.com/#bdv-ops` (the hash is removed
   right after the panel opens) or run `BDV_OPS.openAdmin()` in the console. Access is protected by the Worker keys.
   Client requests and partner applications are shown in separate lists.
+- **Web Check (admin only):** the "🩺 Web Check" button in the panel asks the Worker (`action: "web_check"`) to review the
+  site, forms, SOW page, payments, email, data consistency, errors and security right now; the panel shows the traffic light
+  and what to fix, and downloads (or shares, on phones) the PDF. The PDF has no keys or client private data. The Worker also
+  emails the weekly report every Monday 8 AM Pacific and an alert when something new turns red.
 - **Offers and legal texts:** the holiday offer ends at `OFFER_END` in `tools/site-src/build.py`. Its dates and
   conditions are also written in the Terms of Service ("Ofertas / Offers", `js/brand-media.js`) and in `offerTerms` /
   `a4Offer` (`strings.py`); change them together, and update the "effective" month of any legal text you edit.
