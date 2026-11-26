@@ -14,3 +14,15 @@ Landing page for Batista Digital Ventures — digital platforms, mobile apps, an
   (the 512px PNG is only referenced as the Organization logo in the JSON-LD).
 - **SEO files:** `robots.txt`, `sitemap.xml`, `favicon.ico`, `favicon-32x32.png`,
   `apple-touch-icon.png` and `assets/img/og-image.jpg` (1200×630) are at the site root / assets.
+- **Editing page text (phase 2):** `index.html` and `js/bdv-i18n.js` are generated from
+  `tools/site-src/` (`template.html` = markup with `§key§` placeholders, `strings.py` = every
+  text as `(es, en)`, `build.py` = cards/portfolio/process/FAQ generators). Edit there and run
+  `python3 tools/site-src/build.py` — it rewrites both files so Spanish (static HTML, default) and
+  English (dictionary) never drift apart. Quick one-off fix without Python: change the Spanish text in
+  `index.html` **and** the matching key (`data-i18n="…"`) in both `es` and `en` in `js/bdv-i18n.js`.
+- **Forms:** one quote form (`#bdv-quote-form`) and the partner application (`#bdv-partner-form`)
+  both POST `action: "request_services"` to the Worker (`js/bdv-site.js`); partner applications carry
+  `requestType: "partner_application"` and a `[PARTNER APPLICATION]` prefix in `notes`.
+- **Layout CSS:** `css/bdv-site.css` (page layout, dark/gold design); `css/brand-media.css` keeps the
+  header logo, modals, client viewer and admin panel styles.
+- **Portfolio images:** WebP copies in `assets/img/portfolio/` (originals are not in the repo).
