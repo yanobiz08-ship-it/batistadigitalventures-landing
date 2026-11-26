@@ -1,332 +1,46 @@
-/* Batista Digital Ventures - Folder Cabinet Tabs & Compact Vertical Rhythm */
-html,
-body {
-  max-width: 100%;
-  overflow-x: clip;
-}
-
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  min-width: 0;
-}
-
-.brand-icon-wrap {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  max-width: 44px;
-  min-height: 44px;
-  max-height: 44px;
-  border-radius: 12px;
-  padding: 0;
-  overflow: hidden;
-  display: inline-flex;
+/* Batista Digital Ventures - styles for the UI injected by JavaScript: footer legal links, legal /
+   confirmation modals (brand-media.js), client progress viewer and admin panel (bdv-ops-panel.js).
+   Page layout and the header live in css/bdv-site.css. */
+.bdv-footer-legal {
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: #0d121d;
-  border: 1px solid rgba(232, 200, 97, 0.72);
-  flex-shrink: 0;
-}
-
-.brand-icon-wrap img,
-.brand-icon-wrap svg,
-.bdv-header-logo-img {
-  width: 100%;
-  height: 100%;
-  max-width: 44px;
-  max-height: 44px;
-  object-fit: cover;
-  display: block;
-}
-
-/* Ritmo vertical compacto para reducir el scroll total */
-main section {
-  padding-top: 28px !important;
-  padding-bottom: 28px !important;
-}
-
-.hero {
-  padding-top: 28px !important;
-  padding-bottom: 24px !important;
-}
-
-.bdv-showcase-band {
-  padding: 16px 0 !important;
-}
-
-.bdv-banner-frame {
-  background: linear-gradient(165deg, rgba(23, 32, 51, 0.92), rgba(11, 15, 23, 0.98));
-  border: 1px solid rgba(212, 175, 55, 0.42);
-  border-radius: 16px;
-  padding: 12px 14px;
-}
-
-.bdv-banner-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.bdv-banner-kicker {
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e8c861;
-}
-
-.bdv-banner-caption {
-  font-size: 0.82rem;
-  color: #94a3b8;
-}
-
-.bdv-banner-img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 240px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-/* Ocultar cuadricula estatica de proyectos */
-#ventures > .container > .ventures-grid {
-  display: none !important;
-}
-
-/* Boton y panel desplegable de productos */
-.bdv-products-drawer-wrap {
-  margin-top: 14px;
-}
-
-.bdv-products-toggle-btn {
-  width: 100%;
-  min-height: 46px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(212, 175, 55, 0.65);
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.18), rgba(13, 18, 29, 0.98));
-  color: #f8fafc;
-  font-weight: 700;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 10px;
-  cursor: pointer;
-  text-align: left;
-}
-
-.bdv-products-panel {
   margin-top: 12px;
-  display: none;
-}
-
-.bdv-products-panel.is-open {
-  display: block;
-}
-
-.bdv-products-panel .ventures-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* =========================================================
-   ARCHIVERO DE CARPETAS (FOLDER CABINET)
-   ========================================================= */
-.bdv-cabinet-band {
-  padding: 20px 0 18px !important;
-}
-
-.bdv-cabinet-header {
-  margin-bottom: 12px;
-}
-
-.bdv-cabinet-title {
-  margin: 4px 0 0;
-  font-size: 1.3rem;
-  line-height: 1.25;
-  color: #f8fafc;
-}
-
-.bdv-cabinet-shell {
-  position: relative;
-}
-
-.bdv-tabs-bar {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  padding-left: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.bdv-tabs-bar::-webkit-scrollbar {
-  display: none;
-}
-
-.bdv-tab-marker {
-  appearance: none;
-  -webkit-appearance: none;
-  position: relative;
-  flex: 0 0 auto;
-  background: linear-gradient(180deg, #162033 0%, #0e1422 100%);
-  color: #94a3b8;
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-bottom: none;
-  border-radius: 12px 14px 0 0;
-  padding: 9px 16px 8px;
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  cursor: pointer;
-  transform: translateY(1px);
-  transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
-}
-
-.bdv-tab-marker:hover {
-  color: #f8fafc;
-  background: linear-gradient(180deg, #1e2b45 0%, #121a2b 100%);
-}
-
-.bdv-tab-marker.is-active {
-  background: linear-gradient(180deg, rgba(212, 175, 55, 0.24) 0%, #101726 32%, #0c111c 100%);
-  color: #f8fafc;
-  border-color: rgba(232, 200, 97, 0.85);
-  border-top: 2px solid #e8c861;
-  transform: translateY(0);
-  z-index: 3;
-}
-
-.bdv-folder-sheet {
-  position: relative;
-  z-index: 2;
-  background: linear-gradient(180deg, #0f1522 0%, #0a0e17 100%);
-  border: 1px solid rgba(212, 175, 55, 0.55);
-  border-top: 2px solid rgba(232, 200, 97, 0.75);
-  border-radius: 4px 16px 16px 16px;
-  padding: 16px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 24px rgba(0, 0, 0, 0.45);
-}
-
-.bdv-folder-top-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.3);
-}
-
-.bdv-folder-badge {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e8c861;
-}
-
-.bdv-folder-headline {
-  margin: 0 0 6px;
-  font-size: 1.05rem;
-  line-height: 1.3;
-  color: #f8fafc;
-}
-
-.bdv-folder-summary {
-  margin: 0 0 12px;
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: #cbd5e1;
-}
-
-.bdv-folder-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.bdv-folder-list li {
-  background: rgba(16, 23, 38, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-top: 2px solid #d4af37;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: #cbd5e1;
-}
-
-.bdv-folder-list strong {
-  display: block;
-  margin-bottom: 3px;
-  color: #f8fafc;
-}
-
-/* =========================================
-   FOOTER LIMPIO, CENTRADO Y MODALES
-   ========================================= */
-footer {
-  position: relative !important;
-  overflow: visible !important;
-  padding-top: 24px !important;
-  padding-bottom: 24px !important;
-}
-
-.bdv-footer-legal {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 10px !important;
-  margin-top: 12px !important;
-  padding: 6px 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  padding: 6px 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .bdv-link-btn {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  color: #94a3b8 !important;
-  font-size: 0.80rem !important;
-  cursor: pointer !important;
-  padding: 4px 6px !important;
-  margin: 0 !important;
-  text-decoration: underline !important;
-  text-underline-offset: 3px !important;
-  font-family: inherit !important;
-  line-height: 1.2 !important;
-  transition: color 0.2s ease !important;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: #94a3b8;
+  font-size: 0.80rem;
+  cursor: pointer;
+  padding: 4px 6px;
+  margin: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-family: inherit;
+  line-height: 1.2;
+  transition: color 0.2s ease;
 }
 
 .bdv-link-btn:hover {
-  color: #e8c861 !important;
+  color: #e8c861;
 }
 
 .bdv-legal-dot {
-  color: #94a3b8 !important;
-  font-size: 0.80rem !important;
-  user-select: none !important;
+  color: #94a3b8;
+  font-size: 0.80rem;
+  user-select: none;
 }
 
-/* Modales corregidos para scroll fluido y tap instantáneo */
+/* Modals */
 .bdv-modal-overlay {
   position: fixed;
   inset: 0;
@@ -340,8 +54,8 @@ footer {
   align-items: flex-start;
   justify-content: center;
   padding: 16px 12px 60px 12px;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
 }
 
@@ -397,181 +111,7 @@ footer {
   font-size: 0.95rem;
 }
 
-/* =========================================
-   AJUSTES MÓVILES
-   ========================================= */
 @media (max-width: 820px) {
-  .nav-inner {
-    min-height: 58px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    flex-wrap: nowrap;
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-
-  .brand-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-
-  .brand-name {
-    font-size: 0.78rem;
-    line-height: 1.15;
-    white-space: normal;
-  }
-
-  .brand-sub {
-    font-size: 0.54rem;
-    line-height: 1.2;
-    letter-spacing: 0.05em;
-    color: #e8c861;
-    white-space: normal;
-  }
-
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-shrink: 0;
-  }
-
-  .lang-btn {
-    padding: 4px 6px;
-    font-size: 0.66rem;
-  }
-
-  header .nav-actions .btn,
-  header .nav-actions a.btn,
-  header .nav-actions button.btn {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 6px 8px !important;
-    font-size: 0.66rem !important;
-    min-height: 30px !important;
-    width: auto !important;
-    white-space: nowrap !important;
-    line-height: 1.1 !important;
-  }
-
-  .bdv-tabs-bar {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 6px !important;
-    padding-left: 0 !important;
-    overflow-x: visible !important;
-  }
-
-  .bdv-tab-marker {
-    border-radius: 10px 10px 4px 4px !important;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.35) !important;
-    padding: 8px 8px !important;
-    font-size: 0.72rem !important;
-    text-align: center !important;
-    transform: none !important;
-  }
-
-  .bdv-tab-marker.is-active {
-    border-top: 2px solid #e8c861 !important;
-  }
-
-  .bdv-folder-sheet {
-    margin-top: 8px !important;
-    border-radius: 14px !important;
-    padding: 14px 12px !important;
-  }
-
-  .bdv-folder-list {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 8px !important;
-  }
-
-  main .container > div,
-  main .container > section,
-  main section > .container > div {
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  main .container [style*="grid-template-columns"],
-  main section [style*="grid-template-columns"],
-  .hero-grid,
-  .thesis-grid,
-  .scope-grid,
-  .pillars-grid,
-  .ventures-grid,
-  .metrics-strip {
-    grid-template-columns: minmax(0, 1fr) !important;
-    min-width: 0 !important;
-  }
-
-  main .btn,
-  main a.btn,
-  main button.btn,
-  main a[href^="mailto:"],
-  main a[class*="btn"] {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-    text-align: center !important;
-    line-height: 1.3 !important;
-    padding: 11px 14px !important;
-  }
-
-  main p,
-  main li,
-  main a,
-  main span,
-  main h1,
-  main h2,
-  main h3 {
-    min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  .hero-cta .btn,
-  .hero-cta a,
-  .hero-cta button {
-    width: 100%;
-    min-height: 44px;
-    border-radius: 12px;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .venture-card,
-  .thesis-card,
-  .scope-card,
-  .pillar,
-  .metric-box,
-  .bdv-banner-frame {
-    border-radius: 14px;
-    padding: 14px 12px;
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-  }
-
   .bdv-tracker-card {
     width: 100% !important;
     max-width: 100% !important;
@@ -579,24 +119,7 @@ footer {
     padding: 16px 14px !important;
   }
 }
-
-/* Barra de progreso de etapas dentro del folder */
-.bdv-progress-box {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px dashed rgba(212, 175, 55, 0.28);
-}
-
-.bdv-progress-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 0.78rem;
-  color: #e8c861;
-  font-weight: 700;
-}
+/* Stage progress bar (client viewer) */
 
 .bdv-progress-track {
   width: 100%;
@@ -614,151 +137,9 @@ footer {
   transition: width 0.25s ease;
 }
 
-.bdv-stage-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.bdv-stage-pill-btn {
-  appearance: none;
-  -webkit-appearance: none;
-  background: #131c2e;
-  color: #cbd5e1;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 999px;
-  padding: 5px 10px;
-  font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.bdv-stage-pill-btn.is-active {
-  background: rgba(212, 175, 55, 0.22);
-  color: #f8fafc;
-  border-color: #e8c861;
-}
-
-/* Compactación visual: CÓMO OPERAMOS (01-04) */
-.bdv-ops-compact {
-  background: linear-gradient(165deg, rgba(19, 27, 43, 0.92), rgba(11, 15, 23, 0.98));
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 16px;
-  padding: 14px 16px;
-}
-
-.bdv-ops-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px 12px;
-  margin-bottom: 10px;
-}
-
-.bdv-ops-title {
-  margin: 0;
-  font-size: 0.92rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #e8c861;
-}
-
-.bdv-ops-sub {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 400;
-  line-height: 1.6;
-  letter-spacing: normal;
-  color: #94a3b8;
-}
-
-.bdv-ops-pills {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.bdv-ops-pill {
-  appearance: none;
-  -webkit-appearance: none;
-  background: #101624;
-  color: #cbd5e1;
-  border: 1px solid rgba(212, 175, 55, 0.25);
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-
-.bdv-ops-pill span.bdv-ops-num {
-  color: #e8c861;
-  font-variant-numeric: tabular-nums;
-}
-
-.bdv-ops-pill.is-active {
-  background: rgba(212, 175, 55, 0.18);
-  border-color: #e8c861;
-  color: #f8fafc;
-}
-
-.bdv-ops-detail {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(13, 18, 29, 0.85);
-  border-left: 3px solid #d4af37;
-  font-size: 0.83rem;
-  line-height: 1.4;
-  color: #cbd5e1;
-}
-
-@media (max-width: 820px) {
-  .bdv-ops-pills {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 6px !important;
-  }
-
-  .bdv-ops-pill {
-    padding: 8px 8px !important;
-    font-size: 0.74rem !important;
-  }
-}
-
 /* =========================================================
    CLIENT PROJECT TRACKER (READ-ONLY MODAL)
    ========================================================= */
-.bdv-tracker-launch-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid rgba(212, 175, 55, 0.45);
-  color: #e8c861;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 10px;
-}
-
-.bdv-tracker-launch-btn:hover {
-  background: rgba(212, 175, 55, 0.15);
-  border-color: #e8c861;
-  color: #f8fafc;
-}
 
 .bdv-tracker-card {
   max-width: 480px;
@@ -847,20 +228,6 @@ footer {
 /* =========================================================
    BDV INTERNAL ADMIN PANEL MODAL
    ========================================================= */
-.bdv-admin-footer-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 0.72rem;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: color 0.2s;
-}
-
-.bdv-admin-footer-btn:hover {
-  color: #94a3b8;
-}
 
 .bdv-admin-card {
   max-width: 680px;

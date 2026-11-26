@@ -1,16 +1,37 @@
 # batistadigitalventures-landing
-Landing page for Batista Digital Ventures — digital platforms, mobile apps, and technology solutions.
+Landing page for Batista Digital Ventures — apps, websites and digital systems, in Spanish and English.
+Static site served by GitHub Pages (custom domain in `CNAME`). Everything in this repo is public.
 
-## Operations notes
+## Structure
+- `index.html` — the page (Spanish static text = default language).
+- `js/bdv-i18n.js` — ES/EN dictionary + language switch (`data-i18n`, `data-i18n-ph`, `data-i18n-aria`, `data-i18n-alt`).
+- `js/brand-media.js` — shared helpers (`window.BDV_CORE`), legal texts/modals, request confirmation modal.
+- `js/bdv-site.js` — quote form, partner application form, service preselect, portfolio galleries.
+- `js/bdv-ops-panel.js` — client progress viewer and the private admin/partner panel.
+- `js/bdv-sow-signer.js` — SOW viewer, e-signature and Stripe checkout (`?sow=SOW-XXXX`).
+- `js/bdv-a11y.js` — dialog semantics, focus trap, Escape to close, labels for unlabeled fields.
+- `css/bdv-site.css` — page layout and header (dark/gold, mobile-first); `css/brand-media.css` — UI injected by JS
+  (legal links, modals, client viewer, admin panel).
+- `assets/img/` — header logo, OG image and WebP portfolio/founder images; `assets/BDV Logo.png` is the
+  512px logo referenced by the Organization JSON-LD.
+- `robots.txt`, `sitemap.xml`, favicons at the root.
 
-- **Admin / Dev panel:** there is no public button any more. Open
-  `https://batistadigitalventures.com/#bdv-ops` (the hash is removed from the address bar
-  right after the panel opens), or run `BDV_OPS.openAdmin()` in the browser console.
-  Access is still protected by the Worker key, exactly as before.
-- **Private documents:** contract drafts (partner agreement, MSA/SOW) must not live in this
-  repository. Everything in this repo is publicly served by GitHub Pages and readable on GitHub.
-- **Images:** optimized, right-sized copies live in `assets/img/`. The original masters
-  (`assets/BDV Logo Banner.jpg`, `assets/BDV Logo.png`) are kept but no longer loaded by the page
-  (the 512px PNG is only referenced as the Organization logo in the JSON-LD).
-- **SEO files:** `robots.txt`, `sitemap.xml`, `favicon.ico`, `favicon-32x32.png`,
-  `apple-touch-icon.png` and `assets/img/og-image.jpg` (1200×630) are at the site root / assets.
+## Editing texts
+`index.html` and `js/bdv-i18n.js` are generated from `tools/site-src/` (`template.html` = markup with `§key§`
+placeholders, `strings.py` = every text as `(es, en)`, `build.py` = cards/portfolio/process/FAQ generators).
+Edit there and run `python3 tools/site-src/build.py`; it rewrites both files so Spanish and English never drift
+apart, and fails if a key is missing or unused.
+
+## Backend (Cloudflare Worker `bdv-backend-api`)
+All forms use the same Worker endpoint (`BDV_CORE.apiUrl`):
+- quote form → `action: "request_services"`;
+- partner application → `action: "partner_application"` (stored apart from client requests);
+- client progress viewer → `action: "client_lookup"` (POST, rate-limited);
+- SOW signer → `GET ?sow=`, `sign_sow`, `create_checkout`.
+The Worker source is not in this repo (see PR #2 for its backup, tests and rollback instructions).
+
+## Operations
+- **Admin / partner panel:** no public button. Open `https://batistadigitalventures.com/#bdv-ops` (the hash is removed
+  right after the panel opens) or run `BDV_OPS.openAdmin()` in the console. Access is protected by the Worker keys.
+  Client requests and partner applications are shown in separate lists.
+- **Private documents** (contracts, drafts, internal rules) must never be committed here.

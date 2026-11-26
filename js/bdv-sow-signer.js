@@ -1,20 +1,8 @@
 /* Batista Digital Ventures LLC - Digital SOW Viewer, E-Signature, Stripe Checkout & Download */
 (function () {
+  // window.BDV_CORE comes from brand-media.js, which is loaded (deferred) before this file.
   function getCore() {
-    return window.BDV_CORE || {
-      apiUrl: "https://bdv-backend-api.yanobiz08.workers.dev",
-      escapeHtml: (s) =>
-        String(s || "")
-          .split("&").join("&amp;")
-          .split("<").join("&lt;")
-          .split(">").join("&gt;")
-          .split('"').join("&quot;")
-          .split("'").join("&#039;"),
-      getLang: () => {
-        const l = (document.documentElement.getAttribute("lang") || "").toLowerCase();
-        return l.startsWith("es") ? "es" : "en";
-      }
-    };
+    return window.BDV_CORE;
   }
 
   let currentSowData = null;

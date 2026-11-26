@@ -1,35 +1,17 @@
 /* Batista Digital Ventures - Operational Dashboard, Partner Workflows & Client Progress Tracker */
 (function () {
+  // window.BDV_CORE comes from brand-media.js, which is loaded (deferred) before this file.
   function getCore() {
-    return window.BDV_CORE || {
-      apiUrl: "https://bdv-backend-api.yanobiz08.workers.dev",
-      escapeHtml: function (s) {
-        return String(s || "")
-          .split("&").join("&amp;")
-          .split("<").join("&lt;")
-          .split(">").join("&gt;")
-          .split('"').join("&quot;")
-          .split("'").join("&#039;");
-      },
-      getLang: function () {
-        var l = (document.documentElement.getAttribute("lang") || "").toLowerCase();
-        return l.indexOf("es") === 0 ? "es" : "en";
-      },
-      getProjectDisplayName: function (p) {
-        return p ? p.name : "";
-      },
-      workflowStages: [
-        { stage: 1, percentage: 10, name_es: "Recepción y Filtro de Alcance", name_en: "Intake & Scope Fit Assessment" },
-        { stage: 2, percentage: 25, name_es: "Firma de SOW, Depósito y Activación de Código Secreto", name_en: "SOW Execution, Deposit & Secret Code Issuance" },
-        { stage: 3, percentage: 45, name_es: "Arquitectura y Entorno Base", name_en: "System Architecture & Base Setup" },
-        { stage: 4, percentage: 75, name_es: "Construcción y Auditoría Técnica Interna", name_en: "Core Engineering & Internal QA" },
-        { stage: 5, percentage: 90, name_es: "Inspección de Entrega y Ventana de Revisión", name_en: "Client Inspection & Review Window" },
-        { stage: 6, percentage: 100, name_es: "Liquidación Final, Traspaso y Expiración de Acceso", name_en: "Final Settlement, Handoff & Portal Disablement" }
-      ]
-    };
+    return window.BDV_CORE;
+  }
+  function tr(key) {
+    return window.BDV_t(key);
   }
 
   window.__bdvStoredRequests = [];
+  window.__bdvStoredPartnerApps = [];
+
+  function isValidEmailSimple(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
   window.__bdvStoredProjects = [];
 
   function showAdminToast(message, isSuccess) {
@@ -195,24 +177,22 @@
     modalRoot.className = "bdv-modal-overlay";
     modalRoot.style.display = "none";
 
+    var esc = getCore().escapeHtml;
+    // Texts come from js/bdv-i18n.js (data-i18n* attributes are re-applied on every language change).
     modalRoot.innerHTML = [
       '<div class="bdv-tracker-card">',
       '  <div class="bdv-modal-top">',
-      '    <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">Visor de Progreso · BDV LLC</h3>',
+      '    <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;" data-i18n="trkTitle">' + esc(tr("trkTitle")) + "</h3>",
       '    <button type="button" id="bdv-tracker-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>',
       "  </div>",
-      '  <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;">',
-      "    Acceso de solo lectura mediante tu correo y el código secreto temporal asignado al liquidar el depósito.",
-      "  </p>",
+      '  <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;" data-i18n="trkDesc">' + esc(tr("trkDesc")) + "</p>",
       '  <form id="bdv-tracker-query-form" class="bdv-tracker-form">',
-      '    <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="tu-correo@empresa.com" required />',
-      '    <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="Código secreto (ej. BDV-7492)" required />',
-      '    <button type="submit" class="bdv-tracker-btn">Consultar Avance</button>',
+      '    <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="' + esc(tr("trkEmailPh")) + '" data-i18n-ph="trkEmailPh" required />',
+      '    <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="' + esc(tr("trkPinPh")) + '" data-i18n-ph="trkPinPh" required />',
+      '    <button type="submit" class="bdv-tracker-btn" data-i18n="trkSubmit">' + esc(tr("trkSubmit")) + "</button>",
       "  </form>",
-      '  <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result"></div>',
-      '  <p class="bdv-tracker-disclaimer">',
-      "    Nota: Este portal es de solo lectura y se inhabilita de inmediato al liquidar el 100% y entregarse el proyecto. No incluye soporte post-entrega ni mantenimiento mensual.",
-      "  </p>",
+      '  <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result" role="status"></div>',
+      '  <p class="bdv-tracker-disclaimer" data-i18n="trkNote">' + esc(tr("trkNote")) + "</p>",
       "</div>"
     ].join("");
     document.body.appendChild(modalRoot);
@@ -233,50 +213,48 @@
       var pin = (document.getElementById("bdv-track-pin").value || "").trim().toUpperCase();
       var resBox = document.getElementById("bdv-track-result-box");
       var lang = core.getLang();
+      var msg = function (text, color) {
+        resBox.innerHTML = '<p style="font-size: 0.82rem; color: ' + color + '; margin: 0;">' + core.escapeHtml(text) + "</p>";
+      };
 
       if (!email || !pin) return;
 
       resBox.style.display = "block";
-      resBox.innerHTML = '<p style="font-size: 0.8rem; color: #94a3b8;">Verificando credenciales...</p>';
+      msg(tr("trkChecking"), "#94a3b8");
 
-      fetch(core.apiUrl + "?email=" + encodeURIComponent(email) + "&code=" + encodeURIComponent(pin))
-        .then(function (r) { return r.json(); })
+      // POST so the client code never ends up in URLs / logs (Worker action "client_lookup", rate-limited).
+      fetch(core.apiUrl, {
+        method: "POST",
+        body: JSON.stringify({ action: "client_lookup", email: email, code: pin })
+      })
+        .then(function (r) {
+          if (r.status === 429) return { ok: false, tooMany: true };
+          return r.json();
+        })
         .then(function (res) {
-          if (!res.ok || !res.project) {
-            resBox.innerHTML =
-              '<p style="font-size: 0.82rem; color: #f87171; margin: 0;">' +
-              (lang === "en"
-                ? "Credentials not found or expired. Check your welcome email or contact management."
-                : "Credenciales no encontradas o expiradas. Revisa tu correo de bienvenida o contacta a soporte.") +
-              "</p>";
-            return;
-          }
+          if (res.tooMany) return msg(tr("trkTooMany"), "#f87171");
+          if (!res.ok || !res.project) return msg(tr("trkNotFound"), "#f87171");
 
           var matched = res.project;
-          var stages = core.workflowStages || [];
-
           if (matched.accessStatus === "DISABLED" || matched.stage === 6) {
             resBox.innerHTML =
-              '<span class="bdv-tracker-status-tag bdv-status-disabled">Acceso Expirado / Inhabilitado</span>' +
-              '<h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Proyecto Liquidado al 100%</h4>' +
-              '<p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0;">El software fue entregado y las credenciales maestras fueron traspasadas. El visor temporal ha concluido. Para soporte técnico continuo, contacte una póliza mensual.</p>';
-          } else {
-            var stObj = stages[matched.stage - 1] || stages[0] || { stage: 1, percentage: 10, name_es: "Intake", name_en: "Intake" };
-            var stName = lang === "en" ? stObj.name_en : stObj.name_es;
-            var projDisplayName = core.getProjectDisplayName(matched, lang);
-            resBox.innerHTML =
-              '<span class="bdv-tracker-status-tag bdv-status-active">Acceso Activo · Obra en Progreso</span>' +
-              '<h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">Etapa ' + matched.stage + "/6: " + stName + " (" + stObj.percentage + "%)</h4>" +
-              '<p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>Proyecto:</strong> ' + core.escapeHtml(projDisplayName) + " (" + core.escapeHtml(matched.id) + ")</p>" +
-              '<p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>Estado Financiero:</strong> ' + core.escapeHtml(matched.paymentStatus) + "</p>" +
-              '<div class="bdv-progress-track" style="margin-top: 8px;"><div class="bdv-progress-fill" style="width: ' + stObj.percentage + '%;"></div></div>';
+              '<span class="bdv-tracker-status-tag bdv-status-disabled">' + core.escapeHtml(tr("trkDoneTag")) + "</span>" +
+              '<h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">' + core.escapeHtml(tr("trkDoneTitle")) + "</h4>" +
+              '<p style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0;">' + core.escapeHtml(tr("trkDoneText")) + "</p>";
+            return;
           }
+          var stages = core.workflowStages;
+          var stObj = stages[matched.stage - 1] || stages[0];
+          var stName = lang === "en" ? stObj.name_en : stObj.name_es;
+          resBox.innerHTML =
+            '<span class="bdv-tracker-status-tag bdv-status-active">' + core.escapeHtml(tr("trkActiveTag")) + "</span>" +
+            '<h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">' + core.escapeHtml(tr("trkStage")) + " " + stObj.stage + "/6: " + core.escapeHtml(stName) + " (" + stObj.percentage + "%)</h4>" +
+            '<p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>' + core.escapeHtml(tr("trkProject")) + "</strong> " + core.escapeHtml(core.getProjectDisplayName(matched, lang)) + " (" + core.escapeHtml(matched.id) + ")</p>" +
+            '<p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>' + core.escapeHtml(tr("trkPayment")) + "</strong> " + core.escapeHtml(matched.paymentStatus) + "</p>" +
+            '<div class="bdv-progress-track" style="margin-top: 8px;"><div class="bdv-progress-fill" style="width: ' + stObj.percentage + '%;"></div></div>';
         })
         .catch(function () {
-          resBox.innerHTML =
-            '<p style="font-size: 0.82rem; color: #f87171; margin: 0;">' +
-            (lang === "en" ? "Connection error. Please try again." : "Error al conectar con el servidor. Intenta de nuevo.") +
-            "</p>";
+          msg(tr("trkNetErr"), "#f87171");
         });
     });
   }
@@ -342,8 +320,12 @@
         '      <div id="bdv-ns-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>',
         "    </div>",
         '    <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">',
-        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes</h5>',
+        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes <span id="bdv-admin-requests-count"></span></h5>',
         '      <div id="bdv-admin-requests-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
+        "    </div>",
+        '    <div id="bdv-admin-partners-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 8px;">',
+        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #34d399;">🤝 Postulaciones a la Red de Partners <span id="bdv-admin-partners-count"></span></h5>',
+        '      <div id="bdv-admin-partners-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
         "    </div>",
         '    <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">',
         '      <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>',
@@ -595,6 +577,35 @@
     }
 
     fillProjectFormFromRequest(r);
+  };
+
+  window.deletePartnerApplicationByIndex = function (i) {
+    var core = getCore();
+    var a = window.__bdvStoredPartnerApps[i];
+    if (!a || !a.id) return;
+    showOpsPromptCard({
+      title: "Eliminar postulación de partner",
+      message: "¿Deseas eliminar de forma permanente la postulación " + a.id + " de " + (a.name || a.email) + "?",
+      confirmLabel: "Sí, Eliminar",
+      cancelLabel: "Cancelar",
+      onConfirm: function () {
+        fetch(core.apiUrl, {
+          method: "POST",
+          body: JSON.stringify({ key: window.__bdvSessionKey || "", action: "delete_partner_application", applicationId: a.id })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (res.ok) {
+              refreshAdminSessionView("✓ Postulación eliminada correctamente.");
+            } else {
+              showAdminToast(res.error || "No se pudo eliminar la postulación.", false);
+            }
+          })
+          .catch(function () {
+            showAdminToast("Error de red al eliminar la postulación.", false);
+          });
+      }
+    });
   };
 
   window.deleteServiceRequestByIndex = function (idx) {
@@ -891,11 +902,19 @@
 
         var reqSection = document.getElementById("bdv-admin-requests-section");
         var reqList = document.getElementById("bdv-admin-requests-list");
+        var partnerSection = document.getElementById("bdv-admin-partners-section");
+        var partnerList = document.getElementById("bdv-admin-partners-list");
+        var allRequests = isAdmin && Array.isArray(res.requests) ? res.requests : [];
+        var partnerApps = isAdmin && Array.isArray(res.partnerApplications) ? res.partnerApplications : [];
+        // Index-based actions (autofill / delete) read from these arrays.
+        window.__bdvStoredRequests = allRequests;
+        window.__bdvStoredPartnerApps = partnerApps;
+        var setCount = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = "(" + n + ")"; };
 
-        if (isAdmin && Array.isArray(res.requests) && res.requests.length && reqSection && reqList) {
-          window.__bdvStoredRequests = res.requests;
+        if (allRequests.length && reqSection && reqList) {
           reqSection.style.display = "block";
-          reqList.innerHTML = res.requests.map(function (r, idx) {
+          setCount("bdv-admin-requests-count", allRequests.length);
+          reqList.innerHTML = allRequests.map(function (r, idx) {
             var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
             var srvList = Array.isArray(r.services) ? r.services.join(", ") : "";
             var escapedId = core.escapeHtml(r.id || "");
@@ -904,12 +923,13 @@
             var escapedClient = core.escapeHtml(r.clientName || "");
 
             return [
-              '<div style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">',
+              '<div class="bdv-admin-request-item" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">',
               "  <div>",
               '    <strong style="color: #f8fafc;">' + escapedClient + "</strong>",
               '    <span style="color: #94a3b8;">(' + escapedEmail + ")</span>",
               escapedBiz ? '<div style="color: #e8c861; font-size: 0.75rem;">Negocio: ' + escapedBiz + "</div>" : "",
               srvList ? '<div style="color: #cbd5e1; font-size: 0.72rem;">Servicio: ' + core.escapeHtml(srvList) + "</div>" : "",
+              r.notes ? '<div style="color: #94a3b8; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px;">' + core.escapeHtml(String(r.notes).slice(0, 600)) + "</div>" : "",
               '    <div style="color: #94a3b8; font-size: 0.7rem;">' + escapedId + " · " + dateStr + "</div>",
               "  </div>",
               '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
@@ -921,6 +941,42 @@
           }).join("");
         } else if (reqSection) {
           reqSection.style.display = "none";
+        }
+
+        if (partnerApps.length && partnerSection && partnerList) {
+          partnerSection.style.display = "block";
+          setCount("bdv-admin-partners-count", partnerApps.length);
+          partnerList.innerHTML = partnerApps.map(function (a, i) {
+            var email = String(a.email || "");
+            var dateStr = a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "";
+            var details = [
+              a.portfolio ? "GitHub / portafolio: " + a.portfolio : "",
+              a.specialty ? "Especialidad: " + a.specialty : "",
+              a.timezone ? "Zona horaria: " + a.timezone : "",
+              a.lang ? "Idioma: " + a.lang : "",
+              a.notes ? "\n" + a.notes : ""
+            ].filter(Boolean).join("\n");
+            var portfolioLink = /^https?:\/\//i.test(String(a.portfolio || ""))
+              ? '    <a class="bdv-admin-toggle-status" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="' + core.escapeHtml(a.portfolio) + '" target="_blank" rel="noopener noreferrer">Ver portafolio</a>'
+              : "";
+            return [
+              '<div class="bdv-admin-partner-item" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(52,211,153,0.2); display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">',
+              "  <div>",
+              '    <strong style="color: #f8fafc;">' + core.escapeHtml(a.name || "") + "</strong>",
+              '    <span style="color: #94a3b8;">(' + core.escapeHtml(email) + ")</span>",
+              details ? '<div style="color: #cbd5e1; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px; margin-top: 2px;">' + core.escapeHtml(details.slice(0, 1200)) + "</div>" : "",
+              '    <div style="color: #94a3b8; font-size: 0.7rem;">' + core.escapeHtml(a.id || "") + " · " + dateStr + "</div>",
+              "  </div>",
+              '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
+              portfolioLink,
+              isValidEmailSimple(email) ? '    <a class="bdv-admin-action-btn" style="background: rgba(52,211,153,0.15) !important; color: #34d399 !important; border: 1px solid rgba(52,211,153,0.45); padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="mailto:' + core.escapeHtml(email) + '">Responder</a>' : "",
+              '    <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important; padding: 4px 8px; font-size: 0.75rem;" onclick="deletePartnerApplicationByIndex(' + i + ')">Eliminar</button>',
+              "  </div>",
+              "</div>"
+            ].join("");
+          }).join("");
+        } else if (partnerSection) {
+          partnerSection.style.display = "none";
         }
 
         if (!res.projects || !res.projects.length) {
@@ -973,7 +1029,7 @@
             '      <strong style="color: #f8fafc; font-size: 0.9rem;">' + core.escapeHtml(displayName) + "</strong>",
             '      <span style="font-size: 0.75rem; color: #94a3b8;">(' + core.escapeHtml(p.id) + ")</span>",
             '      <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">',
-            (isAdmin ? "Email: " + core.escapeHtml(p.email) + " | " : "") + 'PIN: <span style="color: #e8c861; font-weight: 700;">' + core.escapeHtml(p.code) + "</span>",
+            (isAdmin ? "Email: " + core.escapeHtml(p.email) + " | " : "") + (p.code ? 'PIN: <span style="color: #e8c861; font-weight: 700;">' + core.escapeHtml(p.code) + "</span>" : ""),
             '        <span style="color: #94a3b8; margin-left: 6px;">[' + core.escapeHtml(p.paymentStatus || "PENDING") + "]</span>",
             "      </div>",
             "    </div>",
@@ -1168,12 +1224,19 @@
     openAdmin: function () {
       openAdminModal();
     },
-    onLanguageChange: function () {
-      if (window.__bdvSessionKey && document.getElementById("bdv-admin-dash-view") && document.getElementById("bdv-admin-dash-view").style.display === "block") {
-        loadAdminProjects();
-      }
+    openTracker: function () {
+      var m = document.getElementById("bdv-tracker-modal-root");
+      if (m) m.style.display = "flex";
     }
   };
+
+  // Project names are bilingual: re-render an open admin session when the language changes.
+  document.addEventListener("bdv:lang", function () {
+    var dash = document.getElementById("bdv-admin-dash-view");
+    if (window.__bdvSessionKey && dash && dash.style.display === "block") {
+      loadAdminProjects();
+    }
+  });
 
   function initOps() {
     applyClientTrackerModal();
