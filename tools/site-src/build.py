@@ -72,10 +72,10 @@ def gallery(gid, items, framed, label, note_key=None):
             <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}" data-i18n-aria="galleryNext">›</button>{note}
           </div>'''
 
-def project(pid, name, kind, badge_key, badge_cls, desc, extra, status, link_key, url, gal, case=''):
+def project(pid, name, kind, badge_key, badge_cls, desc, status, link_key, url, gal, case=''):
     return f'''        <article class="project" id="{pid}">
           <div class="project-info">
-            <div class="project-badges"><span class="status-badge {badge_cls}" data-i18n="{badge_key}">{t(badge_key)}</span>{extra}</div>
+            <div class="project-badges"><span class="status-badge {badge_cls}" data-i18n="{badge_key}">{t(badge_key)}</span></div>
             <p class="kicker" data-i18n="{kind}">{t(kind)}</p>
             <h3 class="project-title">{name}</h3>
             <p class="project-desc" data-i18n="{desc}">{t(desc)}</p>{case}
@@ -106,12 +106,11 @@ CASE_GY = """
             </div>"""
 
 PROJ = [
- project('proyecto-merqox','MERQOX','mqKind','badgeSoon','is-soon','mqDesc',
-         '<span class="status-badge is-live" data-i18n="mqLiveNote">§mqLiveNote§</span>','mqStatusNote','mqLink','https://merqox.com',
+ project('proyecto-merqox','MERQOX','mqKind','badgeSoon','is-soon','mqDesc','mqStatusNote','mqLink','https://merqox.com',
          gallery('merqox-gallery', MQ, False, 'MERQOX', 'demoData')),
- project('proyecto-trivlo','TRIVLO','trKind','badgeSoon','is-soon','trDesc','','trStatusNote','trLink','https://trivlopro.com',
+ project('proyecto-trivlo','TRIVLO','trKind','badgeSoon','is-soon','trDesc','trStatusNote','trLink','https://trivlopro.com',
          gallery('trivlo-gallery', TR, True, 'TRIVLO')),
- project('proyecto-gy','GY Roadside Solutions','gyKind','badgeLiveClient','is-live','gyDesc','','gyStatusNote','gyLink','https://gyroadsidesolutions.com',
+ project('proyecto-gy','GY Roadside Solutions','gyKind','badgeLiveClient','is-live','gyDesc','gyStatusNote','gyLink','https://gyroadsidesolutions.com',
          gallery('gy-gallery', GY, False, 'GY Roadside Solutions'), CASE_GY),
 ]
 T = T.replace('@@PROJECTS@@', '\n'.join(PROJ))
