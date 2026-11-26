@@ -52,10 +52,12 @@
           "addressRegion": "CA",
           "addressCountry": "US"
         },
+        "duns": "150052438",
         "founder": {
           "@type": "Person",
           "name": "Yano Batista",
-          "jobTitle": "Founder & CEO"
+          "jobTitle": "Founder & CEO",
+          "sameAs": ["https://www.linkedin.com/in/yano-batista"]
         },
         "knowsLanguage": ["es", "en"]
       },
@@ -142,11 +144,7 @@
           <li><span class="trust-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-4h4v-4h4V8h4"/><path d="M4 20V4"/></svg></span><span><strong data-i18n="trust4Title">Pagos por etapas</strong><small data-i18n="trust4Text">Pagas según avanza el proyecto</small></span></li>
           <li><span class="trust-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M16 7l3 3M14 9l2 2"/></svg></span><span><strong data-i18n="trust5Title">El código es tuyo</strong><small data-i18n="trust5Text">Te lo entregamos al liquidar el 100%</small></span></li>
           <li><span class="trust-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span><strong data-i18n="trust6Title">Bilingüe</strong><small data-i18n="trust6Text">Atención en español e inglés</small></span></li>
-          <!--
-            TODO (Yano): D-U-N-S slot. When you have the number, uncomment this <li> and replace XX-XXX-XXXX.
-            Also add the two keys "trustDunsTitle"/"trustDunsText" to js/bdv-i18n.js if you want it translated.
-          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">✓</span><span><strong>D-U-N-S®</strong><small>XX-XXX-XXXX</small></span></li>
-          -->
+          <li class="trust-duns"><span class="trust-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><span><strong data-i18n="trustDunsTitle">D-U-N-S® 150052438</strong><small data-i18n="trustDunsText">Registro empresarial de Dun &amp; Bradstreet</small></span></li>
         </ul>
       </div>
     </section>
@@ -403,9 +401,9 @@
           <h2 data-i18n="fName">Yano Batista</h2>
           <p class="founder-role" data-i18n="fRole">Fundador y CEO</p>
           <p class="founder-bio" data-i18n="fBio">Cubano de origen y ciudadano estadounidense, Yano vive en California y desde siempre le apasionan la tecnología y ayudar a otros a alcanzar sus metas. Su experiencia en redes de mercadeo le enseñó a entender a las personas y a hacer crecer comunidades. Hoy combina esa visión con la inteligencia artificial y las plataformas modernas de desarrollo para crear apps, sitios web y sistemas digitales que resuelven problemas reales. Así nació Batista Digital Ventures: un lugar donde negocios y emprendedores convierten sus ideas en productos funcionando, con cercanía y en dos idiomas.</p>
-          <!-- TODO (Yano): add social links here (LinkedIn, Instagram, etc.) when ready, e.g.
-          <ul class="founder-social"><li><a href="https://www.linkedin.com/in/..." rel="noopener" target="_blank">LinkedIn</a></li></ul>
-          -->
+          <ul class="founder-social">
+            <li><a href="https://www.linkedin.com/in/yano-batista" rel="noopener" target="_blank" aria-label="Perfil de LinkedIn de Yano Batista (se abre en una pestaña nueva)" data-i18n-aria="fLinkedInAria"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3zM9.5 9.75h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-4.9c0-1.17-.02-2.68-1.63-2.68-1.64 0-1.89 1.28-1.89 2.6V21h-4z"/></svg><span>LinkedIn</span></a></li>
+          </ul>
           <a class="btn btn-secondary" href="#cotizar" data-i18n="fCta">Habla con Yano sobre tu proyecto</a>
         </div>
       </div>

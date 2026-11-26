@@ -37,6 +37,8 @@ S = {
 "trust5Title": ("El código es tuyo", "You own the code"),
 "trust5Text": ("Te lo entregamos al liquidar el 100%", "Handed over once paid in full"),
 "trust6Title": ("Bilingüe", "Bilingual"),
+"trustDunsTitle": ("D-U-N-S® 150052438", "D-U-N-S® 150052438"),
+"trustDunsText": ("Registro empresarial de Dun & Bradstreet", "Dun & Bradstreet business registration"),
 "trust6Text": ("Atención en español e inglés", "Service in English and Spanish"),
 
 "svcKicker": ("SERVICIOS", "SERVICES"),
@@ -185,6 +187,7 @@ S = {
 "fBio": ("Cubano de origen y ciudadano estadounidense, Yano vive en California y desde siempre le apasionan la tecnología y ayudar a otros a alcanzar sus metas. Su experiencia en redes de mercadeo le enseñó a entender a las personas y a hacer crecer comunidades. Hoy combina esa visión con la inteligencia artificial y las plataformas modernas de desarrollo para crear apps, sitios web y sistemas digitales que resuelven problemas reales. Así nació Batista Digital Ventures: un lugar donde negocios y emprendedores convierten sus ideas en productos funcionando, con cercanía y en dos idiomas.",
          "Cuban-born and a U.S. citizen based in California, Yano has always been passionate about technology and about helping others reach their goals. His background in network marketing taught him how to understand people and grow communities. Today he pairs that with AI and modern development platforms to build apps, websites, and digital systems that solve real problems. That's how Batista Digital Ventures was born: a place where businesses and entrepreneurs turn ideas into working products, with a personal, bilingual touch."),
 "fAlt": ("Retrato de Yano Batista, fundador y CEO de Batista Digital Ventures", "Portrait of Yano Batista, Founder & CEO of Batista Digital Ventures"),
+"fLinkedInAria": ("Perfil de LinkedIn de Yano Batista (se abre en una pestaña nueva)", "Yano Batista on LinkedIn (opens in a new tab)"),
 "fCta": ("Habla con Yano sobre tu proyecto", "Talk to Yano about your project"),
 
 "faqKicker": ("PREGUNTAS FRECUENTES", "FAQ"),

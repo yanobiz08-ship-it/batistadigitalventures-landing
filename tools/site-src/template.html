@@ -52,10 +52,12 @@
           "addressRegion": "CA",
           "addressCountry": "US"
         },
+        "duns": "150052438",
         "founder": {
           "@type": "Person",
           "name": "Yano Batista",
-          "jobTitle": "Founder & CEO"
+          "jobTitle": "Founder & CEO",
+          "sameAs": ["https://www.linkedin.com/in/yano-batista"]
         },
         "knowsLanguage": ["es", "en"]
       },
@@ -142,11 +144,7 @@
           <li><span class="trust-ico" aria-hidden="true">@@ICON:steps@@</span><span><strong data-i18n="trust4Title">§trust4Title§</strong><small data-i18n="trust4Text">§trust4Text§</small></span></li>
           <li><span class="trust-ico" aria-hidden="true">@@ICON:key@@</span><span><strong data-i18n="trust5Title">§trust5Title§</strong><small data-i18n="trust5Text">§trust5Text§</small></span></li>
           <li><span class="trust-ico" aria-hidden="true">@@ICON:globe@@</span><span><strong data-i18n="trust6Title">§trust6Title§</strong><small data-i18n="trust6Text">§trust6Text§</small></span></li>
-          <!--
-            TODO (Yano): D-U-N-S slot. When you have the number, uncomment this <li> and replace XX-XXX-XXXX.
-            Also add the two keys "trustDunsTitle"/"trustDunsText" to js/bdv-i18n.js if you want it translated.
-          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">✓</span><span><strong>D-U-N-S®</strong><small>XX-XXX-XXXX</small></span></li>
-          -->
+          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">@@ICON:shield@@</span><span><strong data-i18n="trustDunsTitle">§trustDunsTitle§</strong><small data-i18n="trustDunsText">§trustDunsText§</small></span></li>
         </ul>
       </div>
     </section>
@@ -260,9 +258,9 @@
           <h2 data-i18n="fName">§fName§</h2>
           <p class="founder-role" data-i18n="fRole">§fRole§</p>
           <p class="founder-bio" data-i18n="fBio">§fBio§</p>
-          <!-- TODO (Yano): add social links here (LinkedIn, Instagram, etc.) when ready, e.g.
-          <ul class="founder-social"><li><a href="https://www.linkedin.com/in/..." rel="noopener" target="_blank">LinkedIn</a></li></ul>
-          -->
+          <ul class="founder-social">
+            <li><a href="https://www.linkedin.com/in/yano-batista" rel="noopener" target="_blank" aria-label="§fLinkedInAria§" data-i18n-aria="fLinkedInAria">@@ICON:linkedin@@<span>LinkedIn</span></a></li>
+          </ul>
           <a class="btn btn-secondary" href="#cotizar" data-i18n="fCta">§fCta§</a>
         </div>
       </div>
