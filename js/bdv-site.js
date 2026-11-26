@@ -4,8 +4,12 @@
  *  - "Cotizar este servicio" buttons preselect the service type
  *  - portfolio galleries (prev / next buttons; swipe / scroll natively)
  *  - "Consultar mi proyecto" opens the read-only client viewer built by bdv-ops-panel.js
+ *  - holiday offer prices: shown only before <html data-offer-end> (set by tools/site-src/build.py)
  */
 (function () {
+  var offerEnd = Date.parse(document.documentElement.getAttribute("data-offer-end") || "");
+  document.documentElement.classList.toggle("offer-on", Date.now() < offerEnd);
+
   // window.BDV_CORE comes from brand-media.js, which is loaded (deferred) before this file.
   function core() {
     return window.BDV_CORE;
