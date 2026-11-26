@@ -139,8 +139,12 @@ T = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], T)
 used = set(re.findall(r'§(\w+)§', T))
 missing = used - set(S)
 assert not missing, missing
-unused = set(S) - used
-print('unused keys:', sorted(unused))
+# Keys used only from JavaScript (passed to BDV_t / tr as quoted strings) count as used too.
+js_used = set()
+for js_file in ('bdv-site.js', 'bdv-ops-panel.js', 'brand-media.js', 'bdv-sow-signer.js'):
+    js_used |= set(re.findall(r'["\'](\w+)["\']', open(os.path.join(REPO, 'js', js_file)).read()))
+unused = set(S) - used - js_used
+assert not unused, f'unused i18n keys: {sorted(unused)}'
 T = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), T)
 assert '@@' not in T
 open(os.path.join(REPO, 'index.html'), 'w').write(T)

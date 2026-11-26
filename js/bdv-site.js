@@ -3,18 +3,18 @@
  *    (Worker action "partner_application", stored separately) - same Worker endpoint
  *  - "Cotizar este servicio" buttons preselect the service type
  *  - portfolio galleries (prev / next buttons; swipe / scroll natively)
- *  - "Consultar mi proyecto" opens the read-only client viewer from bdv-ops-panel.js
- *    and translates its static texts (ES / EN)
+ *  - "Consultar mi proyecto" opens the read-only client viewer built by bdv-ops-panel.js
  */
 (function () {
+  // window.BDV_CORE comes from brand-media.js, which is loaded (deferred) before this file.
   function core() {
-    return window.BDV_CORE || { apiUrl: "https://bdv-backend-api.yanobiz08.workers.dev", getLang: function () { return document.documentElement.lang === "en" ? "en" : "es"; } };
+    return window.BDV_CORE;
   }
   function lang() {
     return document.documentElement.lang === "en" ? "en" : "es";
   }
   function tr(key) {
-    return typeof window.BDV_t === "function" ? window.BDV_t(key) : key;
+    return window.BDV_t(key);
   }
   function optionLabel(select) {
     var opt = select && select.options[select.selectedIndex];
@@ -180,50 +180,10 @@
   });
 
   /* ---------- Client progress viewer (built by bdv-ops-panel.js) ---------- */
-  var TRACKER_COPY = {
-    es: {
-      title: "Visor de Progreso · BDV LLC",
-      desc: "Acceso de solo lectura con tu correo y el código secreto temporal que recibes al pagar el depósito.",
-      email: "tu-correo@empresa.com",
-      pin: "Código secreto (ej. BDV-7492)",
-      submit: "Consultar avance",
-      note: "Este visor es de solo lectura y se desactiva al liquidar el 100% y entregar el proyecto. No incluye soporte posterior ni mantenimiento mensual."
-    },
-    en: {
-      title: "Progress Viewer · BDV LLC",
-      desc: "Read-only access with your email and the temporary secret code you receive after paying the deposit.",
-      email: "you@company.com",
-      pin: "Secret code (e.g. BDV-7492)",
-      submit: "Check progress",
-      note: "This viewer is read-only and is turned off once the project is paid in full and delivered. It doesn't include post-delivery support or monthly maintenance."
-    }
-  };
-  function translateTracker() {
-    var m = document.getElementById("bdv-tracker-modal-root");
-    if (!m) return;
-    var c = TRACKER_COPY[lang()];
-    var h = m.querySelector(".bdv-modal-top h3");
-    var p = m.querySelector(".bdv-tracker-card > p");
-    var email = document.getElementById("bdv-track-email");
-    var pin = document.getElementById("bdv-track-pin");
-    var submit = m.querySelector('#bdv-tracker-query-form button[type="submit"]');
-    var note = m.querySelector(".bdv-tracker-disclaimer");
-    if (h) h.textContent = c.title;
-    if (p) p.textContent = c.desc;
-    if (email) email.placeholder = c.email;
-    if (pin) pin.placeholder = c.pin;
-    if (submit) submit.textContent = c.submit;
-    if (note) note.textContent = c.note;
-  }
   var trackerBtn = document.getElementById("bdv-open-tracker-btn");
   if (trackerBtn) {
     trackerBtn.addEventListener("click", function () {
-      var m = document.getElementById("bdv-tracker-modal-root");
-      if (!m) return;
-      translateTracker();
-      m.style.display = "flex";
+      if (window.BDV_OPS) window.BDV_OPS.openTracker();
     });
   }
-  document.addEventListener("bdv:lang", translateTracker);
-  window.addEventListener("load", translateTracker);
 })();
