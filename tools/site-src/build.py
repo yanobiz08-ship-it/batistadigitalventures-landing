@@ -5,7 +5,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 os.chdir(HERE)
-T = open('template.html').read().replace(' aria-hidden="false"', '')
+T = open('template.html').read()
 
 ICONS = {
  'shield': '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -25,7 +25,7 @@ ICONS = {
  'ext': '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
 }
 
-def t(k):  # data-i18n element content placeholder
+def t(k):  # text placeholder, filled per language at the end
     return f'§{k}§'
 
 # Holiday offer: one source of truth for its end. Offer prices (keys ending in "Offer") and every
@@ -38,26 +38,26 @@ T = T.replace('@@OFFER_END@@', OFFER_END)
 def price(key, tag='strong'):
     """Normal price; during the offer it is struck through and followed by the offer price."""
     if key + 'Offer' not in S:
-        return f'<{tag} data-i18n="{key}Price">{t(key + "Price")}</{tag}>'
-    normal = f'<{tag} class="price-normal"><span class="bdv-sr-only offer-only" data-i18n="priceNormalSr">{t("priceNormalSr")}</span> <span data-i18n="{key}Price">{t(key + "Price")}</span></{tag}>'
-    offer = f'<{tag} class="price-offer offer-only"><span class="bdv-sr-only" data-i18n="priceOfferSr">{t("priceOfferSr")}</span> <span data-i18n="{key}Offer">{t(key + "Offer")}</span></{tag}>'
+        return f'<{tag}>{t(key + "Price")}</{tag}>'
+    normal = f'<{tag} class="price-normal"><span class="bdv-sr-only offer-only">{t("priceNormalSr")}</span> <span>{t(key + "Price")}</span></{tag}>'
+    offer = f'<{tag} class="price-offer offer-only"><span class="bdv-sr-only">{t("priceOfferSr")}</span> <span>{t(key + "Offer")}</span></{tag}>'
     return f'{normal} {offer}'
 
 # services
 svc = []
 for n, (icon, qv) in enumerate([('phone','app'),('monitor','web'),('grid','system'),('wrench','repair')], 1):
-    badge = f'<span class="svc-badge" data-i18n="svc{n}Badge">{t(f"svc{n}Badge")}</span>' if f'svc{n}Badge' in S else ''
-    lis = ''.join(f'<li>@@ICON:check@@<span><span data-i18n="svc{n}{x}">{t(f"svc{n}{x}")}</span>' + (' ' + price(f'svc{n}{x}', 'span') if f'svc{n}{x}Price' in S else '') + '</span></li>'
+    badge = f'<span class="svc-badge">{t(f"svc{n}Badge")}</span>' if f'svc{n}Badge' in S else ''
+    lis = ''.join(f'<li>@@ICON:check@@<span><span>{t(f"svc{n}{x}")}</span>' + (' ' + price(f'svc{n}{x}', 'span') if f'svc{n}{x}Price' in S else '') + '</span></li>'
                   for x in 'abcde' if f'svc{n}{x}' in S)
-    typical = f'<p class="svc-typical" data-i18n="svc{n}Typical">{t(f"svc{n}Typical")}</p>' if f'svc{n}Typical' in S else ''
+    typical = f'<p class="svc-typical">{t(f"svc{n}Typical")}</p>' if f'svc{n}Typical' in S else ''
     svc.append(f'''          <article class="service-card{' service-card-new' if badge else ''}">
             <div class="svc-top"><span class="svc-ico" aria-hidden="true">@@ICON:{icon}@@</span>{badge}</div>
-            <h3 data-i18n="svc{n}Title">{t(f"svc{n}Title")}</h3>
-            <p data-i18n="svc{n}Desc">{t(f"svc{n}Desc")}</p>
+            <h3>{t(f"svc{n}Title")}</h3>
+            <p>{t(f"svc{n}Desc")}</p>
             <ul class="check-list">{lis}</ul>
             <div class="svc-foot">
-              <p class="svc-price"><span data-i18n="svcFrom">{t("svcFrom")}</span> {price(f"svc{n}")} <small data-i18n="svc{n}Unit">{t(f"svc{n}Unit")}</small></p>{typical}
-              <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}" data-i18n="svcQuoteBtn">{t("svcQuoteBtn")}</a>
+              <p class="svc-price"><span>{t("svcFrom")}</span> {price(f"svc{n}")} <small>{t(f"svc{n}Unit")}</small></p>{typical}
+              <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}">{t("svcQuoteBtn")}</a>
             </div>
           </article>''')
 T = T.replace('@@SERVICES@@', '\n'.join(svc))
@@ -74,30 +74,30 @@ def gallery(gid, items, framed, label, note_key=None):
     for it in items:
         name, key = it[0], it[1]
         if framed:
-            img = f'<img src="./{P}{name}.webp" width="440" height="954" loading="lazy" decoding="async" alt="{t(key)}" data-i18n-alt="{key}" />'
-            figs.append(f'              <figure class="shot shot-framed">{img}<figcaption data-i18n="{key}">{t(key)}</figcaption></figure>')
+            img = f'<img src="/{P}{name}.webp" width="440" height="954" loading="lazy" decoding="async" alt="{t(key)}" />'
+            figs.append(f'              <figure class="shot shot-framed">{img}<figcaption>{t(key)}</figcaption></figure>')
         else:
             h = it[2] if len(it) > 2 else 644
-            img = f'<img src="./{P}{name}.webp" width="360" height="{h}" loading="lazy" decoding="async" alt="{t(key)}" data-i18n-alt="{key}" />'
-            figs.append(f'              <figure class="shot"><div class="phone">{img}</div><figcaption data-i18n="{key}">{t(key)}</figcaption></figure>')
-    note = f'\n            <p class="demo-note" data-i18n="{note_key}">{t(note_key)}</p>' if note_key else ''
+            img = f'<img src="/{P}{name}.webp" width="360" height="{h}" loading="lazy" decoding="async" alt="{t(key)}" />'
+            figs.append(f'              <figure class="shot"><div class="phone">{img}</div><figcaption>{t(key)}</figcaption></figure>')
+    note = f'\n            <p class="demo-note">{t(note_key)}</p>' if note_key else ''
     return f'''          <div class="gallery" data-gallery>
-            <button type="button" class="gallery-btn gallery-prev" data-gallery-prev aria-controls="{gid}" aria-label="{t("galleryPrev")}" data-i18n-aria="galleryPrev">‹</button>
+            <button type="button" class="gallery-btn gallery-prev" data-gallery-prev aria-controls="{gid}" aria-label="{t("galleryPrev")}">‹</button>
             <div class="gallery-track" id="{gid}" tabindex="0" role="region" aria-label="{label}">
 {chr(10).join(figs)}
             </div>
-            <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}" data-i18n-aria="galleryNext">›</button>{note}
+            <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}">›</button>{note}
           </div>'''
 
 def project(pid, name, kind, badge_key, badge_cls, desc, status, link_key, url, gal, case=''):
     return f'''        <article class="project" id="{pid}">
           <div class="project-info">
-            <div class="project-badges"><span class="status-badge {badge_cls}" data-i18n="{badge_key}">{t(badge_key)}</span></div>
-            <p class="kicker" data-i18n="{kind}">{t(kind)}</p>
+            <div class="project-badges"><span class="status-badge {badge_cls}">{t(badge_key)}</span></div>
+            <p class="kicker">{t(kind)}</p>
             <h3 class="project-title">{name}</h3>
-            <p class="project-desc" data-i18n="{desc}">{t(desc)}</p>{case}
-            <p class="project-status" data-i18n="{status}">{t(status)}</p>
-            <a class="text-link" href="{url}" target="_blank" rel="noopener noreferrer"><span data-i18n="{link_key}">{t(link_key)}</span> @@ICON:ext@@</a>
+            <p class="project-desc">{t(desc)}</p>{case}
+            <p class="project-status">{t(status)}</p>
+            <a class="text-link" href="{url}" target="_blank" rel="noopener noreferrer"><span>{t(link_key)}</span> @@ICON:ext@@</a>
           </div>
 {gal}
         </article>'''
@@ -106,23 +106,23 @@ def project(pid, name, kind, badge_key, badge_cls, desc, status, link_key, url, 
 # GY Roadside testimonial (published with the owner's approval). To credit the owner by name,
 # set it here; it is shown before the translated role ("gyQuoteBy").
 GY_QUOTE_NAME = ''
-GY_QUOTE_SIGNER = (f'<strong>{html.escape(GY_QUOTE_NAME)}</strong>, ' if GY_QUOTE_NAME else '') + '<span data-i18n="gyQuoteBy">§gyQuoteBy§</span>'
+GY_QUOTE_SIGNER = (f'<strong>{html.escape(GY_QUOTE_NAME)}</strong>, ' if GY_QUOTE_NAME else '') + '<span>§gyQuoteBy§</span>'
 
 CASE_GY = """
             <div class="case-study">
-              <h4 class="case-h" data-i18n="gyChallengeH">§gyChallengeH§</h4>
-              <p data-i18n="gyChallenge">§gyChallenge§</p>
-              <h4 class="case-h" data-i18n="gyDidH">§gyDidH§</h4>
+              <h4 class="case-h">§gyChallengeH§</h4>
+              <p>§gyChallenge§</p>
+              <h4 class="case-h">§gyDidH§</h4>
               <ul class="check-list">
-""" + "\n".join(f'                <li>@@ICON:check@@<span data-i18n="gyDid{i}">§gyDid{i}§</span></li>' for i in range(1, 7)) + """
+""" + "\n".join(f'                <li>@@ICON:check@@<span>§gyDid{i}§</span></li>' for i in range(1, 7)) + """
               </ul>
-              <h4 class="case-h" data-i18n="gyNextH">§gyNextH§</h4>
-              <p data-i18n="gyNext">§gyNext§</p>
+              <h4 class="case-h">§gyNextH§</h4>
+              <p>§gyNext§</p>
               <blockquote class="case-quote">
-                <p data-i18n="gyQuote">§gyQuote§</p>
+                <p>§gyQuote§</p>
                 <footer>""" + GY_QUOTE_SIGNER + """</footer>
               </blockquote>
-              <p class="case-disclosure" data-i18n="gyDisclosure">§gyDisclosure§</p>
+              <p class="case-disclosure">§gyDisclosure§</p>
             </div>"""
 
 PROJ = [
@@ -139,9 +139,9 @@ pcts = [10, 25, 45, 75, 90, 100]
 st = []
 for i, p in enumerate(pcts, 1):
     st.append(f'''          <li class="stage" style="--pct: {p}%">
-            <div class="stage-head"><span class="stage-num">{i}</span><span class="stage-pct"><span data-i18n="procProgress">{t("procProgress")}</span> {p}%</span></div>
-            <h3 data-i18n="st{i}Title">{t(f"st{i}Title")}</h3>
-            <p data-i18n="st{i}Text">{t(f"st{i}Text")}</p>
+            <div class="stage-head"><span class="stage-num">{i}</span><span class="stage-pct"><span>{t("procProgress")}</span> {p}%</span></div>
+            <h3>{t(f"st{i}Title")}</h3>
+            <p>{t(f"st{i}Text")}</p>
             <div class="stage-bar" aria-hidden="true"><span></span></div>
           </li>''')
 T = T.replace('@@STAGES@@', '\n'.join(st))
@@ -149,28 +149,28 @@ T = T.replace('@@STAGES@@', '\n'.join(st))
 faq = []
 for i in range(1, 7):
     faq.append(f'''          <details class="faq-item"{' open' if i == 1 else ''}>
-            <summary data-i18n="q{i}">{t(f"q{i}")}</summary>
-            <p data-i18n="a{i}">{t(f"a{i}")}</p>{f'''
-            <p class="offer-only offer-note" data-i18n="a{i}Offer">{t(f"a{i}Offer")}</p>''' if f"a{i}Offer" in S else ""}
+            <summary>{t(f"q{i}")}</summary>
+            <p>{t(f"a{i}")}</p>{f'''
+            <p class="offer-only offer-note">{t(f"a{i}Offer")}</p>''' if f"a{i}Offer" in S else ""}
           </details>''')
 T = T.replace('@@FAQ@@', '\n'.join(faq))
 
 T = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], T)
 
-used = set(re.findall(r'§(\w+)§', T))
+NF = open('404.html').read()
+used = set(re.findall(r'§(\w+)§', T)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF))
 missing = used - set(S)
 assert not missing, missing
-# Keys used only from JavaScript (passed to BDV_t / tr as quoted strings) count as used too.
+# Keys used from JavaScript (passed to BDV_t / tr as quoted strings) count as used too; only those are
+# shipped in js/bdv-i18n.js, because everything else is already rendered into each language's HTML.
 js_used = set()
 for js_file in ('bdv-site.js', 'bdv-ops-panel.js', 'brand-media.js', 'bdv-sow-signer.js'):
     js_used |= set(re.findall(r'["\'](\w+)["\']', open(os.path.join(REPO, 'js', js_file)).read()))
+js_used &= set(S)
 unused = set(S) - used - js_used
 assert not unused, f'unused i18n keys: {sorted(unused)}'
-T = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), T)
-assert '@@' not in T
-es = {k: v[0] for k, v in S.items()}
-en = {k: v[1] for k, v in S.items()}
-js = open('i18n-runtime.js').read().replace('/*__DICT__*/', json.dumps({'es': es, 'en': en}, ensure_ascii=False, indent=2))
+dicts = {lang: {k: S[k][i] for k in sorted(js_used)} for i, lang in enumerate(('es', 'en'))}
+js = open('i18n-runtime.js').read().replace('/*__DICT__*/', json.dumps(dicts, ensure_ascii=False, indent=2))
 open(os.path.join(REPO, 'js', 'bdv-i18n.js'), 'w').write(js)
 
 # Cache busting: every local stylesheet/script URL gets ?v=<content hash>, so a deploy never
@@ -178,8 +178,64 @@ open(os.path.join(REPO, 'js', 'bdv-i18n.js'), 'w').write(js)
 def versioned(m):
     path = m.group(2)
     digest = hashlib.sha1(open(os.path.join(REPO, path), 'rb').read()).hexdigest()[:10]
-    return f'{m.group(1)}="./{path}?v={digest}"'
-T, n_assets = re.subn(r'(href|src)="\./((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, T)
-assert n_assets == 8, n_assets
-open(os.path.join(REPO, 'index.html'), 'w').write(T)
-print('ok', len(S), 'keys,', n_assets, 'versioned assets')
+    return f'{m.group(1)}="/{path}?v={digest}"'
+
+# One static page per language, so Google can index both (hreflang links them):
+# Spanish at / (also x-default) and English at /en/.
+SITE = 'https://batistadigitalventures.com/'
+PAGES = {'es': ('', 'es_US'), 'en': ('en/', 'en_US')}
+
+def schema(lang):
+    """JSON-LD: the company as a ProfessionalService, its founder and the services it offers.
+    No prices: the 'from' prices change with offers and are only final in the SOW."""
+    i = 0 if lang == 'es' else 1
+    url = SITE + PAGES[lang][0]
+    org = SITE + '#organization'
+    services = [{'@type': 'Offer', 'itemOffered': {'@type': 'Service', 'name': S[f'svc{n}Title'][i], 'description': S[f'svc{n}Desc'][i],
+                 'provider': {'@id': org}, 'areaServed': {'@type': 'Country', 'name': 'United States'}}} for n in range(1, 5)]
+    graph = [
+        {'@type': 'ProfessionalService', '@id': org, 'name': 'Batista Digital Ventures LLC', 'alternateName': ['Batista Digital Ventures', 'BDV'],
+         'url': SITE, 'logo': {'@type': 'ImageObject', 'url': SITE + 'assets/BDV%20Logo.png', 'width': 512, 'height': 512},
+         'image': SITE + 'assets/img/og-image.jpg', 'description': S['metaDesc'][i], 'email': 'contact@batistadigitalventures.com',
+         'address': {'@type': 'PostalAddress', 'addressLocality': 'Lompoc', 'addressRegion': 'CA', 'addressCountry': 'US'},
+         'areaServed': {'@type': 'Country', 'name': 'United States'}, 'duns': '150052438', 'knowsLanguage': ['es', 'en'],
+         'founder': {'@type': 'Person', 'name': 'Yano Batista', 'jobTitle': S['fRole'][i], 'sameAs': ['https://www.linkedin.com/in/yano-batista']},
+         'sameAs': ['https://www.youtube.com/channel/UCVkQn4dWIfmxu4kZ0kBTa9w'],
+         'contactPoint': {'@type': 'ContactPoint', 'contactType': 'customer service', 'email': 'contact@batistadigitalventures.com', 'availableLanguage': ['es', 'en']},
+         'hasOfferCatalog': {'@type': 'OfferCatalog', 'name': S['svcKicker'][i].capitalize(), 'itemListElement': services}},
+        {'@type': 'WebSite', '@id': SITE + '#website', 'url': SITE, 'name': 'Batista Digital Ventures', 'inLanguage': ['es', 'en'], 'publisher': {'@id': org}},
+        {'@type': 'WebPage', '@id': url + '#webpage', 'url': url, 'name': S['pageTitle'][i], 'description': S['metaDesc'][i], 'inLanguage': lang,
+         'isPartOf': {'@id': SITE + '#website'}, 'about': {'@id': org}},
+    ]
+    return '\n'.join('  ' + line for line in json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False, indent=2).splitlines())
+
+def render(template, lang):
+    i = 0 if lang == 'es' else 1
+    other = 'en' if lang == 'es' else 'es'
+    page = template
+    for k, v in {'LANG': lang, 'URL': SITE + PAGES[lang][0], 'URL_ES': SITE, 'URL_EN': SITE + PAGES['en'][0], 'SITE': SITE,
+                 'OG_LOCALE': PAGES[lang][1], 'OG_LOCALE_ALT': PAGES[other][1], 'JSONLD': schema(lang),
+                 f'ACTIVE_{lang.upper()}': ' active', f'ACTIVE_{other.upper()}': '',
+                 f'CURRENT_{lang.upper()}': ' aria-current="page"', f'CURRENT_{other.upper()}': ''}.items():
+        page = page.replace(f'@@{k}@@', v)
+    page = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][i], quote=True), page)
+    assert '@@' not in page and '§' not in page
+    page, n_assets = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, page)
+    assert n_assets == 8, n_assets
+    return page
+
+for lang, (path, _) in PAGES.items():
+    os.makedirs(os.path.join(REPO, path), exist_ok=True)
+    open(os.path.join(REPO, path, 'index.html'), 'w').write(render(T, lang))
+
+# 404 page (GitHub Pages serves /404.html for any missing URL), in both languages, not indexed.
+nf = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), re.sub(r'§(\w+)\.en§', lambda m: html.escape(S[m.group(1)][1], quote=True), NF))
+nf, n_nf = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, nf)
+assert n_nf == 1 and '§' not in nf
+open(os.path.join(REPO, '404.html'), 'w').write(nf)
+
+# Sitemap: both language URLs with their hreflang alternates.
+alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{h}" href="{SITE + PAGES[l][0]}" />' for h, l in (('es', 'es'), ('en', 'en'), ('x-default', 'es')))
+urls = ''.join(f'\n  <url>\n    <loc>{SITE + path}</loc>{alts}\n  </url>' for path, _ in PAGES.values())
+open(os.path.join(REPO, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{urls}\n</urlset>\n')
+print('ok', len(S), 'keys,', len(js_used), 'in bdv-i18n.js,', len(PAGES), 'pages + 404 + sitemap')

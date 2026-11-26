@@ -86,7 +86,7 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
 .nav-links a:hover { color: var(--gold-bright); }
 .nav-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 .lang-switch { display: inline-flex; align-items: center; background: var(--bg-card); border: 1px solid var(--gold-border); border-radius: 999px; padding: 3px; }
-.lang-btn { border: 0; background: transparent; color: var(--text-muted); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 6px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+.lang-btn { display: inline-block; line-height: normal; background: transparent; color: var(--text-muted); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em; padding: 4px 6px; border-radius: 999px; }
 .lang-btn.active { background: var(--gold); color: #070a10; }
 
 /* ---------- Buttons ---------- */
@@ -379,3 +379,8 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .case-quote p { color: var(--text-primary); font-style: italic; }
 .case-quote footer { color: var(--text-muted); font-size: 0.82rem; margin-top: 6px; }
 .case-disclosure { color: var(--text-secondary); font-size: 0.82rem; margin: -4px 0 12px; }
+
+/* ---------- 404 page ---------- */
+.nf-page { min-height: 100%; }
+.not-found { max-width: 640px; text-align: center; display: grid; justify-items: center; gap: 14px; }
+.not-found [lang="en"] { margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); display: grid; justify-items: center; gap: 14px; }

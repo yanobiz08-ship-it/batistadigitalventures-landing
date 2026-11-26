@@ -308,9 +308,9 @@
             <input type="text" id="bdv-sow-signer-title" class="bdv-tracker-input" placeholder="Tu cargo o relación (ej. Dueño / Director)" value="Owner / Client" />
             <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: #e2e8f0; cursor: pointer;">
               <input type="checkbox" id="bdv-sow-consent-check" style="margin-top: 3px; accent-color: #d4af37;" />
-              <span data-i18n="sowConsent">${getCore().escapeHtml(window.BDV_t("sowConsent"))}</span>
+              <span>${getCore().escapeHtml(window.BDV_t("sowConsent"))}</span>
             </label>
-            <button type="button" class="bdv-link-btn" style="align-self: flex-start;" data-legal="terms" data-i18n="legalTermsBtn">${getCore().escapeHtml(window.BDV_t("legalTermsBtn"))}</button>
+            <button type="button" class="bdv-link-btn" style="align-self: flex-start;" data-legal="terms">${getCore().escapeHtml(window.BDV_t("legalTermsBtn"))}</button>
             <button type="button" id="bdv-sow-sign-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">Firmar Acuerdo Digitalmente</button>
           </div>
         </div>

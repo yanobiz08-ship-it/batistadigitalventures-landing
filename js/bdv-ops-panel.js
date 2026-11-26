@@ -178,21 +178,21 @@
     modalRoot.style.display = "none";
 
     var esc = getCore().escapeHtml;
-    // Texts come from js/bdv-i18n.js (data-i18n* attributes are re-applied on every language change).
+    // Texts come from js/bdv-i18n.js.
     modalRoot.innerHTML = [
       '<div class="bdv-tracker-card">',
       '  <div class="bdv-modal-top">',
-      '    <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;" data-i18n="trkTitle">' + esc(tr("trkTitle")) + "</h3>",
+      '    <h3 style="margin: 0; font-size: 1.05rem; color: #e8c861;">' + esc(tr("trkTitle")) + "</h3>",
       '    <button type="button" id="bdv-tracker-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>',
       "  </div>",
-      '  <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;" data-i18n="trkDesc">' + esc(tr("trkDesc")) + "</p>",
+      '  <p style="font-size: 0.82rem; color: #94a3b8; margin: 8px 0 14px 0;">' + esc(tr("trkDesc")) + "</p>",
       '  <form id="bdv-tracker-query-form" class="bdv-tracker-form">',
-      '    <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="' + esc(tr("trkEmailPh")) + '" data-i18n-ph="trkEmailPh" required />',
-      '    <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="' + esc(tr("trkPinPh")) + '" data-i18n-ph="trkPinPh" required />',
-      '    <button type="submit" class="bdv-tracker-btn" data-i18n="trkSubmit">' + esc(tr("trkSubmit")) + "</button>",
+      '    <input type="email" id="bdv-track-email" class="bdv-tracker-input" placeholder="' + esc(tr("trkEmailPh")) + '" required />',
+      '    <input type="text" id="bdv-track-pin" class="bdv-tracker-input" placeholder="' + esc(tr("trkPinPh")) + '" required />',
+      '    <button type="submit" class="bdv-tracker-btn">' + esc(tr("trkSubmit")) + "</button>",
       "  </form>",
       '  <div id="bdv-track-result-box" style="display: none;" class="bdv-tracker-result" role="status"></div>',
-      '  <p class="bdv-tracker-disclaimer" data-i18n="trkNote">' + esc(tr("trkNote")) + "</p>",
+      '  <p class="bdv-tracker-disclaimer">' + esc(tr("trkNote")) + "</p>",
       "</div>"
     ].join("");
     document.body.appendChild(modalRoot);
@@ -1229,14 +1229,6 @@
       if (m) m.style.display = "flex";
     }
   };
-
-  // Project names are bilingual: re-render an open admin session when the language changes.
-  document.addEventListener("bdv:lang", function () {
-    var dash = document.getElementById("bdv-admin-dash-view");
-    if (window.__bdvSessionKey && dash && dash.style.display === "block") {
-      loadAdminProjects();
-    }
-  });
 
   function initOps() {
     applyClientTrackerModal();

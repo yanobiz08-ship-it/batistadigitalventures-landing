@@ -179,10 +179,7 @@
     }
   };
 
-  let openLegalKind = null;
-
   function openLegal(kind) {
-    openLegalKind = kind;
     const doc = copy[getLang()][kind];
     document.getElementById("bdv-modal-title").textContent = doc.title;
     const body = document.getElementById("bdv-modal-body");
@@ -268,11 +265,6 @@
   function init() {
     applyLegalModals();
     bindLegalButtons();
-    // Keep an open legal modal in the selected language.
-    document.addEventListener("bdv:lang", () => {
-      const root = document.getElementById("bdv-legal-modal-root");
-      if (openLegalKind && root && root.style.display !== "none") openLegal(openLegalKind);
-    });
   }
 
   if (document.readyState === "loading") {
