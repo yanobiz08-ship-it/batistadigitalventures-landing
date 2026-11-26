@@ -1,4 +1,4 @@
-import re, json, html, sys
+import hashlib, html, json, re, sys
 sys.path.insert(0, '.')
 from strings import S
 import os
@@ -147,10 +147,18 @@ unused = set(S) - used - js_used
 assert not unused, f'unused i18n keys: {sorted(unused)}'
 T = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), T)
 assert '@@' not in T
-open(os.path.join(REPO, 'index.html'), 'w').write(T)
-
 es = {k: v[0] for k, v in S.items()}
 en = {k: v[1] for k, v in S.items()}
 js = open('i18n-runtime.js').read().replace('/*__DICT__*/', json.dumps({'es': es, 'en': en}, ensure_ascii=False, indent=2))
 open(os.path.join(REPO, 'js', 'bdv-i18n.js'), 'w').write(js)
-print('ok', len(S), 'keys')
+
+# Cache busting: every local stylesheet/script URL gets ?v=<content hash>, so a deploy never
+# serves new HTML with stale CSS/JS from the CDN cache.
+def versioned(m):
+    path = m.group(2)
+    digest = hashlib.sha1(open(os.path.join(REPO, path), 'rb').read()).hexdigest()[:10]
+    return f'{m.group(1)}="./{path}?v={digest}"'
+T, n_assets = re.subn(r'(href|src)="\./((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, T)
+assert n_assets == 8, n_assets
+open(os.path.join(REPO, 'index.html'), 'w').write(T)
+print('ok', len(S), 'keys,', n_assets, 'versioned assets')
