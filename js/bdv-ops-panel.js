@@ -253,9 +253,22 @@
       resBox.style.display = "block";
       resBox.innerHTML = '<p style="font-size: 0.8rem; color: #94a3b8;">Verificando credenciales...</p>';
 
-      fetch(core.apiUrl + "?email=" + encodeURIComponent(email) + "&code=" + encodeURIComponent(pin))
-        .then(function (r) { return r.json(); })
+      // POST so the client code never ends up in URLs / logs (Worker action "client_lookup", rate-limited).
+      fetch(core.apiUrl, {
+        method: "POST",
+        body: JSON.stringify({ action: "client_lookup", email: email, code: pin })
+      })
+        .then(function (r) { return r.json().then(function (j) { j.__status = r.status; return j; }); })
         .then(function (res) {
+          if (res.__status === 429) {
+            resBox.innerHTML =
+              '<p style="font-size: 0.82rem; color: #f87171; margin: 0;">' +
+              (lang === "en"
+                ? "Too many attempts. Please wait a few minutes and try again."
+                : "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.") +
+              "</p>";
+            return;
+          }
           if (!res.ok || !res.project) {
             resBox.innerHTML =
               '<p style="font-size: 0.82rem; color: #f87171; margin: 0;">' +
@@ -615,6 +628,35 @@
     fillProjectFormFromRequest(r);
   };
 
+  window.deletePartnerApplicationByIndex = function (i) {
+    var core = getCore();
+    var a = (window.__bdvStoredPartnerApps || [])[i];
+    if (!a || !a.id) return;
+    showOpsPromptCard({
+      title: "Eliminar postulación de partner",
+      message: "¿Deseas eliminar de forma permanente la postulación " + a.id + " de " + (a.name || a.email) + "?",
+      confirmLabel: "Sí, Eliminar",
+      cancelLabel: "Cancelar",
+      onConfirm: function () {
+        fetch(core.apiUrl, {
+          method: "POST",
+          body: JSON.stringify({ key: window.__bdvSessionKey || "", action: "delete_partner_application", applicationId: a.id })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (res) {
+            if (res.ok) {
+              refreshAdminSessionView("✓ Postulación eliminada correctamente.");
+            } else {
+              showAdminToast(res.error || "No se pudo eliminar la postulación.", false);
+            }
+          })
+          .catch(function () {
+            showAdminToast("Error de red al eliminar la postulación.", false);
+          });
+      }
+    });
+  };
+
   window.deleteServiceRequestByIndex = function (idx) {
     var core = getCore();
     var r = window.__bdvStoredRequests[idx];
@@ -917,6 +959,11 @@
         var clientIdx = [];
         var partnerIdx = [];
         allRequests.forEach(function (r, idx) { (isPartnerApplication(r) ? partnerIdx : clientIdx).push(idx); });
+        // New dedicated store (Worker "partnerApplications") first, then legacy ones that came in via request_services.
+        var newApps = isAdmin && Array.isArray(res.partnerApplications) ? res.partnerApplications : [];
+        window.__bdvStoredPartnerApps = newApps;
+        var partnerItems = newApps.map(function (a, i) { return { kind: "app", i: i, a: a }; })
+          .concat(partnerIdx.map(function (idx) { return { kind: "legacy", idx: idx }; }));
         var setCount = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = "(" + n + ")"; };
 
         if (clientIdx.length && reqSection && reqList) {
@@ -952,25 +999,44 @@
           reqSection.style.display = "none";
         }
 
-        if (partnerIdx.length && partnerSection && partnerList) {
+        if (partnerItems.length && partnerSection && partnerList) {
           partnerSection.style.display = "block";
-          setCount("bdv-admin-partners-count", partnerIdx.length);
-          partnerList.innerHTML = partnerIdx.map(function (idx) {
-            var r = allRequests[idx];
-            var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
-            var email = String(r.clientEmail || "");
-            var notes = String(r.notes || "").replace(/^\[PARTNER APPLICATION[^\]]*\]\s*/i, "");
+          setCount("bdv-admin-partners-count", partnerItems.length);
+          partnerList.innerHTML = partnerItems.map(function (it) {
+            var name, email, created, id, lines, delBtn;
+            if (it.kind === "app") {
+              var a = it.a;
+              name = a.name; email = String(a.email || ""); created = a.createdAt; id = a.id;
+              lines = [
+                a.portfolio ? "GitHub / portafolio: " + a.portfolio : "",
+                a.specialty ? "Especialidad: " + a.specialty : "",
+                a.timezone ? "Zona horaria: " + a.timezone : "",
+                a.lang ? "Idioma: " + a.lang : "",
+                a.notes ? "\n" + a.notes : ""
+              ].filter(Boolean).join("\n");
+              delBtn = "deletePartnerApplicationByIndex(" + it.i + ")";
+            } else {
+              var r = allRequests[it.idx];
+              name = r.clientName; email = String(r.clientEmail || ""); created = r.createdAt; id = r.id;
+              lines = String(r.notes || "").replace(/^\[PARTNER APPLICATION[^\]]*\]\s*/i, "");
+              delBtn = "deleteServiceRequestByIndex(" + it.idx + ")";
+            }
+            var dateStr = created ? new Date(created).toLocaleDateString() : "";
+            var portfolioLink = it.kind === "app" && /^https?:\/\//i.test(String(it.a.portfolio || ""))
+              ? '    <a class="bdv-admin-toggle-status" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="' + core.escapeHtml(it.a.portfolio) + '" target="_blank" rel="noopener noreferrer">Ver portafolio</a>'
+              : "";
             return [
-              '<div class="bdv-admin-partner-item" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(52,211,153,0.2); display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">',
+              '<div class="bdv-admin-partner-item" data-kind="' + it.kind + '" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(52,211,153,0.2); display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">',
               "  <div>",
-              '    <strong style="color: #f8fafc;">' + core.escapeHtml(r.clientName || "") + "</strong>",
+              '    <strong style="color: #f8fafc;">' + core.escapeHtml(name || "") + "</strong>",
               '    <span style="color: #94a3b8;">(' + core.escapeHtml(email) + ")</span>",
-              notes ? '<div style="color: #cbd5e1; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px; margin-top: 2px;">' + core.escapeHtml(notes.slice(0, 900)) + "</div>" : "",
-              '    <div style="color: #94a3b8; font-size: 0.7rem;">' + core.escapeHtml(r.id || "") + " · " + dateStr + "</div>",
+              lines ? '<div style="color: #cbd5e1; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px; margin-top: 2px;">' + core.escapeHtml(String(lines).slice(0, 1200)) + "</div>" : "",
+              '    <div style="color: #94a3b8; font-size: 0.7rem;">' + core.escapeHtml(id || "") + " · " + dateStr + (it.kind === "legacy" ? " · vía formulario anterior" : "") + "</div>",
               "  </div>",
               '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
+              portfolioLink,
               isValidEmailSimple(email) ? '    <a class="bdv-admin-action-btn" style="background: rgba(52,211,153,0.15) !important; color: #34d399 !important; border: 1px solid rgba(52,211,153,0.45); padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="mailto:' + encodeURIComponent(email) + '">Responder</a>' : "",
-              '    <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important; padding: 4px 8px; font-size: 0.75rem;" onclick="deleteServiceRequestByIndex(' + idx + ')">Eliminar</button>',
+              '    <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important; padding: 4px 8px; font-size: 0.75rem;" onclick="' + delBtn + '">Eliminar</button>',
               "  </div>",
               "</div>"
             ].join("");
@@ -1029,7 +1095,7 @@
             '      <strong style="color: #f8fafc; font-size: 0.9rem;">' + core.escapeHtml(displayName) + "</strong>",
             '      <span style="font-size: 0.75rem; color: #94a3b8;">(' + core.escapeHtml(p.id) + ")</span>",
             '      <div style="font-size: 0.78rem; color: #cbd5e1; margin-top: 2px;">',
-            (isAdmin ? "Email: " + core.escapeHtml(p.email) + " | " : "") + 'PIN: <span style="color: #e8c861; font-weight: 700;">' + core.escapeHtml(p.code) + "</span>",
+            (isAdmin ? "Email: " + core.escapeHtml(p.email) + " | " : "") + (p.code ? 'PIN: <span style="color: #e8c861; font-weight: 700;">' + core.escapeHtml(p.code) + "</span>" : ""),
             '        <span style="color: #94a3b8; margin-left: 6px;">[' + core.escapeHtml(p.paymentStatus || "PENDING") + "]</span>",
             "      </div>",
             "    </div>",

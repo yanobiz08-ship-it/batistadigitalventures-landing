@@ -1,6 +1,6 @@
 /* Batista Digital Ventures - Phase 2 page behavior:
- *  - single quote form + partner application form (both POST to the existing Worker,
- *    action "request_services", same endpoint as before)
+ *  - single quote form (Worker action "request_services") and partner application form
+ *    (Worker action "partner_application", stored separately) - same Worker endpoint
  *  - "Cotizar este servicio" buttons preselect the service type
  *  - portfolio galleries (prev / next buttons; swipe / scroll natively)
  *  - "Consultar mi proyecto" opens the read-only client viewer from bdv-ops-panel.js
@@ -129,28 +129,17 @@
       }
       var g = function (id) { return (document.getElementById(id).value || "").trim(); };
       var specSel = document.getElementById("pf-specialty");
-      var isEs = lang() === "es";
-      var lines = [
-        "[PARTNER APPLICATION / POSTULACIÓN PARTNER]",
-        "GitHub / Portfolio: " + g("pf-portfolio"),
-        (isEs ? "Especialidad: " : "Specialty: ") + optionLabel(specSel),
-        (isEs ? "Zona horaria: " : "Time zone: ") + g("pf-tz")
-      ];
-      if (g("pf-notes")) lines.push("", g("pf-notes"));
-      // There is no dedicated partner endpoint on the Worker yet, so this reuses the existing
-      // "request_services" action with a clear type marker (see PR description).
+      // Dedicated Worker action (since 2026-11-25): stored apart from client requests,
+      // with its own admin email and a bilingual confirmation to the applicant.
       post(partnerForm, {
-        action: "request_services",
+        action: "partner_application",
         lang: lang(),
-        requestType: "partner_application",
-        clientName: g("pf-name"),
-        clientEmail: g("pf-email").toLowerCase(),
-        businessName: "Partner application (BDV network)",
-        services: ["Partner application"],
+        name: g("pf-name"),
+        email: g("pf-email").toLowerCase(),
         portfolio: g("pf-portfolio"),
-        specialty: specSel.value,
+        specialty: optionLabel(specSel) || specSel.value,
         timezone: g("pf-tz"),
-        notes: lines.join("\n")
+        notes: g("pf-notes")
       }, g("pf-name"), "partner");
     });
   }

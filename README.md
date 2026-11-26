@@ -20,9 +20,13 @@ Landing page for Batista Digital Ventures — digital platforms, mobile apps, an
   `python3 tools/site-src/build.py` — it rewrites both files so Spanish (static HTML, default) and
   English (dictionary) never drift apart. Quick one-off fix without Python: change the Spanish text in
   `index.html` **and** the matching key (`data-i18n="…"`) in both `es` and `en` in `js/bdv-i18n.js`.
-- **Forms:** one quote form (`#bdv-quote-form`) and the partner application (`#bdv-partner-form`)
-  both POST `action: "request_services"` to the Worker (`js/bdv-site.js`); partner applications carry
-  `requestType: "partner_application"` and a `[PARTNER APPLICATION]` prefix in `notes`.
+- **Forms / Worker actions:** the quote form (`#bdv-quote-form`) POSTs `action: "request_services"`; the partner
+  application (`#bdv-partner-form`) POSTs `action: "partner_application"` (stored apart in KV `partner_applications`);
+  the client viewer uses POST `action: "client_lookup"` (rate-limited). See `js/bdv-site.js` / `js/bdv-ops-panel.js`.
+  The admin panel shows client requests and partner applications in separate lists (legacy partner
+  submissions that came in through `request_services` are still detected and listed with partners).
+- **Worker source:** not in this repo (Cloudflare Worker `bdv-backend-api`). A local git copy with tests was prepared
+  outside the repo; see PR #2 for details and rollback instructions.
 - **Layout CSS:** `css/bdv-site.css` (page layout, dark/gold design); `css/brand-media.css` keeps the
   header logo, modals, client viewer and admin panel styles.
 - **Portfolio images:** WebP copies in `assets/img/portfolio/` (originals are not in the repo).
