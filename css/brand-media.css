@@ -348,6 +348,17 @@
 .bdv-ops-more { margin-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; }
 .bdv-ops-more > summary { cursor: pointer; color: #94a3b8; font-size: 0.78rem; padding: 6px 0; }
 
+/* Web Check result (traffic light + what to fix + PDF). */
+.bdv-ops-wc.is-green { border-color: rgba(74, 222, 128, 0.5); }
+.bdv-ops-wc.is-yellow { border-color: rgba(251, 191, 36, 0.6); }
+.bdv-ops-wc.is-red { border-color: rgba(248, 113, 113, 0.7); }
+.bdv-ops-wc > .bdv-ops-card-head { flex-wrap: nowrap; }
+.bdv-ops-wc-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.bdv-ops-wc-list li { padding: 8px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); }
+.bdv-ops-wc-list .bdv-ops-sub { display: block; margin-top: 3px; }
+.bdv-ops-wc .bdv-ops-muted { margin: 8px 0 0; }
+.bdv-ops-wc-last { margin: 10px 0 0; color: #94a3b8; font-size: 0.78rem; }
+
 .bdv-ops-confirm { margin-top: 10px; padding: 12px; border-radius: 10px; background: #1f1215; border: 1px solid rgba(248, 113, 113, 0.55); }
 .bdv-ops-confirm p { margin: 0; color: #fecaca; }
 

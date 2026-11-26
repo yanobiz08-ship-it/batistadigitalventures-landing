@@ -110,6 +110,7 @@
     data: null,      // last GET ?key= payload, normalised by normaliseData()
     form: null,      // the one inline form that is open: { kind, id }
     payLinks: {},    // project row -> Stripe link created in this session
+    webCheck: null,  // last Web Check run from this page: { report, pdfBase64, filename }
     loading: false,
     reloadAgain: false,
     inFlight: 0,
@@ -169,7 +170,8 @@
       newRequests: requests.filter(function (r) { return String(r.status || "NEW") === "NEW"; }),
       apps: Array.isArray(res.partnerApplications) ? res.partnerApplications : [],
       currentSow: current,
-      otherSows: sows.filter(function (w) { return currentIds.indexOf(w.sowId) === -1; })
+      otherSows: sows.filter(function (w) { return currentIds.indexOf(w.sowId) === -1; }),
+      webCheck: res.webCheck || null // summary of the last Web Check (panel, weekly or alert)
     };
   }
 
@@ -350,6 +352,7 @@
     ops.data = null;
     ops.form = null;
     ops.payLinks = {};
+    ops.webCheck = null;
     var pass = document.getElementById("bdv-ops-pass");
     if (pass) pass.value = "";
     var msg = document.getElementById("bdv-ops-auth-msg");
@@ -367,12 +370,14 @@
     var isAdmin = ops.role === "admin";
     document.getElementById("bdv-ops-role").textContent = isAdmin ? "Administrador" : "Programador partner";
     document.getElementById("bdv-ops-new-btn").hidden = !isAdmin;
+    document.getElementById("bdv-ops-webcheck-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-updated").textContent =
       "Actualizado " + ops.loadedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " · se actualiza solo";
 
     var html = [];
     if (isAdmin) {
       html.push(renderTodo(d));
+      html.push(webCheckCard(d.webCheck));
       if (ops.form && ops.form.kind === "project" && !ops.form.id) html.push('<div class="bdv-ops-card is-focus">' + projectForm(null) + "</div>");
       html.push(section("📨 Solicitudes nuevas", d.newRequests.length, d.newRequests.map(requestCard).join(""), "No hay solicitudes nuevas."));
     }
@@ -421,6 +426,73 @@
     if (proposals) items.push(proposals + (proposals === 1 ? " avance por aprobar" : " avances por aprobar"));
     return '<div class="bdv-ops-todo' + (items.length ? "" : " is-clear") + '">' +
       (items.length ? "<strong>Por hacer:</strong> " + esc(items.join(" · ")) : "✓ Todo al día. No hay nada pendiente de tu parte.") + "</div>";
+  }
+
+  // ---------- Web Check ----------
+  var WC_LEVEL = {
+    red: { dot: "🔴", label: "Rojo" },
+    yellow: { dot: "🟡", label: "Amarillo" },
+    green: { dot: "🟢", label: "Verde" },
+    info: { dot: "⚪", label: "Info" }
+  };
+
+  function webCheckWhen(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? "" : d.toLocaleString("es-US", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  }
+
+  // The fresh result of this page (with its PDF), or one line with the last stored run.
+  function webCheckCard(last) {
+    var run = ops.webCheck;
+    if (!run) {
+      if (!last || !WC_LEVEL[last.level]) return "";
+      return '<p class="bdv-ops-wc-last">' + WC_LEVEL[last.level].dot + " Último Web Check: " + esc(webCheckWhen(last.at)) + " · " + esc(last.headline) + "</p>";
+    }
+    var r = run.report;
+    var lvl = WC_LEVEL[r.level] || WC_LEVEL.info;
+    var issues = [];
+    r.sections.forEach(function (s) {
+      s.checks.forEach(function (c) { if (c.level === "red" || c.level === "yellow") issues.push(c); });
+    });
+    issues.sort(function (a, b) { return (b.level === "red") - (a.level === "red"); });
+    var canShare = Boolean(navigator.canShare && window.File) && navigator.canShare({ files: [new File([""], run.filename, { type: "application/pdf" })] });
+    return '<div class="bdv-ops-card bdv-ops-wc is-' + esc(r.level) + '">' +
+      '<div class="bdv-ops-card-head"><div><strong>' + lvl.dot + " Web Check: " + esc(lvl.label) + "</strong>" +
+      '<div class="bdv-ops-sub">' + esc(r.headline) + "</div>" +
+      '<div class="bdv-ops-muted">' + esc(webCheckWhen(r.generatedAt)) + " · " + r.counts.red + " en rojo · " + r.counts.yellow + " en amarillo · " + r.counts.green + " en verde</div></div>" +
+      btn("web-check-close", "✕", "is-ghost is-small", ' aria-label="Cerrar el resultado del Web Check"') + "</div>" +
+      '<div class="bdv-ops-actions">' + btn("web-check-pdf", "⬇ Descargar PDF", "is-primary") +
+      (canShare ? btn("web-check-share", "Compartir PDF", "is-ghost") : "") + "</div>" +
+      (issues.length
+        ? '<ul class="bdv-ops-wc-list">' + issues.map(function (c) {
+            return "<li>" + WC_LEVEL[c.level].dot + " <strong>" + esc(c.name) + "</strong>" + (c.action ? '<span class="bdv-ops-sub">' + esc(c.action) + "</span>" : "") + "</li>";
+          }).join("") + "</ul>"
+        : '<p class="bdv-ops-status">Todo lo revisado está en verde.</p>') +
+      '<p class="bdv-ops-muted">El PDF no incluye claves ni datos privados de clientes: puedes compartirlo tal cual con BDV Bot.</p></div>';
+  }
+
+  function webCheckFile() {
+    var bin = atob(ops.webCheck.pdfBase64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new File([bytes], ops.webCheck.filename, { type: "application/pdf" });
+  }
+
+  function downloadWebCheck() {
+    var url = URL.createObjectURL(webCheckFile());
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = ops.webCheck.filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+  }
+
+  function shareWebCheck() {
+    navigator.share({ files: [webCheckFile()], title: "Web Check BDV" }).catch(function (err) {
+      if (!err || err.name !== "AbortError") downloadWebCheck();
+    });
   }
 
   // ---------- incoming requests ----------
@@ -799,6 +871,15 @@
     "open-sow": function (b) { ops.form = { kind: "sow", id: b.getAttribute("data-row") }; render(); focusForm(); },
     "open-pay": function (b) { ops.form = { kind: "pay", id: b.getAttribute("data-row") }; render(); focusForm(); },
     "cancel-form": function () { ops.form = null; render(); },
+    "web-check": function (b) {
+      runAction(b, { action: "web_check" }, function (res) {
+        ops.webCheck = { report: res.report, pdfBase64: res.pdfBase64, filename: res.filename };
+        return { msg: "✓ Web Check listo. El resultado y el PDF están abajo.", ok: true };
+      });
+    },
+    "web-check-pdf": function () { downloadWebCheck(); },
+    "web-check-share": function () { shareWebCheck(); },
+    "web-check-close": function () { ops.webCheck = null; render(); },
     copy: function (b) { copyText(b.getAttribute("data-url")); },
     approve: function (b) {
       var p = findProject(b.getAttribute("data-row"));
@@ -874,6 +955,7 @@
       '  <div id="bdv-ops-dash" hidden>',
       '    <div class="bdv-ops-toolbar">',
       '      <button type="button" id="bdv-ops-new-btn" class="bdv-ops-btn is-primary" data-act="new-project">+ Nuevo proyecto</button>',
+      '      <button type="button" id="bdv-ops-webcheck-btn" class="bdv-ops-btn is-ghost" data-act="web-check" title="Revisa sitio, pagos, correo, datos y seguridad, y genera un PDF">🩺 Web Check</button>',
       '      <span id="bdv-ops-updated" class="bdv-ops-muted"></span>',
       '      <details class="bdv-ops-menu"><summary aria-label="Opciones de la cuenta">⋯</summary><div class="bdv-ops-menu-pop">',
       '        <form class="bdv-ops-form is-inline" data-form="key"><label class="bdv-ops-field"><span>Nueva clave para este rol</span>',
