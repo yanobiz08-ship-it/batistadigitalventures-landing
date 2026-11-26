@@ -18,23 +18,30 @@
     ["Ley aplicable y firma", "Estado de California, EE. UU. Firma y registros electrónicos válidos conforme a E-SIGN y UETA."]
   ];
 
-  // Both signatures of a SOW, client first: the client signs from the ?sow= link, then
-  // Batista Digital Ventures countersigns from the ops panel.
+  // Both signatures of a SOW, Batista Digital Ventures first: it signs when issuing the SOW from the
+  // ops panel, and the client's signature from the ?sow= link completes the agreement.
   function sowSignatureEntries(sow) {
     return [
-      { party: "Cliente", sig: sow.signature || null, pending: "Pendiente de la firma del cliente." },
       {
         party: "Batista Digital Ventures LLC",
         sig: sow.providerSignature || null,
-        pending: "Pendiente de la contrafirma de Batista Digital Ventures LLC."
-      }
+        pending: "Sin la firma de Batista Digital Ventures LLC."
+      },
+      { party: "Cliente", sig: sow.signature || null, pending: "Pendiente de la firma del cliente." }
     ];
   }
 
+  // A SOW can be signed by the client only when Batista Digital Ventures already signed it and it
+  // was not replaced. Older SOWs without that signature have to be reissued.
+  function canClientSign(sow) {
+    return Boolean(sow.providerSignature) && !sow.signature && sow.status !== "VOID";
+  }
+
   function sowStatusLabel(sow) {
-    if (sow.signature && sow.providerSignature) return "Firmado por ambas partes";
-    if (sow.signature) return "Firmado por el cliente · pendiente de contrafirma";
-    return "Pendiente de firma";
+    if (sow.status === "VOID") return "Reemplazado por un SOW más reciente";
+    if (sow.status === "SIGNED") return "Firmado por ambas partes";
+    if (canClientSign(sow)) return "Firmado por Batista Digital Ventures LLC · pendiente de su firma";
+    return "Pendiente de reemisión por Batista Digital Ventures LLC";
   }
 
   function isSowPaid(sow) {
@@ -200,7 +207,7 @@
       .trim()
       .toUpperCase();
     const paymentType = String(options.paymentType || "deposit").trim();
-    const targetStage = Number(options.targetStage || 2);
+    const targetStage = Number(options.targetStage || 3);
     const clientEmail = String(
       options.clientEmail || (currentSowData && currentSowData.clientEmail) || ""
     )
@@ -223,9 +230,13 @@
     const returnBaseUrl =
       options.returnBaseUrl || `${window.location.origin}${window.location.pathname}`;
 
+    // Milestone and final-settlement links are created from the ops panel with the admin key; the
+    // deposit is public and the server takes its amount from the signed SOW.
+    const headers = { "Content-Type": "application/json" };
+    if (options.authKey) headers.Authorization = `Bearer ${options.authKey}`;
     const resp = await fetch(core.apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         action: "create_checkout",
         sowId: sowIdClean,
@@ -275,7 +286,6 @@
         clientName: sow.clientName || "",
         amountUsd: depositAmount,
         paymentType: "deposit",
-        targetStage: 2,
         itemTitle: `Depósito Inicial (${sow.sowId}) — ${sow.businessName || sow.clientName || "Batista Digital Ventures LLC"}`,
         returnBaseUrl: `${window.location.origin}${window.location.pathname}`
       });
@@ -412,7 +422,9 @@
 
           statusEl.style.color = "#4ade80";
           statusEl.textContent =
-            "✓ Firmaste el acuerdo. Batista Digital Ventures LLC lo contrafirmará y te enviaremos por correo la copia final firmada por ambas partes; después podrás pagar el depósito desde este mismo enlace.";
+            "✓ Firmaste el acuerdo: ya está firmado por ambas partes y te enviamos la copia final por correo. Siguiente paso: paga el depósito aquí abajo para que comencemos el trabajo.";
+          const payWrap = document.getElementById("bdv-sow-payment-wrap");
+          if (payWrap && payWrap.style.display !== "none") payWrap.scrollIntoView({ behavior: "smooth", block: "center" });
         })
         .catch(() => {
           btn.disabled = false;
@@ -512,12 +524,20 @@
             <strong>Condiciones clave:</strong> 6 etapas (10% → 25% → 45% → 75% → 90% → 100%), ventana de revisión de 5 días hábiles, pagos y reembolsos según los Términos de Servicio, transferencia de propiedad intelectual al liquidar el 100%, código secreto temporal que expira al cerrar (sin mantenimiento mensual incluido) y ley de California.
           </div>
           ${sigHtml}
+          ${
+            sow.status === "VOID"
+              ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.45); color: #fecaca;">Este SOW fue reemplazado por uno más reciente y ya no se puede firmar. Usa el último enlace que te enviamos por correo.</div>`
+              : !sow.signature && !sow.providerSignature
+                ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(232, 200, 97, 0.1); border: 1px solid rgba(232, 200, 97, 0.45); color: #fde68a;">Este SOW todavía no está firmado por Batista Digital Ventures LLC. Te enviaremos por correo un enlace nuevo, ya firmado por nuestra parte, para que lo firmes.</div>`
+                : ""
+          }
         </div>
       `;
     }
 
     if (formWrap) {
-      formWrap.style.display = sow.signature ? "none" : "block";
+      // Only a SOW already signed by Batista Digital Ventures, not replaced (VOID), can be signed here.
+      formWrap.style.display = canClientSign(sow) ? "block" : "none";
     }
 
     renderPaymentSection(sow);
@@ -570,62 +590,8 @@
         });
     },
 
-    payDeposit: function (sowObj) {
-      const target = sowObj || currentSowData;
-      if (!target) return;
-      currentSowData = target;
-      ensureSowModal();
-      startStripeCheckoutForSow(target);
-    },
-
     createCheckoutLink: function (opts) {
       return requestStripeCheckoutSession(opts);
-    },
-
-    collectMilestoneOrFinal: async function (proyecto) {
-      const target = proyecto || currentSowData || {};
-      const labelTarget = target.name || target.sowId || target.businessName || "el proyecto";
-      const montoInput = prompt(`Monto en USD a cobrar para ${labelTarget}:`);
-      if (montoInput === null) return { ok: false, cancelled: true };
-
-      const amountUsd = Number(montoInput);
-      if (!amountUsd || amountUsd < 0.5) {
-        alert("Ingresa un monto válido en USD (mínimo $0.50).");
-        return { ok: false, error: "Monto inválido" };
-      }
-
-      const isFinal = confirm(
-        "¿Es la LIQUIDACIÓN FINAL (100%) del proyecto?\n\nAceptar = Liquidación Final (Etapa 6)\nCancelar = Hito intermedio"
-      );
-      const paymentType = isFinal ? "final_settlement" : "milestone";
-      const targetStage = isFinal ? 6 : Number(target.stage || 4);
-
-      const res = await requestStripeCheckoutSession({
-        sowId: target.sowId || "",
-        clientEmail: target.email || target.clientEmail || "",
-        businessName: target.businessName || "",
-        clientName: target.clientName || target.name || "",
-        amountUsd,
-        paymentType,
-        targetStage,
-        itemTitle: `${isFinal ? "Liquidación 100%" : "Hito de Proyecto"} — ${labelTarget}`
-      });
-
-      if (res && res.ok && res.checkoutUrl) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(res.checkoutUrl).catch(() => null);
-        }
-        const openNow = confirm(
-          `Enlace de Stripe generado y copiado al portapapeles:\n\n${res.checkoutUrl}\n\n¿Deseas abrirlo ahora?`
-        );
-        if (openNow) {
-          window.open(res.checkoutUrl, "_blank", "noopener,noreferrer");
-        }
-      } else {
-        alert("No se pudo generar el enlace de cobro: " + ((res && res.error) || "Error desconocido"));
-      }
-
-      return res;
     }
   };
 
