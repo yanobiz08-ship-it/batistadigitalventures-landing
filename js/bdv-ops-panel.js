@@ -1149,7 +1149,7 @@
 
   function clearAdminHash() {
     if (window.location.hash === ADMIN_HASH && window.history && window.history.replaceState) {
-      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      window.history.replaceState(null, "", window.location.href.split("#")[0]);
     }
   }
 
