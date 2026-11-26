@@ -1,106 +1,70 @@
 <!DOCTYPE html>
-<html lang="es" data-lang="es" data-offer-end="@@OFFER_END@@">
+<html lang="@@LANG@@" data-offer-end="@@OFFER_END@@">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>§pageTitle§</title>
-  <meta name="description" content="Apps móviles, sitios web, sistemas digitales y reparación web para negocios y emprendedores, en español e inglés. Batista Digital Ventures LLC, Lompoc, California." />
-  <link rel="canonical" href="https://batistadigitalventures.com/" />
+  <meta name="description" content="§metaDesc§" />
+  <link rel="canonical" href="@@URL@@" />
+  <link rel="alternate" hreflang="es" href="@@URL_ES@@" />
+  <link rel="alternate" hreflang="en" href="@@URL_EN@@" />
+  <link rel="alternate" hreflang="x-default" href="@@URL_ES@@" />
   <meta name="theme-color" content="#070a10" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Batista Digital Ventures" />
-  <meta property="og:locale" content="es_US" />
-  <meta property="og:locale:alternate" content="en_US" />
-  <meta property="og:url" content="https://batistadigitalventures.com/" />
+  <meta property="og:locale" content="@@OG_LOCALE@@" />
+  <meta property="og:locale:alternate" content="@@OG_LOCALE_ALT@@" />
+  <meta property="og:url" content="@@URL@@" />
   <meta property="og:title" content="§pageTitle§" />
-  <meta property="og:description" content="Apps móviles, sitios web, sistemas digitales y reparación web para negocios y emprendedores, en español e inglés. Batista Digital Ventures LLC, Lompoc, California." />
-  <meta property="og:image" content="https://batistadigitalventures.com/assets/img/og-image.jpg" />
+  <meta property="og:description" content="§metaDesc§" />
+  <meta property="og:image" content="@@SITE@@assets/img/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Logotipo de Batista Digital Ventures en dorado sobre fondo oscuro" />
+  <meta property="og:image:alt" content="§ogImageAlt§" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="§pageTitle§" />
-  <meta name="twitter:description" content="Apps móviles, sitios web, sistemas digitales y reparación web para negocios y emprendedores, en español e inglés. Batista Digital Ventures LLC, Lompoc, California." />
-  <meta name="twitter:image" content="https://batistadigitalventures.com/assets/img/og-image.jpg" />
+  <meta name="twitter:description" content="§metaDesc§" />
+  <meta name="twitter:image" content="@@SITE@@assets/img/og-image.jpg" />
+  <meta name="twitter:image:alt" content="§ogImageAlt§" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="preload" as="image" href="./assets/img/portfolio/merqox-map-hero.webp" type="image/webp" fetchpriority="high" />
-  <link rel="stylesheet" href="./css/bdv-site.css" />
-  <link rel="stylesheet" href="./css/brand-media.css" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preload" as="image" href="/assets/img/portfolio/trivlo-hero-device.webp" type="image/webp" fetchpriority="high" />
+  <link rel="stylesheet" href="/css/bdv-site.css" />
+  <link rel="stylesheet" href="/css/brand-media.css" />
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://batistadigitalventures.com/#organization",
-        "name": "Batista Digital Ventures LLC",
-        "alternateName": "Batista Digital Ventures",
-        "url": "https://batistadigitalventures.com/",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://batistadigitalventures.com/assets/BDV%20Logo.png",
-          "width": 512,
-          "height": 512
-        },
-        "image": "https://batistadigitalventures.com/assets/img/og-image.jpg",
-        "email": "contact@batistadigitalventures.com",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Lompoc",
-          "addressRegion": "CA",
-          "addressCountry": "US"
-        },
-        "duns": "150052438",
-        "founder": {
-          "@type": "Person",
-          "name": "Yano Batista",
-          "jobTitle": "Founder & CEO",
-          "sameAs": ["https://www.linkedin.com/in/yano-batista"]
-        },
-        "knowsLanguage": ["es", "en"]
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://batistadigitalventures.com/#website",
-        "url": "https://batistadigitalventures.com/",
-        "name": "Batista Digital Ventures",
-        "inLanguage": ["es", "en"],
-        "publisher": { "@id": "https://batistadigitalventures.com/#organization" }
-      }
-    ]
-  }
+@@JSONLD@@
   </script>
 </head>
 <body>
-  <a class="skip-link" href="#main" data-i18n="skipLink">§skipLink§</a>
+  <a class="skip-link" href="#main">§skipLink§</a>
   <header class="site-header">
     <div class="container nav-inner">
       <a class="brand" href="#top">
         <span class="brand-icon-wrap" aria-hidden="true">
-          <img class="bdv-header-logo-img" src="./assets/img/bdv-logo-88.png" width="44" height="44" alt="" decoding="async" />
+          <img class="bdv-header-logo-img" src="/assets/img/bdv-logo-88.png" width="44" height="44" alt="" decoding="async" />
         </span>
         <span class="brand-text">
           <span class="brand-name">Batista Digital Ventures</span>
-          <span class="brand-sub" data-i18n="brandSub">§brandSub§</span>
+          <span class="brand-sub">§brandSub§</span>
         </span>
       </a>
 
-      <nav class="nav-links" aria-label="§ariaNav§" data-i18n-aria="ariaNav">
-        <a href="#servicios" data-i18n="navServices">§navServices§</a>
-        <a href="#portafolio" data-i18n="navWork">§navWork§</a>
-        <a href="#proceso" data-i18n="navProcess">§navProcess§</a>
-        <a href="#partners" data-i18n="navPartners">§navPartners§</a>
-        <a href="#faq" data-i18n="navFaq">§navFaq§</a>
+      <nav class="nav-links" aria-label="§ariaNav§">
+        <a href="#servicios">§navServices§</a>
+        <a href="#portafolio">§navWork§</a>
+        <a href="#proceso">§navProcess§</a>
+        <a href="#partners">§navPartners§</a>
+        <a href="#faq">§navFaq§</a>
       </nav>
 
       <div class="nav-actions">
-        <div class="lang-switch" role="group" aria-label="§ariaLang§" data-i18n-aria="ariaLang">
-          <button type="button" class="lang-btn active" data-set-lang="es" aria-pressed="true" lang="es" title="Español">ES</button>
-          <button type="button" class="lang-btn" data-set-lang="en" aria-pressed="false" lang="en" title="English">EN</button>
+        <div class="lang-switch" role="group" aria-label="§ariaLang§">
+          <a class="lang-btn@@ACTIVE_ES@@" href="/" hreflang="es" lang="es" title="§langEsTitle§"@@CURRENT_ES@@>ES</a>
+          <a class="lang-btn@@ACTIVE_EN@@" href="/en/" hreflang="en" lang="en" title="§langEnTitle§"@@CURRENT_EN@@>EN</a>
         </div>
-        <a class="btn btn-primary nav-cta" href="#cotizar" data-i18n="navCta">§navCta§</a>
+        <a class="btn btn-primary nav-cta" href="#cotizar">§navCta§</a>
       </div>
     </div>
   </header>
@@ -111,40 +75,40 @@
     <section class="hero" id="inicio">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow"><span class="dot" aria-hidden="true"></span><span data-i18n="heroEyebrow">§heroEyebrow§</span></p>
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span><span>§heroEyebrow§</span></p>
           <h1>
-            <span data-i18n="heroTitleLead">§heroTitleLead§</span><span class="accent" data-i18n="heroTitleAccent">§heroTitleAccent§</span>
+            <span>§heroTitleLead§</span><span class="accent">§heroTitleAccent§</span>
           </h1>
-          <p class="hero-lead" data-i18n="heroLead">§heroLead§</p>
+          <p class="hero-lead">§heroLead§</p>
           <div class="hero-cta">
-            <a class="btn btn-primary btn-lg" href="#cotizar" data-i18n="heroCtaQuote">§heroCtaQuote§</a>
-            <a class="btn btn-secondary btn-lg" href="#partners" data-i18n="heroCtaDev">§heroCtaDev§</a>
+            <a class="btn btn-primary btn-lg" href="#cotizar">§heroCtaQuote§</a>
+            <a class="btn btn-secondary btn-lg" href="#partners">§heroCtaDev§</a>
           </div>
-          <p class="hero-note" data-i18n="heroNote">§heroNote§</p>
+          <p class="hero-note">§heroNote§</p>
         </div>
-        <div class="hero-visual" aria-hidden="false">
+        <div class="hero-visual">
           <div class="hero-glow" aria-hidden="true"></div>
-          <img class="hero-device" src="./assets/img/portfolio/trivlo-hero-device.webp" width="520" height="982" alt="§heroAltTrivlo§" data-i18n-alt="heroAltTrivlo" decoding="async" />
+          <img class="hero-device" src="/assets/img/portfolio/trivlo-hero-device.webp" width="520" height="982" alt="§heroAltTrivlo§" fetchpriority="high" decoding="async" />
           <figure class="phone phone-hero">
-            <img src="./assets/img/portfolio/merqox-map-hero.webp" width="520" height="1014" alt="§heroAltMerqox§" data-i18n-alt="heroAltMerqox" fetchpriority="high" decoding="async" />
+            <img src="/assets/img/portfolio/merqox-map-hero.webp" width="520" height="1014" alt="§heroAltMerqox§" decoding="async" />
           </figure>
-          <span class="hero-chip hero-chip-a"><span data-i18n="heroChipMerqox">§heroChipMerqox§</span><small class="demo-note" data-i18n="demoData">§demoData§</small></span>
-          <span class="hero-chip hero-chip-b" data-i18n="heroChipTrivlo">§heroChipTrivlo§</span>
+          <span class="hero-chip hero-chip-a"><span>§heroChipMerqox§</span><small class="demo-note">§demoData§</small></span>
+          <span class="hero-chip hero-chip-b">§heroChipTrivlo§</span>
         </div>
       </div>
     </section>
 
     <!-- TRUST STRIP -->
-    <section class="trust-strip" aria-label="§ariaTrust§" data-i18n-aria="ariaTrust">
+    <section class="trust-strip" aria-label="§ariaTrust§">
       <div class="container">
         <ul class="trust-list">
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:building@@</span><span><strong data-i18n="trust1Title">§trust1Title§</strong><small data-i18n="trust1Text">§trust1Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:pin@@</span><span><strong data-i18n="trust2Title">§trust2Title§</strong><small data-i18n="trust2Text">§trust2Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:doc@@</span><span><strong data-i18n="trust3Title">§trust3Title§</strong><small data-i18n="trust3Text">§trust3Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:steps@@</span><span><strong data-i18n="trust4Title">§trust4Title§</strong><small data-i18n="trust4Text">§trust4Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:key@@</span><span><strong data-i18n="trust5Title">§trust5Title§</strong><small data-i18n="trust5Text">§trust5Text§</small></span></li>
-          <li><span class="trust-ico" aria-hidden="true">@@ICON:globe@@</span><span><strong data-i18n="trust6Title">§trust6Title§</strong><small data-i18n="trust6Text">§trust6Text§</small></span></li>
-          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">@@ICON:shield@@</span><span><strong data-i18n="trustDunsTitle">§trustDunsTitle§</strong><small data-i18n="trustDunsText">§trustDunsText§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:building@@</span><span><strong>§trust1Title§</strong><small>§trust1Text§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:pin@@</span><span><strong>§trust2Title§</strong><small>§trust2Text§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:doc@@</span><span><strong>§trust3Title§</strong><small>§trust3Text§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:steps@@</span><span><strong>§trust4Title§</strong><small>§trust4Text§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:key@@</span><span><strong>§trust5Title§</strong><small>§trust5Text§</small></span></li>
+          <li><span class="trust-ico" aria-hidden="true">@@ICON:globe@@</span><span><strong>§trust6Title§</strong><small>§trust6Text§</small></span></li>
+          <li class="trust-duns"><span class="trust-ico" aria-hidden="true">@@ICON:shield@@</span><span><strong>§trustDunsTitle§</strong><small>§trustDunsText§</small></span></li>
         </ul>
       </div>
     </section>
@@ -153,16 +117,16 @@
     <section class="section" id="servicios">
       <div class="container">
         <div class="section-head">
-          <p class="kicker" data-i18n="svcKicker">§svcKicker§</p>
-          <h2 data-i18n="svcTitle">§svcTitle§</h2>
-          <p class="section-desc" data-i18n="svcDesc">§svcDesc§</p>
-          <div class="offer-banner offer-only"><p><strong data-i18n="offerBadge">§offerBadge§</strong> <span data-i18n="offerLock">§offerLock§</span></p>
-          <p class="offer-terms"><span data-i18n="offerTerms">§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms" data-i18n="legalTermsBtn">§legalTermsBtn§</button>.</p></div>
+          <p class="kicker">§svcKicker§</p>
+          <h2>§svcTitle§</h2>
+          <p class="section-desc">§svcDesc§</p>
+          <div class="offer-banner offer-only"><p><strong>§offerBadge§</strong> <span>§offerLock§</span></p>
+          <p class="offer-terms"><span>§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms">§legalTermsBtn§</button>.</p></div>
         </div>
         <div class="services-grid">
 @@SERVICES@@
         </div>
-        <p class="fine-print" data-i18n="svcNote">§svcNote§</p>
+        <p class="fine-print">§svcNote§</p>
       </div>
     </section>
 
@@ -170,9 +134,9 @@
     <section class="section section-alt" id="portafolio">
       <div class="container">
         <div class="section-head">
-          <p class="kicker" data-i18n="workKicker">§workKicker§</p>
-          <h2 data-i18n="workTitle">§workTitle§</h2>
-          <p class="section-desc" data-i18n="workDesc">§workDesc§</p>
+          <p class="kicker">§workKicker§</p>
+          <h2>§workTitle§</h2>
+          <p class="section-desc">§workDesc§</p>
         </div>
 @@PROJECTS@@
       </div>
@@ -182,24 +146,24 @@
     <section class="section" id="proceso">
       <div class="container">
         <div class="section-head">
-          <p class="kicker" data-i18n="procKicker">§procKicker§</p>
-          <h2 data-i18n="procTitle">§procTitle§</h2>
-          <p class="section-desc" data-i18n="procDesc">§procDesc§</p>
+          <p class="kicker">§procKicker§</p>
+          <h2>§procTitle§</h2>
+          <p class="section-desc">§procDesc§</p>
         </div>
         <ol class="timeline">
 @@STAGES@@
         </ol>
         <div class="guarantees">
-          <p class="kicker" data-i18n="guarKicker">§guarKicker§</p>
+          <p class="kicker">§guarKicker§</p>
           <div class="guarantee-grid">
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:doc@@</span><h3 data-i18n="guar1Title">§guar1Title§</h3><p data-i18n="guar1Text">§guar1Text§</p></div>
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:clock@@</span><h3 data-i18n="guar2Title">§guar2Title§</h3><p data-i18n="guar2Text">§guar2Text§</p></div>
-            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:key@@</span><h3 data-i18n="guar3Title">§guar3Title§</h3><p data-i18n="guar3Text">§guar3Text§</p></div>
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:doc@@</span><h3>§guar1Title§</h3><p>§guar1Text§</p></div>
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:clock@@</span><h3>§guar2Title§</h3><p>§guar2Text§</p></div>
+            <div class="guarantee"><span class="g-ico" aria-hidden="true">@@ICON:key@@</span><h3>§guar3Title§</h3><p>§guar3Text§</p></div>
           </div>
         </div>
         <div class="tracker-cta">
-          <p data-i18n="trackerText">§trackerText§</p>
-          <button type="button" id="bdv-open-tracker-btn" class="btn btn-secondary">🔑 <span data-i18n="trackerBtn">§trackerBtn§</span></button>
+          <p>§trackerText§</p>
+          <button type="button" id="bdv-open-tracker-btn" class="btn btn-secondary">🔑 <span>§trackerBtn§</span></button>
         </div>
       </div>
     </section>
@@ -208,44 +172,44 @@
     <section class="section section-alt" id="partners">
       <div class="container partners-grid">
         <div class="partners-copy">
-          <p class="kicker" data-i18n="partKicker">§partKicker§</p>
-          <h2 data-i18n="partTitle">§partTitle§</h2>
-          <p class="section-desc" data-i18n="partDesc">§partDesc§</p>
-          <h3 class="sub-title" data-i18n="partStepsTitle">§partStepsTitle§</h3>
+          <p class="kicker">§partKicker§</p>
+          <h2>§partTitle§</h2>
+          <p class="section-desc">§partDesc§</p>
+          <h3 class="sub-title">§partStepsTitle§</h3>
           <ol class="steps">
-            <li><span class="step-n">1</span><div><strong data-i18n="pStep1Title">§pStep1Title§</strong><p data-i18n="pStep1Text">§pStep1Text§</p></div></li>
-            <li><span class="step-n">2</span><div><strong data-i18n="pStep2Title">§pStep2Title§</strong><p data-i18n="pStep2Text">§pStep2Text§</p></div></li>
-            <li><span class="step-n">3</span><div><strong data-i18n="pStep3Title">§pStep3Title§</strong><p data-i18n="pStep3Text">§pStep3Text§</p></div></li>
+            <li><span class="step-n">1</span><div><strong>§pStep1Title§</strong><p>§pStep1Text§</p></div></li>
+            <li><span class="step-n">2</span><div><strong>§pStep2Title§</strong><p>§pStep2Text§</p></div></li>
+            <li><span class="step-n">3</span><div><strong>§pStep3Title§</strong><p>§pStep3Text§</p></div></li>
           </ol>
-          <h3 class="sub-title" data-i18n="partStackTitle">§partStackTitle§</h3>
+          <h3 class="sub-title">§partStackTitle§</h3>
           <ul class="chips">
-            <li>React Native</li><li>TypeScript</li><li>Cloudflare Workers</li><li>GitHub</li><li>Stripe</li><li data-i18n="stackAI">§stackAI§</li>
+            <li>React Native</li><li>TypeScript</li><li>Cloudflare Workers</li><li>GitHub</li><li>Stripe</li><li>§stackAI§</li>
           </ul>
         </div>
         <form id="bdv-partner-form" class="card-form" novalidate>
-          <h3 data-i18n="partFormTitle">§partFormTitle§</h3>
-          <div class="field"><label for="pf-name" data-i18n="pfName">§pfName§</label><input id="pf-name" name="name" type="text" autocomplete="name" required /></div>
-          <div class="field"><label for="pf-email" data-i18n="pfEmail">§pfEmail§</label><input id="pf-email" name="email" type="email" autocomplete="email" required /></div>
-          <div class="field"><label for="pf-portfolio" data-i18n="pfPortfolio">§pfPortfolio§</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="§pfPortfolioPh§" data-i18n-ph="pfPortfolioPh" required /></div>
+          <h3>§partFormTitle§</h3>
+          <div class="field"><label for="pf-name">§pfName§</label><input id="pf-name" name="name" type="text" autocomplete="name" required /></div>
+          <div class="field"><label for="pf-email">§pfEmail§</label><input id="pf-email" name="email" type="email" autocomplete="email" required /></div>
+          <div class="field"><label for="pf-portfolio">§pfPortfolio§</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="§pfPortfolioPh§" required /></div>
           <div class="field-row">
-            <div class="field"><label for="pf-specialty" data-i18n="pfSpecialty">§pfSpecialty§</label>
+            <div class="field"><label for="pf-specialty">§pfSpecialty§</label>
               <select id="pf-specialty" name="specialty" required>
-                <option value="" data-i18n="pfSpecChoose">§pfSpecChoose§</option>
-                <option value="mobile-react-native" data-i18n="pfSpec1">§pfSpec1§</option>
-                <option value="web-frontend" data-i18n="pfSpec2">§pfSpec2§</option>
-                <option value="backend-cloudflare" data-i18n="pfSpec3">§pfSpec3§</option>
-                <option value="ui-ux" data-i18n="pfSpec4">§pfSpec4§</option>
-                <option value="qa" data-i18n="pfSpec5">§pfSpec5§</option>
-                <option value="web-repair" data-i18n="pfSpec6">§pfSpec6§</option>
-                <option value="other" data-i18n="pfSpec7">§pfSpec7§</option>
+                <option value="">§pfSpecChoose§</option>
+                <option value="mobile-react-native">§pfSpec1§</option>
+                <option value="web-frontend">§pfSpec2§</option>
+                <option value="backend-cloudflare">§pfSpec3§</option>
+                <option value="ui-ux">§pfSpec4§</option>
+                <option value="qa">§pfSpec5§</option>
+                <option value="web-repair">§pfSpec6§</option>
+                <option value="other">§pfSpec7§</option>
               </select>
             </div>
-            <div class="field"><label for="pf-tz" data-i18n="pfTz">§pfTz§</label><input id="pf-tz" name="timezone" type="text" placeholder="§pfTzPh§" data-i18n-ph="pfTzPh" required /></div>
+            <div class="field"><label for="pf-tz">§pfTz§</label><input id="pf-tz" name="timezone" type="text" placeholder="§pfTzPh§" required /></div>
           </div>
-          <div class="field"><label for="pf-notes" data-i18n="pfNotes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
-          <button type="submit" class="btn btn-primary btn-block" data-i18n="pfSubmit">§pfSubmit§</button>
+          <div class="field"><label for="pf-notes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
+          <button type="submit" class="btn btn-primary btn-block">§pfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
-          <p class="fine-print"><span data-i18n="pfFine">§pfFine§</span> <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>.</p>
+          <p class="fine-print"><span>§pfFine§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>
         </form>
       </div>
     </section>
@@ -254,19 +218,19 @@
     <section class="section" id="fundador">
       <div class="container founder-grid">
         <figure class="founder-photo">
-          <img src="./assets/img/portfolio/yano-founder-240.webp" srcset="./assets/img/portfolio/yano-founder-240.webp 240w, ./assets/img/portfolio/yano-founder-400.webp 400w" sizes="(min-width: 980px) 168px, 104px" width="240" height="240" loading="lazy" decoding="async" alt="§fAlt§" data-i18n-alt="fAlt" />
+          <img src="/assets/img/portfolio/yano-founder-240.webp" srcset="/assets/img/portfolio/yano-founder-240.webp 240w, /assets/img/portfolio/yano-founder-400.webp 400w" sizes="(min-width: 980px) 168px, 104px" width="240" height="240" loading="lazy" decoding="async" alt="§fAlt§" />
         </figure>
         <div class="founder-head">
-          <p class="kicker" data-i18n="fKicker">§fKicker§</p>
-          <h2 data-i18n="fName">§fName§</h2>
-          <p class="founder-role" data-i18n="fRole">§fRole§</p>
+          <p class="kicker">§fKicker§</p>
+          <h2>§fName§</h2>
+          <p class="founder-role">§fRole§</p>
         </div>
         <div class="founder-copy">
-          <p class="founder-bio" data-i18n="fBio">§fBio§</p>
+          <p class="founder-bio">§fBio§</p>
           <ul class="founder-social">
-            <li><a href="https://www.linkedin.com/in/yano-batista" rel="noopener" target="_blank" aria-label="§fLinkedInAria§" data-i18n-aria="fLinkedInAria">@@ICON:linkedin@@<span>LinkedIn</span></a></li>
+            <li><a href="https://www.linkedin.com/in/yano-batista" rel="noopener" target="_blank" aria-label="§fLinkedInAria§">@@ICON:linkedin@@<span>LinkedIn</span></a></li>
           </ul>
-          <a class="btn btn-secondary" href="#cotizar" data-i18n="fCta">§fCta§</a>
+          <a class="btn btn-secondary" href="#cotizar">§fCta§</a>
         </div>
       </div>
     </section>
@@ -275,8 +239,8 @@
     <section class="section section-alt" id="faq">
       <div class="container faq-wrap">
         <div class="section-head">
-          <p class="kicker" data-i18n="faqKicker">§faqKicker§</p>
-          <h2 data-i18n="faqTitle">§faqTitle§</h2>
+          <p class="kicker">§faqKicker§</p>
+          <h2>§faqTitle§</h2>
         </div>
         <div class="faq-list">
 @@FAQ@@
@@ -288,61 +252,61 @@
     <section class="section quote-section" id="cotizar">
       <div class="container quote-grid">
         <div class="quote-copy">
-          <p class="kicker" data-i18n="qKicker">§qKicker§</p>
-          <h2 data-i18n="qTitle">§qTitle§</h2>
-          <p class="section-desc" data-i18n="qDesc">§qDesc§</p>
+          <p class="kicker">§qKicker§</p>
+          <h2>§qTitle§</h2>
+          <p class="section-desc">§qDesc§</p>
           <ol class="next-steps">
-            <li data-i18n="qNext1">§qNext1§</li>
-            <li data-i18n="qNext2">§qNext2§</li>
-            <li data-i18n="qNext3">§qNext3§</li>
+            <li>§qNext1§</li>
+            <li>§qNext2§</li>
+            <li>§qNext3§</li>
           </ol>
-          <p class="quote-email"><span data-i18n="qEmailLabel">§qEmailLabel§</span><br /><a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a></p>
+          <p class="quote-email"><span>§qEmailLabel§</span><br /><a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a></p>
         </div>
         <form id="bdv-quote-form" class="card-form" novalidate>
           <div class="field-row">
-            <div class="field"><label for="qf-name" data-i18n="qfName">§qfName§</label><input id="qf-name" name="name" type="text" autocomplete="name" required /></div>
-            <div class="field"><label for="qf-email" data-i18n="qfEmail">§qfEmail§</label><input id="qf-email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="qf-name">§qfName§</label><input id="qf-name" name="name" type="text" autocomplete="name" required /></div>
+            <div class="field"><label for="qf-email">§qfEmail§</label><input id="qf-email" name="email" type="email" autocomplete="email" required /></div>
           </div>
-          <div class="field"><label for="qf-biz" data-i18n="qfBiz">§qfBiz§</label><input id="qf-biz" name="business" type="text" autocomplete="organization" /></div>
-          <div class="field"><label for="qf-service" data-i18n="qfService">§qfService§</label>
+          <div class="field"><label for="qf-biz">§qfBiz§</label><input id="qf-biz" name="business" type="text" autocomplete="organization" /></div>
+          <div class="field"><label for="qf-service">§qfService§</label>
             <select id="qf-service" name="service" required>
-              <option value="" data-i18n="qfServiceChoose">§qfServiceChoose§</option>
-              <option value="app" data-i18n="qfSvcApp">§qfSvcApp§</option>
-              <option value="web" data-i18n="qfSvcWeb">§qfSvcWeb§</option>
-              <option value="system" data-i18n="qfSvcSystem">§qfSvcSystem§</option>
-              <option value="repair" data-i18n="qfSvcRepair">§qfSvcRepair§</option>
-              <option value="maintenance" data-i18n="qfSvcMaint">§qfSvcMaint§</option>
-              <option value="deck" data-i18n="qfSvcDeck">§qfSvcDeck§</option>
-              <option value="other" data-i18n="qfSvcOther">§qfSvcOther§</option>
+              <option value="">§qfServiceChoose§</option>
+              <option value="app">§qfSvcApp§</option>
+              <option value="web">§qfSvcWeb§</option>
+              <option value="system">§qfSvcSystem§</option>
+              <option value="repair">§qfSvcRepair§</option>
+              <option value="maintenance">§qfSvcMaint§</option>
+              <option value="deck">§qfSvcDeck§</option>
+              <option value="other">§qfSvcOther§</option>
             </select>
           </div>
           <div class="field-row">
-            <div class="field"><label for="qf-budget" data-i18n="qfBudget">§qfBudget§</label>
+            <div class="field"><label for="qf-budget">§qfBudget§</label>
               <select id="qf-budget" name="budget">
-                <option value="" data-i18n="qfBudgetChoose">§qfBudgetChoose§</option>
-                <option value="<500" data-i18n="qfB1">§qfB1§</option>
-                <option value="500-1500" data-i18n="qfB2">§qfB2§</option>
-                <option value="1500-3000" data-i18n="qfB3">§qfB3§</option>
-                <option value="3000-5000" data-i18n="qfB4">§qfB4§</option>
-                <option value=">5000" data-i18n="qfB5">§qfB5§</option>
-                <option value="unknown" data-i18n="qfB6">§qfB6§</option>
+                <option value="">§qfBudgetChoose§</option>
+                <option value="<500">§qfB1§</option>
+                <option value="500-1500">§qfB2§</option>
+                <option value="1500-3000">§qfB3§</option>
+                <option value="3000-5000">§qfB4§</option>
+                <option value=">5000">§qfB5§</option>
+                <option value="unknown">§qfB6§</option>
               </select>
             </div>
-            <div class="field"><label for="qf-timeline" data-i18n="qfTimeline">§qfTimeline§</label>
+            <div class="field"><label for="qf-timeline">§qfTimeline§</label>
               <select id="qf-timeline" name="timeline">
-                <option value="" data-i18n="qfTimelineChoose">§qfTimelineChoose§</option>
-                <option value="urgent-24-48h" data-i18n="qfT1">§qfT1§</option>
-                <option value="<1m" data-i18n="qfT2">§qfT2§</option>
-                <option value="1-3m" data-i18n="qfT3">§qfT3§</option>
-                <option value=">3m" data-i18n="qfT4">§qfT4§</option>
-                <option value="flexible" data-i18n="qfT5">§qfT5§</option>
+                <option value="">§qfTimelineChoose§</option>
+                <option value="urgent-24-48h">§qfT1§</option>
+                <option value="<1m">§qfT2§</option>
+                <option value="1-3m">§qfT3§</option>
+                <option value=">3m">§qfT4§</option>
+                <option value="flexible">§qfT5§</option>
               </select>
             </div>
           </div>
-          <div class="field"><label for="qf-notes" data-i18n="qfNotes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
-          <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="qfSubmit">§qfSubmit§</button>
+          <div class="field"><label for="qf-notes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg">§qfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
-          <p class="fine-print"><span data-i18n="qfPrivacy">§qfPrivacy§</span> <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>.</p>
+          <p class="fine-print"><span>§qfPrivacy§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>
         </form>
       </div>
     </section>
@@ -352,36 +316,36 @@
     <div class="container footer-inner">
       <div class="footer-brand">
         <strong>Batista Digital Ventures LLC</strong>
-        <p data-i18n="footTagline">§footTagline§</p>
-        <p data-i18n="footLocation">§footLocation§</p>
+        <p>§footTagline§</p>
+        <p>§footLocation§</p>
       </div>
-      <nav class="footer-links" aria-label="Footer">
-        <a href="#servicios" data-i18n="navServices">§navServices§</a>
-        <a href="#portafolio" data-i18n="navWork">§navWork§</a>
-        <a href="#proceso" data-i18n="navProcess">§navProcess§</a>
-        <a href="#partners" data-i18n="navPartners">§navPartners§</a>
-        <a href="#faq" data-i18n="navFaq">§navFaq§</a>
+      <nav class="footer-links" aria-label="§ariaFooter§">
+        <a href="#servicios">§navServices§</a>
+        <a href="#portafolio">§navWork§</a>
+        <a href="#proceso">§navProcess§</a>
+        <a href="#partners">§navPartners§</a>
+        <a href="#faq">§navFaq§</a>
         <a href="mailto:contact@batistadigitalventures.com">contact@batistadigitalventures.com</a>
       </nav>
     </div>
     <div class="container footer-bottom">
-      <span>© <span id="yr">2026</span> Batista Digital Ventures LLC · <span data-i18n="footRights">§footRights§</span></span>
+      <span>© <span id="yr">2026</span> Batista Digital Ventures LLC · <span>§footRights§</span></span>
       <div class="bdv-footer-legal">
-        <button type="button" class="bdv-link-btn" data-legal="terms" data-i18n="legalTermsBtn">§legalTermsBtn§</button>
+        <button type="button" class="bdv-link-btn" data-legal="terms">§legalTermsBtn§</button>
         <span class="bdv-legal-dot" aria-hidden="true">•</span>
-        <button type="button" class="bdv-link-btn" data-legal="privacy" data-i18n="legalPrivacyBtn">§legalPrivacyBtn§</button>
+        <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>
         <span class="bdv-legal-dot" aria-hidden="true">•</span>
-        <button type="button" class="bdv-link-btn" data-legal="accessibility" data-i18n="legalA11yBtn">§legalA11yBtn§</button>
+        <button type="button" class="bdv-link-btn" data-legal="accessibility">§legalA11yBtn§</button>
       </div>
-      <p class="footer-marks" data-i18n="footMarks">§footMarks§</p>
+      <p class="footer-marks">§footMarks§</p>
     </div>
   </footer>
 
-  <script src="./js/bdv-i18n.js"></script>
-  <script src="./js/brand-media.js" defer></script>
-  <script src="./js/bdv-site.js" defer></script>
-  <script src="./js/bdv-ops-panel.js" defer></script>
-  <script src="./js/bdv-sow-signer.js" defer></script>
-  <script src="./js/bdv-a11y.js" defer></script>
+  <script src="/js/bdv-i18n.js"></script>
+  <script src="/js/brand-media.js" defer></script>
+  <script src="/js/bdv-site.js" defer></script>
+  <script src="/js/bdv-ops-panel.js" defer></script>
+  <script src="/js/bdv-sow-signer.js" defer></script>
+  <script src="/js/bdv-a11y.js" defer></script>
 </body>
 </html>

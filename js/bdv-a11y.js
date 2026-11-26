@@ -7,7 +7,7 @@
  *  - Escape closes the top-most open modal by clicking its own close button, so each
  *    script's normal close logic runs (e.g. the admin panel still clears its session key).
  *  - Inputs / textareas / selects without a label get a real, visually hidden <label>
- *    whose text follows the field's placeholder (so it also follows ES / EN switches).
+ *    whose text follows the field's placeholder.
  */
 (function () {
   var OVERLAY_SELECTOR = ".bdv-modal-overlay";
@@ -205,7 +205,6 @@
       attributes: true,
       attributeFilter: ["style", "class", "placeholder"]
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   }
 
   if (document.readyState === "loading") {

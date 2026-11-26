@@ -3,8 +3,9 @@ Landing page for Batista Digital Ventures — apps, websites and digital systems
 Static site served by GitHub Pages (custom domain in `CNAME`). Everything in this repo is public.
 
 ## Structure
-- `index.html` — the page (Spanish static text = default language).
-- `js/bdv-i18n.js` — ES/EN dictionary + language switch (`data-i18n`, `data-i18n-ph`, `data-i18n-aria`, `data-i18n-alt`).
+- `index.html` (Spanish, also `x-default`) and `en/index.html` (English) — one static page per language, linked
+  with `hreflang` so Google indexes both; the ES/EN switch is a normal link. `404.html` — bilingual, `noindex`.
+- `js/bdv-i18n.js` — the ES/EN texts used by the scripts (`window.BDV_t`), for the page's `<html lang>`.
 - `js/brand-media.js` — shared helpers (`window.BDV_CORE`), the legal texts (Terms of Service, Privacy Policy,
   Accessibility Statement) opened by any `[data-legal="terms|privacy|accessibility"]` button, request confirmation modal.
 - `js/bdv-site.js` — quote form, partner application form, service preselect, portfolio galleries.
@@ -15,14 +16,15 @@ Static site served by GitHub Pages (custom domain in `CNAME`). Everything in thi
   (legal links, modals, client viewer, admin panel).
 - `assets/img/` — header logo, OG image and WebP portfolio/founder images; `assets/BDV Logo.png` is the
   512px logo referenced by the Organization JSON-LD.
-- `robots.txt`, `sitemap.xml`, favicons at the root.
+- `robots.txt`, `sitemap.xml` (generated), `site.webmanifest`, favicons at the root.
 
 ## Editing texts
-`index.html` and `js/bdv-i18n.js` are generated from `tools/site-src/` (`template.html` = markup with `§key§`
-placeholders, `strings.py` = every text as `(es, en)`, `build.py` = cards/portfolio/process/FAQ generators).
-Edit there and run `python3 tools/site-src/build.py`; it rewrites both files so Spanish and English never drift
-apart, and fails if a key is missing or unused. It also adds `?v=<content hash>` to every
-stylesheet/script URL so a deploy never mixes new HTML with CSS/JS cached by the CDN.
+`index.html`, `en/index.html`, `404.html`, `sitemap.xml` and `js/bdv-i18n.js` are generated from `tools/site-src/`
+(`template.html` = markup with `§key§` placeholders, `404.html`, `strings.py` = every text as `(es, en)`, `build.py` =
+cards/portfolio/process/FAQ generators, JSON-LD and the per-language pages). Edit there and run
+`python3 tools/site-src/build.py`; it rewrites the generated files so Spanish and English never drift apart, and fails
+if a key is missing or unused. It also adds `?v=<content hash>` to every stylesheet/script URL so a deploy never
+mixes new HTML with CSS/JS cached by the CDN. Asset URLs are root-relative (`/css/…`) so both pages share them.
 
 ## Backend (Cloudflare Worker `bdv-backend-api`)
 All forms use the same Worker endpoint (`BDV_CORE.apiUrl`):
