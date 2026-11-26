@@ -107,9 +107,10 @@
         </div>
         <form id="bdv-partner-form" class="card-form" novalidate>
           <h3>§partFormTitle§</h3>
-          <div class="field"><label for="pf-name">§pfName§</label><input id="pf-name" name="name" type="text" autocomplete="name" required /></div>
-          <div class="field"><label for="pf-email">§pfEmail§</label><input id="pf-email" name="email" type="email" autocomplete="email" required /></div>
-          <div class="field"><label for="pf-portfolio">§pfPortfolio§</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="§pfPortfolioPh§" required /></div>
+          <div class="field"><label for="pf-name">§pfName§</label><input id="pf-name" name="name" type="text" autocomplete="name" maxlength="80" required /></div>
+          <div class="bdv-hp" aria-hidden="true"><label for="pf-company-url">Company URL</label><input id="pf-company-url" name="company_url" type="text" tabindex="-1" autocomplete="off" /></div>
+          <div class="field"><label for="pf-email">§pfEmail§</label><input id="pf-email" name="email" type="email" autocomplete="email" maxlength="200" required /></div>
+          <div class="field"><label for="pf-portfolio">§pfPortfolio§</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="§pfPortfolioPh§" maxlength="300" required /></div>
           <div class="field-row">
             <div class="field"><label for="pf-specialty">§pfSpecialty§</label>
               <select id="pf-specialty" name="specialty" required>
@@ -123,9 +124,9 @@
                 <option value="other">§pfSpec7§</option>
               </select>
             </div>
-            <div class="field"><label for="pf-tz">§pfTz§</label><input id="pf-tz" name="timezone" type="text" placeholder="§pfTzPh§" required /></div>
+            <div class="field"><label for="pf-tz">§pfTz§</label><input id="pf-tz" name="timezone" type="text" placeholder="§pfTzPh§" maxlength="64" required /></div>
           </div>
-          <div class="field"><label for="pf-notes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
+          <div class="field"><label for="pf-notes">§pfNotes§</label><textarea id="pf-notes" name="notes" rows="3" maxlength="2000"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block">§pfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
           <p class="fine-print"><span>§pfFine§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>
@@ -183,10 +184,11 @@
         </div>
         <form id="bdv-quote-form" class="card-form" novalidate>
           <div class="field-row">
-            <div class="field"><label for="qf-name">§qfName§</label><input id="qf-name" name="name" type="text" autocomplete="name" required /></div>
-            <div class="field"><label for="qf-email">§qfEmail§</label><input id="qf-email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="qf-name">§qfName§</label><input id="qf-name" name="name" type="text" autocomplete="name" maxlength="80" required /></div>
+            <div class="field"><label for="qf-email">§qfEmail§</label><input id="qf-email" name="email" type="email" autocomplete="email" maxlength="200" required /></div>
           </div>
-          <div class="field"><label for="qf-biz">§qfBiz§</label><input id="qf-biz" name="business" type="text" autocomplete="organization" /></div>
+          <div class="bdv-hp" aria-hidden="true"><label for="qf-website">Website</label><input id="qf-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+          <div class="field"><label for="qf-biz">§qfBiz§</label><input id="qf-biz" name="business" type="text" autocomplete="organization" maxlength="120" /></div>
           <div class="field"><label for="qf-service">§qfService§</label>
             <select id="qf-service" name="service" required>
               <option value="">§qfServiceChoose§</option>
@@ -222,7 +224,7 @@
               </select>
             </div>
           </div>
-          <div class="field"><label for="qf-notes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
+          <div class="field"><label for="qf-notes">§qfNotes§</label><textarea id="qf-notes" name="notes" rows="4" maxlength="1800"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block btn-lg">§qfSubmit§</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
           <p class="fine-print"><span>§qfPrivacy§</span> <button type="button" class="bdv-link-btn" data-legal="privacy">§legalPrivacyBtn§</button>.</p>

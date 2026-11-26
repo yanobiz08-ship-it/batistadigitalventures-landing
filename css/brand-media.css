@@ -381,6 +381,8 @@
 .bdv-ops-audit { margin-top: 4px; font-size: 0.74rem; color: #94a3b8; }
 .bdv-ops-audit summary { cursor: pointer; }
 .bdv-ops-audit ul { margin: 4px 0 0; padding-left: 16px; }
+.bdv-ops-audit-log { margin: 6px 0 0; padding-left: 18px; font-size: 0.78rem; color: #cbd5e1; }
+.bdv-ops-audit-log li { margin: 3px 0; }
 .bdv-trk-pay { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(212, 175, 55, 0.35); font-size: 0.8rem; color: #cbd5e1; }
 .bdv-trk-pay h5 { margin: 0; font-size: 0.9rem; color: #e8c861; }
 .bdv-trk-pay h6 { margin: 12px 0 4px; font-size: 0.78rem; color: #e8c861; }

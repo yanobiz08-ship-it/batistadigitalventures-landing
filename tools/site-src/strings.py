@@ -316,7 +316,7 @@ S = {
 "trkNote": ("Este visor es de solo lectura y se desactiva al liquidar el 100% y entregar el proyecto. No incluye soporte posterior ni mantenimiento mensual.", "This viewer is read-only and is turned off once the project is paid in full and delivered. It doesn't include post-delivery support or monthly maintenance."),
 "trkChecking": ("Verificando…", "Checking…"),
 "trkNotFound": ("No encontramos un proyecto con ese correo y código. Revise su correo de bienvenida o escríbanos.", "We couldn't find a project with that email and code. Check your welcome email or write to us."),
-"trkTooMany": ("Demasiados intentos. Espere unos minutos e inténtelo de nuevo.", "Too many attempts. Please wait a few minutes and try again."),
+"trkTooMany": ("Por seguridad, la consulta quedó bloqueada tras varios intentos. Espere 30 minutos e inténtelo de nuevo, o escríbanos a contact@batistadigitalventures.com.", "For security, lookups are paused after several attempts. Please wait 30 minutes and try again, or email contact@batistadigitalventures.com."),
 "trkNetErr": ("Error al conectar con el servidor. Intente de nuevo.", "Connection error. Please try again."),
 "trkActiveTag": ("Acceso activo · Proyecto en curso", "Active access · Project in progress"),
 "trkStage": ("Etapa", "Stage"),

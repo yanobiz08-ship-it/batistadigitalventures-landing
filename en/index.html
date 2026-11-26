@@ -31,8 +31,8 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <link rel="preload" as="image" href="/assets/img/portfolio/trivlo-hero-device.webp" type="image/webp" fetchpriority="high" />
-  <link rel="stylesheet" href="/css/bdv-site.css?v=957fcf2836" />
-  <link rel="stylesheet" href="/css/brand-media.css?v=e4574d073b" />
+  <link rel="stylesheet" href="/css/bdv-site.css?v=e1b7e7fd64" />
+  <link rel="stylesheet" href="/css/brand-media.css?v=ddc3f2c1e6" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -512,9 +512,10 @@
         </div>
         <form id="bdv-partner-form" class="card-form" novalidate>
           <h3>Apply as a partner</h3>
-          <div class="field"><label for="pf-name">Full name</label><input id="pf-name" name="name" type="text" autocomplete="name" required /></div>
-          <div class="field"><label for="pf-email">Email</label><input id="pf-email" name="email" type="email" autocomplete="email" required /></div>
-          <div class="field"><label for="pf-portfolio">GitHub or portfolio (URL)</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="https://github.com/your-username" required /></div>
+          <div class="field"><label for="pf-name">Full name</label><input id="pf-name" name="name" type="text" autocomplete="name" maxlength="80" required /></div>
+          <div class="bdv-hp" aria-hidden="true"><label for="pf-company-url">Company URL</label><input id="pf-company-url" name="company_url" type="text" tabindex="-1" autocomplete="off" /></div>
+          <div class="field"><label for="pf-email">Email</label><input id="pf-email" name="email" type="email" autocomplete="email" maxlength="200" required /></div>
+          <div class="field"><label for="pf-portfolio">GitHub or portfolio (URL)</label><input id="pf-portfolio" name="portfolio" type="url" inputmode="url" placeholder="https://github.com/your-username" maxlength="300" required /></div>
           <div class="field-row">
             <div class="field"><label for="pf-specialty">Specialty</label>
               <select id="pf-specialty" name="specialty" required>
@@ -528,9 +529,9 @@
                 <option value="other">Other</option>
               </select>
             </div>
-            <div class="field"><label for="pf-tz">Time zone</label><input id="pf-tz" name="timezone" type="text" placeholder="e.g. America/Los_Angeles" required /></div>
+            <div class="field"><label for="pf-tz">Time zone</label><input id="pf-tz" name="timezone" type="text" placeholder="e.g. America/Los_Angeles" maxlength="64" required /></div>
           </div>
-          <div class="field"><label for="pf-notes">Anything else we should know (optional)</label><textarea id="pf-notes" name="notes" rows="3"></textarea></div>
+          <div class="field"><label for="pf-notes">Anything else we should know (optional)</label><textarea id="pf-notes" name="notes" rows="3" maxlength="2000"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block">Send application</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
           <p class="fine-print"><span>Partners are independent contractors, not BDV employees. Applying doesn&#x27;t guarantee projects or income. We only use your details to review your application, as described in our</span> <button type="button" class="bdv-link-btn" data-legal="privacy">Privacy Policy</button>.</p>
@@ -612,10 +613,11 @@
         </div>
         <form id="bdv-quote-form" class="card-form" novalidate>
           <div class="field-row">
-            <div class="field"><label for="qf-name">Full name</label><input id="qf-name" name="name" type="text" autocomplete="name" required /></div>
-            <div class="field"><label for="qf-email">Email</label><input id="qf-email" name="email" type="email" autocomplete="email" required /></div>
+            <div class="field"><label for="qf-name">Full name</label><input id="qf-name" name="name" type="text" autocomplete="name" maxlength="80" required /></div>
+            <div class="field"><label for="qf-email">Email</label><input id="qf-email" name="email" type="email" autocomplete="email" maxlength="200" required /></div>
           </div>
-          <div class="field"><label for="qf-biz">Company or project (optional)</label><input id="qf-biz" name="business" type="text" autocomplete="organization" /></div>
+          <div class="bdv-hp" aria-hidden="true"><label for="qf-website">Website</label><input id="qf-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+          <div class="field"><label for="qf-biz">Company or project (optional)</label><input id="qf-biz" name="business" type="text" autocomplete="organization" maxlength="120" /></div>
           <div class="field"><label for="qf-service">Service type</label>
             <select id="qf-service" name="service" required>
               <option value="">Choose a service</option>
@@ -651,7 +653,7 @@
               </select>
             </div>
           </div>
-          <div class="field"><label for="qf-notes">Tell us your idea or the problem to solve</label><textarea id="qf-notes" name="notes" rows="4"></textarea></div>
+          <div class="field"><label for="qf-notes">Tell us your idea or the problem to solve</label><textarea id="qf-notes" name="notes" rows="4" maxlength="1800"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block btn-lg">Send request</button>
           <p class="form-msg" role="status" aria-live="polite"></p>
           <p class="fine-print"><span>We only use your details to answer your request and prepare your quote. We never sell them or share them for advertising, and we won&#x27;t send you promotions without your permission. Details in our</span> <button type="button" class="bdv-link-btn" data-legal="privacy">Privacy Policy</button>.</p>
@@ -689,11 +691,11 @@
     </div>
   </footer>
 
-  <script src="/js/bdv-i18n.js?v=f5ada77d29"></script>
+  <script src="/js/bdv-i18n.js?v=eac05678d5"></script>
   <script src="/js/brand-media.js?v=9953ae1ab3" defer></script>
-  <script src="/js/bdv-site.js?v=de110e8b61" defer></script>
-  <script src="/js/bdv-ops-panel.js?v=2974ee4b13" defer></script>
-  <script src="/js/bdv-sow-signer.js?v=5ce9f3126a" defer></script>
+  <script src="/js/bdv-site.js?v=23130fe62d" defer></script>
+  <script src="/js/bdv-ops-panel.js?v=f9f6bcf259" defer></script>
+  <script src="/js/bdv-sow-signer.js?v=45bef1ae8d" defer></script>
   <script src="/js/bdv-a11y.js?v=894771ec5e" defer></script>
 </body>
 </html>
