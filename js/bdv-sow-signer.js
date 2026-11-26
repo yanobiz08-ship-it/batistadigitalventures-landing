@@ -18,6 +18,25 @@
     ["Ley aplicable y firma", "Estado de California, EE. UU. Firma y registros electrónicos válidos conforme a E-SIGN y UETA."]
   ];
 
+  // Both signatures of a SOW, client first: the client signs from the ?sow= link, then
+  // Batista Digital Ventures countersigns from the ops panel.
+  function sowSignatureEntries(sow) {
+    return [
+      { party: "Cliente", sig: sow.signature || null, pending: "Pendiente de la firma del cliente." },
+      {
+        party: "Batista Digital Ventures LLC",
+        sig: sow.providerSignature || null,
+        pending: "Pendiente de la contrafirma de Batista Digital Ventures LLC."
+      }
+    ];
+  }
+
+  function sowStatusLabel(sow) {
+    if (sow.signature && sow.providerSignature) return "Firmado por ambas partes";
+    if (sow.signature) return "Firmado por el cliente · pendiente de contrafirma";
+    return "Pendiente de firma";
+  }
+
   function isSowPaid(sow) {
     if (!sow) return false;
     const statusText = String(sow.paymentStatus || "").toUpperCase();
@@ -25,7 +44,6 @@
   }
 
   function buildPrintableOrTextDocument(sow) {
-    const sig = sow.signature || null;
     const paidInfo = isSowPaid(sow)
       ? `${sow.paymentStatus || "PAGADO"} | Monto: $${sow.lastPaidAmountUsd || sow.depositAmount || 0} USD | Fecha: ${sow.lastPaidAt || "N/A"}`
       : `Pendiente de pago (${sow.paymentStatus || "PENDING"})`;
@@ -38,7 +56,7 @@
       "=================================================================",
       `Folio SOW: ${sow.sowId || ""}`,
       `Fecha de Emisión: ${sow.createdAt || ""}`,
-      `Estado del Acuerdo: ${sow.status || "DRAFT"}`,
+      `Estado del Acuerdo: ${sowStatusLabel(sow)}`,
       `Estado de Pago: ${paidInfo}`,
       "",
       "1. PARTES",
@@ -58,16 +76,19 @@
       "4. TÉRMINOS CLAVE (LEY DE CALIFORNIA)",
       ...SOW_KEY_TERMS.map(([label, text]) => `- ${label}: ${text}`),
       "",
-      "5. CONSTANCIA DE FIRMA DIGITAL",
-      sig
-        ? [
-            `Firmado por: ${sig.signerName}`,
-            `Cargo / Rol: ${sig.signerTitle || "Client"}`,
-            `Fecha y Hora (UTC): ${sig.timestamp}`,
-            `IP Registrada: ${sig.ip || "N/A"}`,
-            `Consentimiento Legal: Aceptado`
-          ].join("\n")
-        : "Pendiente de firma digital del cliente."
+      "5. CONSTANCIA DE FIRMAS DIGITALES",
+      ...sowSignatureEntries(sow).map(({ party, sig, pending }) =>
+        sig
+          ? [
+              `${party}:`,
+              `  Firmado por: ${sig.signerName}`,
+              `  Cargo / Rol: ${sig.signerTitle || "N/A"}`,
+              `  Fecha y Hora (UTC): ${sig.timestamp}`,
+              `  IP Registrada: ${sig.ip || "N/A"}`,
+              `  Consentimiento Legal: Aceptado`
+            ].join("\n")
+          : `${party}: ${pending}`
+      )
     ];
     return lines.join("\n");
   }
@@ -90,7 +111,6 @@
     if (!sow) return;
     const core = getCore();
     const esc = core.escapeHtml;
-    const sig = sow.signature || null;
     const win = window.open("", "_blank", "width=820,height=900");
     if (!win) {
       downloadSowTextFile(sow);
@@ -123,7 +143,7 @@
         </div>
         <h1>STATEMENT OF WORK (SOW) — BATISTA DIGITAL VENTURES LLC</h1>
         <div class="meta">
-          <strong>Folio:</strong> ${esc(sow.sowId)} · <strong>Estado:</strong> ${esc(sow.status)} · <strong>Ubicación:</strong> Lompoc, California${paymentSummaryHtml}
+          <strong>Folio:</strong> ${esc(sow.sowId)} · <strong>Estado:</strong> ${esc(sowStatusLabel(sow))} · <strong>Ubicación:</strong> Lompoc, California${paymentSummaryHtml}
         </div>
 
         <h2>1. Partes</h2>
@@ -148,17 +168,19 @@
           ${SOW_KEY_TERMS.map(([label, text]) => `- <strong>${label}:</strong> ${text}`).join("<br/>")}
         </div>
 
-        <h2>5. Firma Digital</h2>
-        <div class="sig-box">
-          ${
-            sig
-              ? `<strong>Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "Client")})<br/>
-                 <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
-                 <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}<br/>
-                 <strong>Consentimiento:</strong> Aceptado bajo ESIGN / UETA`
-              : `<em>Documento pendiente de firma digital del cliente.</em>`
-          }
-        </div>
+        <h2>5. Firmas Digitales</h2>
+        ${sowSignatureEntries(sow)
+          .map(({ party, sig, pending }) =>
+            `<div class="sig-box"><strong>${esc(party)}</strong><br/>${
+              sig
+                ? `<strong>Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
+                   <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
+                   <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}<br/>
+                   <strong>Consentimiento:</strong> Aceptado bajo ESIGN / UETA`
+                : `<em>${esc(pending)}</em>`
+            }</div>`
+          )
+          .join("")}
       </body>
       </html>
     `);
@@ -363,7 +385,7 @@
       btn.disabled = true;
       statusEl.style.display = "block";
       statusEl.style.color = "#94a3b8";
-      statusEl.textContent = "Registrando firma y enviando copia por correo...";
+      statusEl.textContent = "Registrando tu firma...";
 
       fetch(core.apiUrl, {
         method: "POST",
@@ -385,13 +407,12 @@
             return;
           }
 
-          currentSowData.status = "SIGNED";
-          currentSowData.signature = res.signature;
+          currentSowData = res.sow;
           renderSowContent(currentSowData);
 
           statusEl.style.color = "#4ade80";
           statusEl.textContent =
-            "✓ Acuerdo firmado. Se envió copia a Batista Digital Ventures LLC y a tu correo. Ahora puedes completar el pago con tarjeta.";
+            "✓ Firmaste el acuerdo. Batista Digital Ventures LLC lo contrafirmará y te enviaremos por correo la copia final firmada por ambas partes; después podrás pagar el depósito desde este mismo enlace.";
         })
         .catch(() => {
           btn.disabled = false;
@@ -457,16 +478,20 @@
     const formWrap = document.getElementById("bdv-sow-sign-form-wrap");
 
     if (titleEl) {
-      titleEl.textContent = `Statement of Work · ${sow.sowId || "BDV"} (${sow.status || "DRAFT"})`;
+      titleEl.textContent = `Statement of Work · ${sow.sowId || "BDV"} (${sowStatusLabel(sow)})`;
     }
 
-    const sigHtml = sow.signature
-      ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); color: #dcfce7;">
-           <strong>Firmado electrónicamente por:</strong> ${esc(sow.signature.signerName)} (${esc(sow.signature.signerTitle || "Client")})<br/>
-           <strong>Fecha y Hora (UTC):</strong> ${esc(sow.signature.timestamp)}<br/>
-           <strong>IP Registrada:</strong> ${esc(sow.signature.ip || "N/A")}
-         </div>`
-      : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">Estado actual: Pendiente de firma digital.</div>`;
+    const sigHtml = sowSignatureEntries(sow)
+      .map(({ party, sig, pending }) =>
+        sig
+          ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); color: #dcfce7;">
+               <strong>${esc(party)} · Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
+               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
+               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}
+             </div>`
+          : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">${esc(party)}: ${esc(pending)}</div>`
+      )
+      .join("");
 
     const payBadgeHtml = isSowPaid(sow)
       ? `<div style="margin-top: 8px; color: #4ade80; font-size: 0.78rem;"><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")}</div>`
@@ -492,7 +517,7 @@
     }
 
     if (formWrap) {
-      formWrap.style.display = sow.status === "SIGNED" ? "none" : "block";
+      formWrap.style.display = sow.signature ? "none" : "block";
     }
 
     renderPaymentSection(sow);
@@ -601,16 +626,6 @@
       }
 
       return res;
-    },
-
-    createFromAdmin: function (payload) {
-      const core = getCore();
-      const sessionKey = window.__bdvSessionKey || "";
-      return fetch(core.apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.assign({ key: sessionKey, action: "create_sow" }, payload))
-      }).then((r) => r.json());
     }
   };
 
