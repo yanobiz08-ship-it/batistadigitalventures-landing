@@ -102,6 +102,11 @@ def project(pid, name, kind, badge_key, badge_cls, desc, status, link_key, url, 
         </article>'''
 
 
+# GY Roadside testimonial (published with the owner's approval). To credit the owner by name,
+# set it here; it is shown before the translated role ("gyQuoteBy").
+GY_QUOTE_NAME = ''
+GY_QUOTE_SIGNER = (f'<strong>{html.escape(GY_QUOTE_NAME)}</strong>, ' if GY_QUOTE_NAME else '') + '<span data-i18n="gyQuoteBy">§gyQuoteBy§</span>'
+
 CASE_GY = """
             <div class="case-study">
               <h4 class="case-h" data-i18n="gyChallengeH">§gyChallengeH§</h4>
@@ -112,13 +117,10 @@ CASE_GY = """
               </ul>
               <h4 class="case-h" data-i18n="gyNextH">§gyNextH§</h4>
               <p data-i18n="gyNext">§gyNext§</p>
-              <!-- TODO (Yano): testimonial slot. Only with the owner's written permission, replace the text and uncomment.
               <blockquote class="case-quote">
-                <p data-i18n="gyQuote">"…quote from the GY Roadside owner…"</p>
-                <footer><strong>Name</strong>, Owner · GY Roadside Solutions LLC</footer>
+                <p data-i18n="gyQuote">§gyQuote§</p>
+                <footer>""" + GY_QUOTE_SIGNER + """</footer>
               </blockquote>
-              (Also add the "gyQuote" key with ES/EN text to tools/site-src/strings.py.)
-              -->
             </div>"""
 
 PROJ = [
