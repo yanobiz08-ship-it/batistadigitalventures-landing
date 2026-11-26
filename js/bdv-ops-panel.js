@@ -305,7 +305,7 @@
         '      <div id="bdv-np-status-msg" style="display: none; margin-top: 8px; font-size: 0.8rem;"></div>',
         "    </div>",
         '    <div id="bdv-create-sow-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(212, 175, 55, 0.08); border: 1px dashed rgba(212, 175, 55, 0.55); border-radius: 8px;">',
-        '      <h5 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #e8c861;">📄 Emitir Statement of Work (SOW) y Generar Enlace de Firma</h5>',
+        '      <h5 id="bdv-ns-title" style="margin: 0 0 8px 0; font-size: 0.85rem; color: #e8c861;">📄 Emitir Statement of Work (SOW) y enviarlo al cliente para firma</h5>',
         '      <div style="display: flex; flex-direction: column; gap: 8px;">',
         '        <input type="text" id="bdv-ns-client-name" class="bdv-tracker-input" placeholder="Nombre Completo del Cliente" style="font-size: 0.8rem; padding: 6px 10px;" />',
         '        <input type="email" id="bdv-ns-client-email" class="bdv-tracker-input" placeholder="Correo Oficial del Cliente" style="font-size: 0.8rem; padding: 6px 10px;" />',
@@ -315,13 +315,17 @@
         '          <input type="number" id="bdv-ns-total" class="bdv-tracker-input" placeholder="Presupuesto Total USD (ej. 850)" style="flex: 1; min-width: 140px; font-size: 0.8rem; padding: 6px 10px;" />',
         '          <input type="number" id="bdv-ns-deposit" class="bdv-tracker-input" placeholder="Depósito Inicial USD (ej. 300)" style="flex: 1; min-width: 140px; font-size: 0.8rem; padding: 6px 10px;" />',
         "        </div>",
-        '        <button type="button" id="bdv-ns-submit-btn" class="bdv-tracker-btn" style="padding: 8px; font-size: 0.82rem; background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="submitNewSowManual()">Generar Folio y Enlace SOW</button>',
+        '        <button type="button" id="bdv-ns-submit-btn" class="bdv-tracker-btn" style="padding: 8px; font-size: 0.82rem; background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="submitNewSowManual()">Emitir SOW y enviar al cliente</button>',
         "      </div>",
         '      <div id="bdv-ns-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>',
         "    </div>",
         '    <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">',
         '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes <span id="bdv-admin-requests-count"></span></h5>',
         '      <div id="bdv-admin-requests-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
+        "    </div>",
+        '    <div id="bdv-admin-sows-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">',
+        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📄 Statements of Work <span id="bdv-admin-sows-count"></span></h5>',
+        '      <div id="bdv-admin-sows-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
         "    </div>",
         '    <div id="bdv-admin-partners-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 8px;">',
         '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #34d399;">🤝 Postulaciones a la Red de Partners <span id="bdv-admin-partners-count"></span></h5>',
@@ -388,9 +392,11 @@
 
       document.getElementById("bdv-toggle-create-sow-btn").addEventListener("click", function () {
         var box = document.getElementById("bdv-create-sow-box");
-        var pBox = document.getElementById("bdv-create-project-box");
-        if (pBox) pBox.style.display = "none";
-        if (box) box.style.display = box.style.display === "none" ? "block" : "none";
+        if (box && box.style.display === "none") {
+          openSowForm(null);
+        } else if (box) {
+          box.style.display = "none";
+        }
       });
 
       document.getElementById("bdv-toggle-key-change-btn").addEventListener("click", function () {
@@ -407,52 +413,95 @@
     openAdminModal();
   });
 
-  window.generateSowForProject = function (row, clientName, clientEmail, businessName, scopeSummary) {
-    var core = getCore();
-    var sessionKey = window.__bdvSessionKey || "";
-    var rowStatus = document.getElementById("row-status-" + row);
+  // Opens the "Emitir SOW" form. With a project it is prefilled from that project (and the client's
+  // request, matched by email) and the SOW is linked to it; amounts and scope are always typed by the owner.
+  function openSowForm(project) {
+    var box = document.getElementById("bdv-create-sow-box");
+    if (!box) return;
+    var pBox = document.getElementById("bdv-create-project-box");
+    if (pBox) pBox.style.display = "none";
 
-    if (rowStatus) {
-      rowStatus.style.display = "block";
-      rowStatus.style.color = "#94a3b8";
-      rowStatus.textContent = "Generando SOW y creando enlace en el Worker...";
+    var email = project ? String(project.email || "").trim().toLowerCase() : "";
+    var req = email
+      ? (window.__bdvStoredRequests || []).find(function (r) { return String(r.clientEmail || "").trim().toLowerCase() === email; })
+      : null;
+    var values = {
+      "bdv-ns-client-name": req ? req.clientName || "" : "",
+      "bdv-ns-client-email": email,
+      "bdv-ns-biz-name": project ? getCore().getProjectDisplayName(project, getCore().getLang()) : "",
+      "bdv-ns-scope": "",
+      "bdv-ns-total": "",
+      "bdv-ns-deposit": ""
+    };
+    Object.keys(values).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = values[id];
+    });
+    box.dataset.projectRow = project ? String(project.row) : "";
+    var title = document.getElementById("bdv-ns-title");
+    if (title) {
+      title.textContent = project
+        ? "📄 Emitir SOW para " + values["bdv-ns-biz-name"] + " y enviarlo al cliente para firma"
+        : "📄 Emitir Statement of Work (SOW) y enviarlo al cliente para firma";
     }
+    var statusMsg = document.getElementById("bdv-ns-status-msg");
+    if (statusMsg) statusMsg.style.display = "none";
+    box.style.display = "block";
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 
+  window.openSowFormForProject = function (row) {
+    var proj = (window.__bdvStoredProjects || []).find(function (p) { return Number(p.row) === Number(row); });
+    if (!proj) {
+      showAdminToast("No se encontró la información del proyecto seleccionado.", false);
+      return;
+    }
+    openSowForm(proj);
+  };
+
+  // Countersignature by Batista Digital Ventures once the client has signed; the Worker then emails
+  // the final copy signed by both parties to the client and to the owner.
+  window.countersignSowById = function (sowId) {
+    var core = getCore();
+    var nameInput = document.getElementById("cs-name-" + sowId);
+    var titleInput = document.getElementById("cs-title-" + sowId);
+    var consent = document.getElementById("cs-consent-" + sowId);
+    var btn = document.getElementById("cs-btn-" + sowId);
+    var signerName = nameInput ? nameInput.value.trim() : "";
+    var signerTitle = titleInput ? titleInput.value.trim() : "";
+    if (!signerName || !signerTitle || !(consent && consent.checked)) {
+      showAdminToast("Escribe tu nombre y cargo y marca la casilla para contrafirmar " + sowId + ".", false);
+      return;
+    }
+    if (btn) btn.disabled = true;
     fetch(core.apiUrl, {
       method: "POST",
       body: JSON.stringify({
-        key: sessionKey,
-        action: "create_sow",
-        projectRow: Number(row),
-        clientName: clientName || businessName || "Cliente",
-        clientEmail: clientEmail || "",
-        businessName: businessName || "",
-        scopeSummary: scopeSummary || "Desarrollo conforme a diagnóstico inicial.",
-        totalAmount: 650,
-        depositAmount: 250
+        key: window.__bdvSessionKey || "",
+        action: "countersign_sow",
+        sowId: sowId,
+        signerName: signerName,
+        signerTitle: signerTitle
       })
     })
       .then(function (r) { return r.json(); })
       .then(function (res) {
-        if (!rowStatus) return;
-        if (res.ok && res.sowId) {
-          var sowUrl = res.sowUrl || ("https://batistadigitalventures.com/?sow=" + res.sowId);
-          rowStatus.style.color = "#4ade80";
-          rowStatus.innerHTML =
-            '✓ SOW Creado: <strong style="color: #f8fafc;">' + core.escapeHtml(res.sowId) + "</strong><br/>" +
-            '<a href="' + core.escapeHtml(sowUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline; font-weight: bold;">Abrir Enlace SOW ↗</a>' +
-            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.7rem;" onclick="copySowLinkWithNotice(\'' + core.escapeHtml(sowUrl) + '\')">Copiar Enlace</button>';
-        } else {
-          rowStatus.style.color = "#f87171";
-          rowStatus.textContent = res.error || "No se pudo generar el SOW.";
+        if (btn) btn.disabled = false;
+        if (!res.ok) {
+          showAdminToast(res.error || "No se pudo contrafirmar el SOW.", false);
+          return;
         }
+        refreshAdminSessionView("");
+        showAdminToast(
+          res.clientNotified && res.ownerNotified
+            ? "✓ " + sowId + " contrafirmado. Se envió la copia final al cliente y a ti."
+            : "⚠ " + sowId + " contrafirmado, pero no se pudo enviar " + (res.clientNotified ? "tu copia" : "la copia al cliente") + ". El documento firmado está en su enlace.",
+          Boolean(res.clientNotified && res.ownerNotified)
+        );
       })
       .catch(function () {
-        if (rowStatus) {
-          rowStatus.style.display = "block";
-          rowStatus.style.color = "#f87171";
-          rowStatus.textContent = "Error de red al emitir el SOW.";
-        }
+        if (btn) btn.disabled = false;
+        showAdminToast("Error de red al contrafirmar el SOW.", false);
       });
   };
 
@@ -465,21 +514,30 @@
     var total = Number(document.getElementById("bdv-ns-total").value) || 0;
     var deposit = Number(document.getElementById("bdv-ns-deposit").value) || 0;
     var statusMsg = document.getElementById("bdv-ns-status-msg");
+    var box = document.getElementById("bdv-create-sow-box");
+    var projectRow = box && box.dataset.projectRow ? Number(box.dataset.projectRow) : null;
     var sessionKey = window.__bdvSessionKey || "";
 
-    if (!name || !email) {
+    var formError = !name || !isValidEmailSimple(email)
+      ? "Ingresa el nombre del cliente y un correo electrónico válido."
+      : !(total > 0) || !(deposit > 0) || deposit > total
+        ? "Indica el presupuesto total y un depósito mayor que 0 y no mayor que el total."
+        : "";
+    if (formError) {
       if (statusMsg) {
         statusMsg.style.display = "block";
         statusMsg.style.color = "#f87171";
-        statusMsg.textContent = "Ingresa el nombre del cliente y su correo electrónico.";
+        statusMsg.textContent = formError;
       }
       return;
     }
 
+    var submitBtn = document.getElementById("bdv-ns-submit-btn");
+    if (submitBtn) submitBtn.disabled = true;
     if (statusMsg) {
       statusMsg.style.display = "block";
       statusMsg.style.color = "#94a3b8";
-      statusMsg.textContent = "Emitiendo SOW...";
+      statusMsg.textContent = "Emitiendo SOW y enviándolo al cliente...";
     }
 
     fetch(core.apiUrl, {
@@ -487,6 +545,7 @@
       body: JSON.stringify({
         key: sessionKey,
         action: "create_sow",
+        projectRow: projectRow,
         clientName: name,
         clientEmail: email,
         businessName: biz,
@@ -497,20 +556,24 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (res) {
+        if (submitBtn) submitBtn.disabled = false;
         if (!statusMsg) return;
         if (res.ok && res.sowId) {
-          var sowUrl = res.sowUrl || ("https://batistadigitalventures.com/?sow=" + res.sowId);
-          statusMsg.style.color = "#4ade80";
-          statusMsg.innerHTML =
-            "✓ <strong>" + core.escapeHtml(res.sowId) + "</strong> generado exitosamente.<br/>" +
-            '<a href="' + core.escapeHtml(sowUrl) + '" target="_blank" rel="noopener noreferrer" style="color: #e8c861; text-decoration: underline;">Abrir SOW ↗</a>' +
-            ' · <button type="button" class="bdv-admin-toggle-status" style="padding: 2px 6px; font-size: 0.72rem;" onclick="copySowLinkWithNotice(\'' + core.escapeHtml(sowUrl) + '\')">Copiar Enlace</button>';
+          if (box) box.dataset.projectRow = "";
+          refreshAdminSessionView("");
+          showAdminToast(
+            res.emailSent
+              ? "✓ " + res.sowId + " emitido y enviado a " + email + " para que lo firme."
+              : "⚠ " + res.sowId + " emitido, pero el correo al cliente no se pudo enviar. Copia su enlace en la lista de Statements of Work y envíaselo tú.",
+            Boolean(res.emailSent)
+          );
         } else {
           statusMsg.style.color = "#f87171";
           statusMsg.textContent = res.error || "No se pudo generar el SOW.";
         }
       })
       .catch(function () {
+        if (submitBtn) submitBtn.disabled = false;
         if (statusMsg) {
           statusMsg.style.display = "block";
           statusMsg.style.color = "#f87171";
@@ -979,6 +1042,62 @@
           partnerSection.style.display = "none";
         }
 
+        var sowSection = document.getElementById("bdv-admin-sows-section");
+        var sowList = document.getElementById("bdv-admin-sows-list");
+        var sows = isAdmin && res.sows && typeof res.sows === "object"
+          ? Object.keys(res.sows).map(function (k) { return res.sows[k]; })
+          : [];
+        // Waiting for your countersignature first, then newest first.
+        sows.sort(function (a, b) {
+          var wa = a.signature && !a.providerSignature ? 1 : 0;
+          var wb = b.signature && !b.providerSignature ? 1 : 0;
+          return wb - wa || String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+        });
+        if (sows.length && sowSection && sowList) {
+          sowSection.style.display = "block";
+          setCount("bdv-admin-sows-count", sows.length);
+          sowList.innerHTML = sows.map(function (w) {
+            var id = String(w.sowId || "");
+            var idEsc = core.escapeHtml(id);
+            var sowUrl = "https://batistadigitalventures.com/?sow=" + encodeURIComponent(id);
+            var waitingOwner = Boolean(w.signature && !w.providerSignature);
+            var state = !w.signature
+              ? '<span style="color: #e8c861;">Esperando la firma del cliente</span>'
+              : waitingOwner
+                ? '<span style="color: #f97316; font-weight: 700;">El cliente firmó · falta tu contrafirma</span>'
+                : '<span style="color: #4ade80;">Firmado por ambas partes</span>';
+            var dateStr = w.createdAt ? new Date(w.createdAt).toLocaleDateString() : "";
+            var countersignForm = waitingOwner
+              ? '<div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">' +
+                '<input type="text" id="cs-name-' + idEsc + '" class="bdv-tracker-input" style="flex: 1; min-width: 140px; padding: 5px 8px; font-size: 0.78rem;" value="Yano Batista" placeholder="Tu nombre completo" />' +
+                '<input type="text" id="cs-title-' + idEsc + '" class="bdv-tracker-input" style="flex: 1; min-width: 120px; padding: 5px 8px; font-size: 0.78rem;" value="Fundador y CEO" placeholder="Tu cargo" />' +
+                '<label style="display: flex; gap: 6px; align-items: flex-start; font-size: 0.74rem; color: #e2e8f0; width: 100%;"><input type="checkbox" id="cs-consent-' + idEsc + '" style="margin-top: 2px; accent-color: #d4af37;" />' +
+                "<span>Firmo electrónicamente este SOW en nombre de Batista Digital Ventures LLC (E-SIGN / UETA).</span></label>" +
+                '<button type="button" id="cs-btn-' + idEsc + '" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; padding: 4px 10px; font-size: 0.75rem;" onclick="countersignSowById(\'' + idEsc + '\')">✍ Contrafirmar y enviar copia final</button>' +
+                "</div>"
+              : "";
+            return [
+              '<div style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid ' + (waitingOwner ? "rgba(249, 115, 22, 0.55)" : "rgba(255,255,255,0.07)") + ';">',
+              '  <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;">',
+              "    <div>",
+              '      <strong style="color: #f8fafc;">' + idEsc + "</strong> · " + core.escapeHtml(w.clientName || "") +
+              ' <span style="color: #94a3b8;">(' + core.escapeHtml(w.clientEmail || "") + ")</span>",
+              '      <div style="color: #cbd5e1; font-size: 0.72rem;">' + core.escapeHtml(w.businessName || "") + " · $" + core.escapeHtml(String(w.totalAmount || 0)) + " USD (depósito $" + core.escapeHtml(String(w.depositAmount || 0)) + ") · " + dateStr + "</div>",
+              '      <div style="font-size: 0.74rem; margin-top: 2px;">' + state + "</div>",
+              "    </div>",
+              '    <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-start;">',
+              '      <a class="bdv-admin-toggle-status" style="padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="' + core.escapeHtml(sowUrl) + '" target="_blank" rel="noopener noreferrer">Ver</a>',
+              '      <button type="button" class="bdv-admin-toggle-status" style="padding: 4px 8px; font-size: 0.75rem;" onclick="copySowLinkWithNotice(\'' + core.escapeHtml(sowUrl) + '\')">Copiar enlace</button>',
+              "    </div>",
+              "  </div>",
+              countersignForm,
+              "</div>"
+            ].join("");
+          }).join("");
+        } else if (sowSection) {
+          sowSection.style.display = "none";
+        }
+
         if (!res.projects || !res.projects.length) {
           window.__bdvStoredProjects = [];
           listEl.innerHTML = '<p style="font-size: 0.8rem; color: #94a3b8;">No hay proyectos registrados en la base de datos.</p>';
@@ -1010,7 +1129,7 @@
             ? '<div class="bdv-admin-grid-row" style="margin-top: 10px; gap: 6px; flex-wrap: wrap;">' +
               '<input type="text" id="pin-input-' + p.row + '" class="bdv-tracker-input" style="max-width: 130px; padding: 6px 8px; font-size: 0.8rem;" value="' + core.escapeHtml(p.code) + '" placeholder="PIN" />' +
               '<button type="button" class="bdv-admin-toggle-status" onclick="updateProjectPin(' + p.row + ')">Cambiar PIN</button>' +
-              '<button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="generateSowForProject(' + p.row + ", '" + core.escapeHtml(p.name) + "', '" + core.escapeHtml(p.email) + "', '" + core.escapeHtml(displayName) + "', '" + core.escapeHtml(displayName) + "')\">📄 Generar SOW</button>" +
+              '<button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;" onclick="openSowFormForProject(' + p.row + ')">📄 Emitir SOW</button>' +
               '<button type="button" class="bdv-admin-action-btn" style="background: rgba(212, 175, 55, 0.2) !important; color: #e8c861 !important; border: 1px solid rgba(212, 175, 55, 0.5); font-weight: 600;" onclick="collectProjectPayment(' + p.row + ')">💳 Cobrar Hito / Saldo</button>' +
               '<button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important;" onclick="deleteProjectItem(' + p.row + ')">Eliminar</button>' +
               "</div>"
