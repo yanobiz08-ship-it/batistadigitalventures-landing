@@ -30,7 +30,8 @@ def t(k):  # data-i18n element content placeholder
 
 # Holiday offer: one source of truth for its end. Offer prices (keys ending in "Offer") and every
 # .offer-only element are shown by js/bdv-site.js only before this instant; otherwise the page shows
-# the normal prices. End of January 6, 2027, Pacific time (PST, UTC-8).
+# the normal prices. End of January 6, 2027, Pacific time (PST, UTC-8). The same dates appear in the Terms of
+# Service ("Ofertas / Offers" in js/brand-media.js) and in strings.py (offerTerms, a4Offer): keep them in sync.
 OFFER_END = '2027-01-07T00:00:00-08:00'
 T = T.replace('@@OFFER_END@@', OFFER_END)
 
@@ -121,6 +122,7 @@ CASE_GY = """
                 <p data-i18n="gyQuote">§gyQuote§</p>
                 <footer>""" + GY_QUOTE_SIGNER + """</footer>
               </blockquote>
+              <p class="case-disclosure" data-i18n="gyDisclosure">§gyDisclosure§</p>
             </div>"""
 
 PROJ = [
