@@ -20,7 +20,8 @@ Static site served by GitHub Pages (custom domain in `CNAME`). Everything in thi
 `index.html` and `js/bdv-i18n.js` are generated from `tools/site-src/` (`template.html` = markup with `§key§`
 placeholders, `strings.py` = every text as `(es, en)`, `build.py` = cards/portfolio/process/FAQ generators).
 Edit there and run `python3 tools/site-src/build.py`; it rewrites both files so Spanish and English never drift
-apart, and fails if a key is missing or unused.
+apart, and fails if a key is missing or unused. It also adds `?v=<content hash>` to every
+stylesheet/script URL so a deploy never mixes new HTML with CSS/JS cached by the CDN.
 
 ## Backend (Cloudflare Worker `bdv-backend-api`)
 All forms use the same Worker endpoint (`BDV_CORE.apiUrl`):
