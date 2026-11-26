@@ -326,3 +326,13 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- Case study (portfolio) ---------- */
+.case-study { margin: 4px 0 14px; padding: 16px 16px 6px; border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.025); border: 1px solid var(--line); }
+.case-h { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-bright); margin: 0 0 6px; }
+.case-study > p { color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 14px; }
+.case-study .check-list { margin-bottom: 14px; gap: 6px; }
+.case-study .check-list li { font-size: 0.88rem; }
+.case-quote { margin: 0 0 12px; padding: 12px 14px; border-left: 3px solid var(--gold); background: var(--gold-soft); border-radius: 0 10px 10px 0; }
+.case-quote p { color: var(--text-primary); font-style: italic; }
+.case-quote footer { color: var(--text-muted); font-size: 0.82rem; margin-top: 6px; }

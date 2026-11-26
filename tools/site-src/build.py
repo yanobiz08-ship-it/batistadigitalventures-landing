@@ -71,18 +71,38 @@ def gallery(gid, items, framed, label):
             <button type="button" class="gallery-btn gallery-next" data-gallery-next aria-controls="{gid}" aria-label="{t("galleryNext")}" data-i18n-aria="galleryNext">›</button>
           </div>'''
 
-def project(pid, name, kind, badge_key, badge_cls, desc, extra, status, link_key, url, gal):
+def project(pid, name, kind, badge_key, badge_cls, desc, extra, status, link_key, url, gal, case=''):
     return f'''        <article class="project" id="{pid}">
           <div class="project-info">
             <div class="project-badges"><span class="status-badge {badge_cls}" data-i18n="{badge_key}">{t(badge_key)}</span>{extra}</div>
             <p class="kicker" data-i18n="{kind}">{t(kind)}</p>
             <h3 class="project-title">{name}</h3>
-            <p class="project-desc" data-i18n="{desc}">{t(desc)}</p>
+            <p class="project-desc" data-i18n="{desc}">{t(desc)}</p>{case}
             <p class="project-status" data-i18n="{status}">{t(status)}</p>
             <a class="text-link" href="{url}" target="_blank" rel="noopener noreferrer"><span data-i18n="{link_key}">{t(link_key)}</span> @@ICON:ext@@</a>
           </div>
 {gal}
         </article>'''
+
+
+CASE_GY = """
+            <div class="case-study">
+              <h4 class="case-h" data-i18n="gyChallengeH">§gyChallengeH§</h4>
+              <p data-i18n="gyChallenge">§gyChallenge§</p>
+              <h4 class="case-h" data-i18n="gyDidH">§gyDidH§</h4>
+              <ul class="check-list">
+""" + "\n".join(f'                <li>@@ICON:check@@<span data-i18n="gyDid{i}">§gyDid{i}§</span></li>' for i in range(1, 7)) + """
+              </ul>
+              <h4 class="case-h" data-i18n="gyNextH">§gyNextH§</h4>
+              <p data-i18n="gyNext">§gyNext§</p>
+              <!-- TODO (Yano): testimonial slot. Only with the owner's written permission, replace the text and uncomment.
+              <blockquote class="case-quote">
+                <p data-i18n="gyQuote">"…quote from the GY Roadside owner…"</p>
+                <footer><strong>Name</strong>, Owner · GY Roadside Solutions LLC</footer>
+              </blockquote>
+              (Also add the "gyQuote" key with ES/EN text to tools/site-src/strings.py.)
+              -->
+            </div>"""
 
 PROJ = [
  project('proyecto-merqox','MERQOX','mqKind','badgeSoon','is-soon','mqDesc',
@@ -91,7 +111,7 @@ PROJ = [
  project('proyecto-trivlo','TRIVLO','trKind','badgeSoon','is-soon','trDesc','','trStatusNote','trLink','https://trivlopro.com',
          gallery('trivlo-gallery', TR, True, 'TRIVLO')),
  project('proyecto-gy','GY Roadside Solutions','gyKind','badgeLiveClient','is-live','gyDesc','','gyStatusNote','gyLink','https://gyroadsidesolutions.com',
-         gallery('gy-gallery', GY, False, 'GY Roadside Solutions') + '\n          <!-- TODO (Yano): add a real testimonial from GY Roadside Solutions here (quote + name + role), only with their written permission. -->'),
+         gallery('gy-gallery', GY, False, 'GY Roadside Solutions'), CASE_GY),
 ]
 T = T.replace('@@PROJECTS@@', '\n'.join(PROJ))
 

@@ -30,6 +30,20 @@
   }
 
   window.__bdvStoredRequests = [];
+
+  // Partner-network applications arrive through the same Worker action ("request_services").
+  // The current Worker only stores clientName/clientEmail/businessName/services/notes, so we
+  // recognise them by the markers the site sends (js/bdv-site.js) and also by requestType, in case
+  // the Worker starts storing it.
+  function isPartnerApplication(r) {
+    if (!r) return false;
+    if (String(r.requestType || r.type || "").toLowerCase() === "partner_application") return true;
+    var services = Array.isArray(r.services) ? r.services : [];
+    if (services.some(function (sv) { return /^partner application$/i.test(String(sv).trim()); })) return true;
+    if (/^partner application/i.test(String(r.businessName || "").trim())) return true;
+    return /^\[PARTNER APPLICATION/i.test(String(r.notes || "").trim());
+  }
+  function isValidEmailSimple(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
   window.__bdvStoredProjects = [];
 
   function showAdminToast(message, isSuccess) {
@@ -342,8 +356,12 @@
         '      <div id="bdv-ns-status-msg" style="display: none; margin-top: 8px; font-size: 0.82rem;"></div>',
         "    </div>",
         '    <div id="bdv-admin-requests-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px;">',
-        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes</h5>',
+        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #e8c861;">📨 Solicitudes de Servicio Entrantes <span id="bdv-admin-requests-count"></span></h5>',
         '      <div id="bdv-admin-requests-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
+        "    </div>",
+        '    <div id="bdv-admin-partners-section" style="display: none; margin-top: 14px; padding: 10px; background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.3); border-radius: 8px;">',
+        '      <h5 style="margin: 0 0 8px 0; font-size: 0.82rem; color: #34d399;">🤝 Postulaciones a la Red de Partners <span id="bdv-admin-partners-count"></span></h5>',
+        '      <div id="bdv-admin-partners-list" style="font-size: 0.78rem; display: flex; flex-direction: column; gap: 8px;"></div>',
         "    </div>",
         '    <div id="bdv-key-change-box" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px;">',
         '      <p style="font-size: 0.8rem; color: #cbd5e1; margin: 0 0 8px 0;">Ingresa tu nueva clave de acceso para este rol:</p>',
@@ -603,7 +621,7 @@
     if (!r || !r.id) return;
 
     showOpsPromptCard({
-      title: "Eliminar solicitud entrante",
+      title: isPartnerApplication(r) ? "Eliminar postulación de partner" : "Eliminar solicitud entrante",
       message: "¿Deseas eliminar de forma permanente la solicitud " + r.id + " de " + (r.clientName || r.clientEmail) + "?",
       confirmLabel: "Sí, Eliminar",
       cancelLabel: "Cancelar",
@@ -891,11 +909,21 @@
 
         var reqSection = document.getElementById("bdv-admin-requests-section");
         var reqList = document.getElementById("bdv-admin-requests-list");
+        var partnerSection = document.getElementById("bdv-admin-partners-section");
+        var partnerList = document.getElementById("bdv-admin-partners-list");
+        var allRequests = isAdmin && Array.isArray(res.requests) ? res.requests : [];
+        // Keep the original array so index-based actions (autofill / delete) still point at the right item.
+        window.__bdvStoredRequests = allRequests;
+        var clientIdx = [];
+        var partnerIdx = [];
+        allRequests.forEach(function (r, idx) { (isPartnerApplication(r) ? partnerIdx : clientIdx).push(idx); });
+        var setCount = function (id, n) { var el = document.getElementById(id); if (el) el.textContent = "(" + n + ")"; };
 
-        if (isAdmin && Array.isArray(res.requests) && res.requests.length && reqSection && reqList) {
-          window.__bdvStoredRequests = res.requests;
+        if (clientIdx.length && reqSection && reqList) {
           reqSection.style.display = "block";
-          reqList.innerHTML = res.requests.map(function (r, idx) {
+          setCount("bdv-admin-requests-count", clientIdx.length);
+          reqList.innerHTML = clientIdx.map(function (idx) {
+            var r = allRequests[idx];
             var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
             var srvList = Array.isArray(r.services) ? r.services.join(", ") : "";
             var escapedId = core.escapeHtml(r.id || "");
@@ -904,12 +932,13 @@
             var escapedClient = core.escapeHtml(r.clientName || "");
 
             return [
-              '<div style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">',
+              '<div class="bdv-admin-request-item" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">',
               "  <div>",
               '    <strong style="color: #f8fafc;">' + escapedClient + "</strong>",
               '    <span style="color: #94a3b8;">(' + escapedEmail + ")</span>",
               escapedBiz ? '<div style="color: #e8c861; font-size: 0.75rem;">Negocio: ' + escapedBiz + "</div>" : "",
               srvList ? '<div style="color: #cbd5e1; font-size: 0.72rem;">Servicio: ' + core.escapeHtml(srvList) + "</div>" : "",
+              r.notes ? '<div style="color: #94a3b8; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px;">' + core.escapeHtml(String(r.notes).slice(0, 600)) + "</div>" : "",
               '    <div style="color: #94a3b8; font-size: 0.7rem;">' + escapedId + " · " + dateStr + "</div>",
               "  </div>",
               '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
@@ -921,6 +950,33 @@
           }).join("");
         } else if (reqSection) {
           reqSection.style.display = "none";
+        }
+
+        if (partnerIdx.length && partnerSection && partnerList) {
+          partnerSection.style.display = "block";
+          setCount("bdv-admin-partners-count", partnerIdx.length);
+          partnerList.innerHTML = partnerIdx.map(function (idx) {
+            var r = allRequests[idx];
+            var dateStr = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "";
+            var email = String(r.clientEmail || "");
+            var notes = String(r.notes || "").replace(/^\[PARTNER APPLICATION[^\]]*\]\s*/i, "");
+            return [
+              '<div class="bdv-admin-partner-item" style="background: rgba(255,255,255,0.03); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(52,211,153,0.2); display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">',
+              "  <div>",
+              '    <strong style="color: #f8fafc;">' + core.escapeHtml(r.clientName || "") + "</strong>",
+              '    <span style="color: #94a3b8;">(' + core.escapeHtml(email) + ")</span>",
+              notes ? '<div style="color: #cbd5e1; font-size: 0.72rem; white-space: pre-wrap; max-width: 520px; margin-top: 2px;">' + core.escapeHtml(notes.slice(0, 900)) + "</div>" : "",
+              '    <div style="color: #94a3b8; font-size: 0.7rem;">' + core.escapeHtml(r.id || "") + " · " + dateStr + "</div>",
+              "  </div>",
+              '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
+              isValidEmailSimple(email) ? '    <a class="bdv-admin-action-btn" style="background: rgba(52,211,153,0.15) !important; color: #34d399 !important; border: 1px solid rgba(52,211,153,0.45); padding: 4px 8px; font-size: 0.75rem; text-decoration: none;" href="mailto:' + encodeURIComponent(email) + '">Responder</a>' : "",
+              '    <button type="button" class="bdv-admin-toggle-status" style="border-color: rgba(248, 113, 113, 0.45) !important; color: #f87171 !important; padding: 4px 8px; font-size: 0.75rem;" onclick="deleteServiceRequestByIndex(' + idx + ')">Eliminar</button>',
+              "  </div>",
+              "</div>"
+            ].join("");
+          }).join("");
+        } else if (partnerSection) {
+          partnerSection.style.display = "none";
         }
 
         if (!res.projects || !res.projects.length) {
