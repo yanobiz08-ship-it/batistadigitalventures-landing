@@ -1,0 +1,135 @@
+  <main id="main">
+    <article class="guide">
+      <header class="section guide-hero">
+        <div class="container guide-narrow">
+          <nav class="breadcrumb" aria-label="§gCrumbAria§">
+            <ol>
+              <li><a href="@@HOME@@">§gCrumbHome§</a></li>
+              <li aria-current="page">§gCrumb§</li>
+            </ol>
+          </nav>
+          <p class="kicker">§gKicker§</p>
+          <h1>§gH1§</h1>
+          <p class="section-desc">§gLead§</p>
+          <p class="guide-meta">§gUpdated§</p>
+          <section class="guide-answer" aria-labelledby="respuesta-corta">
+            <h2 id="respuesta-corta">§gShortH§</h2>
+            <ul class="check-list">
+@@LIST:gShort:3@@
+            </ul>
+          </section>
+          <nav class="guide-toc" aria-label="§gTocAria§">
+            <ol>
+              <li><a href="#tipos">§gTypesH§</a></li>
+              <li><a href="#factores">§gFactorsH§</a></li>
+              <li><a href="#mantenimiento">§gMaintH§</a></li>
+              <li><a href="#alertas">§gRedH§</a></li>
+              <li><a href="#diy">§gDiyH§</a></li>
+              <li><a href="#preguntas">§gFaqH§</a></li>
+              <li><a href="#fuentes">§gSrcH§</a></li>
+            </ol>
+          </nav>
+        </div>
+      </header>
+
+      <section class="section section-alt" id="tipos">
+        <div class="container">
+          <div class="section-head">
+            <h2>§gTypesH§</h2>
+            <p class="section-desc">§gTypesIntro§</p>
+@@OFFER_BANNER@@
+          </div>
+          <div class="cost-grid">
+@@COST_CARDS@@
+          </div>
+          <p class="fine-print">§svcNote§ §gMarketNote§</p>
+        </div>
+      </section>
+
+      <section class="section" id="factores">
+        <div class="container guide-narrow">
+          <h2>§gFactorsH§</h2>
+          <p class="section-desc">§gFactorsIntro§</p>
+          <ul class="check-list guide-list">
+@@LIST:gF:6@@
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section-alt" id="mantenimiento">
+        <div class="container guide-narrow">
+          <h2>§gMaintH§</h2>
+          <p class="section-desc">§gMaintIntro§</p>
+          <ul class="check-list guide-list">
+@@LIST:gM:3@@
+          </ul>
+          <div class="guide-ours">
+            <p>§gMaintOurs§</p>
+            <ul class="check-list">
+              <li>@@ICON:check@@<span><span>§svc4e§</span> @@PRICE:svc4e@@</span></li>
+              <li>@@ICON:check@@<span>§svc4a§</span></li>
+              <li>@@ICON:check@@<span>§svc4b§</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="alertas">
+        <div class="container guide-narrow">
+          <h2>§gRedH§</h2>
+          <ul class="guide-flags">
+@@FLAGS@@
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section-alt" id="diy">
+        <div class="container guide-narrow">
+          <h2>§gDiyH§</h2>
+          <div class="guide-split">
+            <div class="guide-col">
+              <h3>§gDiyAH§</h3>
+              <ul class="check-list">
+@@LIST:gDiyA:3@@
+              </ul>
+            </div>
+            <div class="guide-col">
+              <h3>§gDiyBH§</h3>
+              <ul class="check-list">
+@@LIST:gDiyB:3@@
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section guide-cta-section" aria-labelledby="guia-cotizar">
+        <div class="container guide-narrow">
+          <div class="guide-cta">
+            <h2 id="guia-cotizar">§gCtaH§</h2>
+            <p>§gCtaText§</p>
+            <a class="btn btn-primary btn-lg" href="@@HOME@@#cotizar">§gCtaBtn§</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-alt" id="preguntas">
+        <div class="container faq-wrap">
+          <h2>§gFaqH§</h2>
+          <div class="faq-list">
+@@GUIDE_FAQ@@
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="fuentes">
+        <div class="container guide-narrow">
+          <h2>§gSrcH§</h2>
+          <ol class="guide-sources">
+@@SOURCES@@
+          </ol>
+          <p class="fine-print">§gSrcChecked§</p>
+        </div>
+      </section>
+    </article>
+  </main>

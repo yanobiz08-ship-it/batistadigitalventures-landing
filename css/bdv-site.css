@@ -384,3 +384,53 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .nf-page { min-height: 100%; }
 .not-found { max-width: 640px; text-align: center; display: grid; justify-items: center; gap: 14px; }
 .not-found [lang="en"] { margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line); display: grid; justify-items: center; gap: 14px; }
+
+/* ---------- Pricing guide (tools/site-src/guide.html) ---------- */
+.guide-link { margin-top: 10px; font-size: 0.92rem; }
+.guide-narrow { max-width: 860px; }
+.guide-hero { border-top: 0; padding-top: 40px; }
+.guide-hero h1 { font-size: clamp(2rem, 6vw, 3.1rem); margin-bottom: 16px; }
+.guide h2 { font-size: clamp(1.5rem, 4.4vw, 2.2rem); margin-bottom: 14px; }
+.guide h3 { font-size: 1.12rem; }
+.guide .section-desc { margin-bottom: 18px; }
+.breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0 0 22px; font-size: 0.84rem; color: var(--text-muted); }
+.breadcrumb li + li::before { content: "›"; margin-right: 6px; color: var(--text-muted); }
+.breadcrumb a { color: var(--gold-bright); }
+.guide-meta { color: var(--text-muted); font-size: 0.84rem; margin: 0 0 26px; }
+.guide-answer { background: var(--bg-card); border: 1px solid var(--gold-border); border-radius: var(--radius-lg); padding: 20px 22px; }
+.guide-answer h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.guide-answer .check-list li, .guide-list li { font-size: 0.96rem; }
+.guide-toc { margin-top: 24px; }
+.guide-toc ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--text-muted); font-size: 0.92rem; }
+.guide-toc a { color: var(--text-secondary); border-bottom: 1px solid var(--gold-border); }
+.guide-toc a:hover { color: var(--gold-bright); }
+.cite { font-size: 0.72em; line-height: 0; margin-left: 2px; }
+.cite a { color: var(--gold-bright); padding: 0 1px; }
+.cost-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.cost-card { display: flex; flex-direction: column; gap: 10px; background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; }
+.cost-card > p { color: var(--text-secondary); font-size: 0.94rem; }
+.cost-rows { margin: auto 0 0; display: grid; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--gold-border); }
+.cost-rows dt { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+.cost-rows dd { margin: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; }
+.cost-ours dt { color: var(--gold-bright); }
+.cost-ours dd { color: var(--text-primary); }
+.guide-ours { margin-top: 22px; padding: 18px 20px; border-radius: var(--radius-md); border: 1px solid var(--gold-border); background: var(--gold-soft); }
+.guide-ours > p { margin: 0 0 10px; color: var(--text-primary); font-weight: 650; }
+.guide-flags { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.guide-flags li { display: flex; gap: 10px; align-items: flex-start; padding: 14px 16px; border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--line); color: var(--text-secondary); font-size: 0.95rem; }
+.flag-ico { color: #f5a524; flex-shrink: 0; margin-top: 2px; display: inline-flex; }
+.guide-split { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.guide-col { background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px 22px; display: grid; gap: 12px; align-content: start; }
+.guide-cta { text-align: center; display: grid; justify-items: center; gap: 14px; padding: 30px 22px; border-radius: var(--radius-lg); border: 1px solid var(--gold-border-strong); background: linear-gradient(160deg, rgba(212, 175, 55, 0.12), rgba(18, 24, 38, 0.95) 60%); }
+.guide-cta h2 { margin: 0; }
+.guide-cta p { color: var(--text-secondary); max-width: 560px; margin: 0; }
+.guide-sources { margin: 0; padding-left: 22px; display: grid; gap: 10px; color: var(--text-secondary); font-size: 0.92rem; }
+.guide-sources a { color: var(--gold-bright); border-bottom: 1px solid var(--gold-border); overflow-wrap: anywhere; }
+.guide-sources li:target { color: var(--text-primary); }
+@media (min-width: 640px) {
+  .cost-grid, .guide-split { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 980px) {
+  .guide-hero { padding-top: 56px; }
+  .cost-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

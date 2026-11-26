@@ -12,4 +12,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/" />
   </url>
+  <url>
+    <loc>https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/how-much-does-a-website-cost/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+  </url>
+  <url>
+    <loc>https://batistadigitalventures.com/en/how-much-does-a-website-cost/</loc>
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/how-much-does-a-website-cost/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+  </url>
 </urlset>

@@ -5,7 +5,9 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 os.chdir(HERE)
-T = open('template.html').read()
+SHELL = open('template.html').read()  # <head>, header, footer and scripts shared by every page
+T = open('home.html').read()          # home page <main>
+G = open('guide.html').read()         # pricing guide <main>
 
 ICONS = {
  'shield': '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
@@ -22,6 +24,7 @@ ICONS = {
  'grid': '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
  'wrench': '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>',
  'check': '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ 'alert': '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>',
  'ext': '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
 }
 
@@ -33,7 +36,7 @@ def t(k):  # text placeholder, filled per language at the end
 # the normal prices. End of January 6, 2027, Pacific time (PST, UTC-8). The same dates appear in the Terms of
 # Service ("Ofertas / Offers" in js/brand-media.js) and in strings.py (offerTerms, a4Offer): keep them in sync.
 OFFER_END = '2027-01-07T00:00:00-08:00'
-T = T.replace('@@OFFER_END@@', OFFER_END)
+SHELL = SHELL.replace('@@OFFER_END@@', OFFER_END)
 
 def price(key, tag='strong'):
     """Normal price; during the offer it is struck through and followed by the offer price."""
@@ -42,6 +45,11 @@ def price(key, tag='strong'):
     normal = f'<{tag} class="price-normal"><span class="bdv-sr-only offer-only">{t("priceNormalSr")}</span> <span>{t(key + "Price")}</span></{tag}>'
     offer = f'<{tag} class="price-offer offer-only"><span class="bdv-sr-only">{t("priceOfferSr")}</span> <span>{t(key + "Offer")}</span></{tag}>'
     return f'{normal} {offer}'
+
+# Offer banner with its conditions, shown (like every .offer-only element) only while the offer runs.
+OFFER_BANNER = """          <div class="offer-banner offer-only"><p><strong>§offerBadge§</strong> <span>§offerLock§</span></p>
+          <p class="offer-terms"><span>§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms">§legalTermsBtn§</button>.</p></div>"""
+T = T.replace('@@OFFER_BANNER@@', OFFER_BANNER)
 
 # services
 svc = []
@@ -155,10 +163,60 @@ for i in range(1, 7):
           </details>''')
 T = T.replace('@@FAQ@@', '\n'.join(faq))
 
+
+# ---------- Pricing guide ----------
+# Market figures are cited from these sources ([[n]] in the guide strings); BDV prices reuse the
+# home page's svc* keys and price(), so both pages always show the same prices and offer state.
+GUIDE_SOURCES = [
+    ('gSrc1', 'https://www.siteground.com/academy/cost-to-build-website-web-app'),
+    ('gSrc2', 'https://clutch.co/resources/how-to-create-a-budget-for-a-new-website'),
+    ('gSrc3', 'https://www.shopify.com/blog/ecommerce-website-cost'),
+    ('gSrc4', 'https://www.shopify.com/pricing'),
+    ('gSrc5', 'https://www.squarespace.com/pricing'),
+    ('gSrc6', 'https://www.smartling.com/blog/translation-rates'),
+    ('gSrc7', 'https://developers.google.com/search/docs/fundamentals/do-i-need-seo'),
+]
+GUIDE_FAQ = 5
+
+def li(key):
+    return f'              <li>@@ICON:check@@<span>{t(key)}</span></li>'
+
+def cost_card(n, ours):
+    return f'''            <article class="cost-card">
+              <h3>{t(f"gT{n}H")}</h3>
+              <p>{t(f"gT{n}D")}</p>
+              <dl class="cost-rows">
+                <div><dt>{t("gMarket")}</dt><dd>{t(f"gT{n}M")}</dd></div>
+                <div class="cost-ours"><dt>{t("gOurs")}</dt><dd>{ours}</dd></div>
+              </dl>
+            </article>'''
+
+def from_price(svc, label=''):
+    return (f'<span>{t(label)}:</span> ' if label else '') + f'<span>{t("svcFrom")}</span> {price(svc, "span")} <small>{t(svc + "Unit")}</small>'
+
+CARDS = [
+    cost_card(1, from_price('svc2')),
+    cost_card(2, t('svc2Typical')),
+    cost_card(3, t('gT3O')),
+    cost_card(4, t('gT4O')),
+    cost_card(5, f'{from_price("svc3", "svc3Title")}<br />{t("svc3Typical")}<br />{from_price("svc1", "svc1Title")}<br />{t("svc1Typical")}'),
+]
+G = G.replace('@@OFFER_BANNER@@', OFFER_BANNER).replace('@@COST_CARDS@@', '\n'.join(CARDS))
+G = re.sub(r'@@LIST:(\w+):(\d)@@', lambda m: '\n'.join(li(f'{m.group(1)}{k}') for k in range(1, int(m.group(2)) + 1)), G)
+G = G.replace('@@PRICE:svc4e@@', price('svc4e', 'span'))
+G = G.replace('@@FLAGS@@', '\n'.join(f'            <li><span class="flag-ico" aria-hidden="true">@@ICON:alert@@</span><span>{t(f"gR{k}")}</span></li>' for k in range(1, 7)))
+G = G.replace('@@GUIDE_FAQ@@', '\n'.join(f'''            <details class="faq-item"{' open' if k == 1 else ''}>
+              <summary>{t(f"gQ{k}")}</summary>
+              <p>{t(f"gA{k}")}</p>
+            </details>''' for k in range(1, GUIDE_FAQ + 1)))
+G = G.replace('@@SOURCES@@', '\n'.join(f'            <li id="fuente-{k}"><a href="{url}" target="_blank" rel="noopener noreferrer">{t(key)}</a> <span class="bdv-sr-only">{t("gNewTab")}</span></li>'
+                                       for k, (key, url) in enumerate(GUIDE_SOURCES, 1)))
+
 T = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], T)
+G = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], G)
 
 NF = open('404.html').read()
-used = set(re.findall(r'§(\w+)§', T)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF))
+used = set(re.findall(r'§(\w+)§', SHELL + T + G)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF)) | {'pageTitle', 'metaDesc', 'gTitle', 'gMetaDesc', 'gSrcAria'}
 missing = used - set(S)
 assert not missing, missing
 # Keys used from JavaScript (passed to BDV_t / tr as quoted strings) count as used too; only those are
@@ -180,53 +238,96 @@ def versioned(m):
     digest = hashlib.sha1(open(os.path.join(REPO, path), 'rb').read()).hexdigest()[:10]
     return f'{m.group(1)}="/{path}?v={digest}"'
 
-# One static page per language, so Google can index both (hreflang links them):
-# Spanish at / (also x-default) and English at /en/.
+# One static page per language and page, so Google can index each (hreflang pairs them).
+# Spanish is the x-default. Paths are relative to SITE.
 SITE = 'https://batistadigitalventures.com/'
-PAGES = {'es': ('', 'es_US'), 'en': ('en/', 'en_US')}
+LOCALES = {'es': 'es_US', 'en': 'en_US'}
+PAGES = {
+    'home':  {'paths': {'es': '', 'en': 'en/'}, 'main': T, 'title': 'pageTitle', 'desc': 'metaDesc', 'og_type': 'website',
+              'preload': '<link rel="preload" as="image" href="/assets/img/portfolio/trivlo-hero-device.webp" type="image/webp" fetchpriority="high" />\n  ',
+              # Admin panel (#bdv-ops), client viewer and SOW links (?sow=) live on the home page only.
+              'scripts': '  <script src="/js/bdv-ops-panel.js" defer></script>\n  <script src="/js/bdv-sow-signer.js" defer></script>\n', 'assets': 8},
+    'guide': {'paths': {'es': 'cuanto-cuesta-una-pagina-web/', 'en': 'en/how-much-does-a-website-cost/'}, 'main': G, 'title': 'gTitle', 'desc': 'gMetaDesc',
+              'og_type': 'article', 'preload': '', 'scripts': '', 'assets': 6},
+}
+GUIDE_DATE = '2026-11-25'  # datePublished / dateModified of the guide; update dateModified when its figures change
 
-def schema(lang):
-    """JSON-LD: the company as a ProfessionalService, its founder and the services it offers.
-    No prices: the 'from' prices change with offers and are only final in the SOW."""
-    i = 0 if lang == 'es' else 1
-    url = SITE + PAGES[lang][0]
+def org_node(i):
     org = SITE + '#organization'
     services = [{'@type': 'Offer', 'itemOffered': {'@type': 'Service', 'name': S[f'svc{n}Title'][i], 'description': S[f'svc{n}Desc'][i],
                  'provider': {'@id': org}, 'areaServed': {'@type': 'Country', 'name': 'United States'}}} for n in range(1, 5)]
-    graph = [
-        {'@type': 'ProfessionalService', '@id': org, 'name': 'Batista Digital Ventures LLC', 'alternateName': ['Batista Digital Ventures', 'BDV'],
-         'url': SITE, 'logo': {'@type': 'ImageObject', 'url': SITE + 'assets/BDV%20Logo.png', 'width': 512, 'height': 512},
-         'image': SITE + 'assets/img/og-image.jpg', 'description': S['metaDesc'][i], 'email': 'contact@batistadigitalventures.com',
-         'address': {'@type': 'PostalAddress', 'addressLocality': 'Lompoc', 'addressRegion': 'CA', 'addressCountry': 'US'},
-         'areaServed': {'@type': 'Country', 'name': 'United States'}, 'duns': '150052438', 'knowsLanguage': ['es', 'en'],
-         'founder': {'@type': 'Person', 'name': 'Yano Batista', 'jobTitle': S['fRole'][i], 'sameAs': ['https://www.linkedin.com/in/yano-batista']},
-         'sameAs': ['https://www.youtube.com/channel/UCVkQn4dWIfmxu4kZ0kBTa9w'],
-         'contactPoint': {'@type': 'ContactPoint', 'contactType': 'customer service', 'email': 'contact@batistadigitalventures.com', 'availableLanguage': ['es', 'en']},
-         'hasOfferCatalog': {'@type': 'OfferCatalog', 'name': S['svcKicker'][i].capitalize(), 'itemListElement': services}},
-        {'@type': 'WebSite', '@id': SITE + '#website', 'url': SITE, 'name': 'Batista Digital Ventures', 'inLanguage': ['es', 'en'], 'publisher': {'@id': org}},
-        {'@type': 'WebPage', '@id': url + '#webpage', 'url': url, 'name': S['pageTitle'][i], 'description': S['metaDesc'][i], 'inLanguage': lang,
-         'isPartOf': {'@id': SITE + '#website'}, 'about': {'@id': org}},
-    ]
+    return {'@type': 'ProfessionalService', '@id': org, 'name': 'Batista Digital Ventures LLC', 'alternateName': ['Batista Digital Ventures', 'BDV'],
+            'url': SITE, 'logo': {'@type': 'ImageObject', 'url': SITE + 'assets/BDV%20Logo.png', 'width': 512, 'height': 512},
+            'image': SITE + 'assets/img/og-image.jpg', 'description': S['metaDesc'][i], 'email': 'contact@batistadigitalventures.com',
+            'address': {'@type': 'PostalAddress', 'addressLocality': 'Lompoc', 'addressRegion': 'CA', 'addressCountry': 'US'},
+            'areaServed': {'@type': 'Country', 'name': 'United States'}, 'duns': '150052438', 'knowsLanguage': ['es', 'en'],
+            'founder': {'@id': SITE + '#founder'},
+            'sameAs': ['https://www.youtube.com/channel/UCVkQn4dWIfmxu4kZ0kBTa9w'],
+            'contactPoint': {'@type': 'ContactPoint', 'contactType': 'customer service', 'email': 'contact@batistadigitalventures.com', 'availableLanguage': ['es', 'en']},
+            'hasOfferCatalog': {'@type': 'OfferCatalog', 'name': S['svcKicker'][i].capitalize(), 'itemListElement': services}}
+
+def plain(key, i):
+    """Text of a string without its [[n]] citation markers (for JSON-LD)."""
+    return re.sub(r'\s*\[\[\d+\]\]', '', S[key][i])
+
+def schema(page, lang):
+    """JSON-LD: the company as a ProfessionalService, its founder, the site and the page. No prices:
+    the 'from' prices change with offers and are only final in the SOW. The guide adds Article,
+    BreadcrumbList and FAQPage (its FAQ is visible on the page)."""
+    i = 0 if lang == 'es' else 1
+    cfg = PAGES[page]
+    url = SITE + cfg['paths'][lang]
+    founder = {'@type': 'Person', '@id': SITE + '#founder', 'name': 'Yano Batista', 'jobTitle': S['fRole'][i], 'worksFor': {'@id': SITE + '#organization'},
+               'sameAs': ['https://www.linkedin.com/in/yano-batista']}
+    webpage = {'@type': 'WebPage', '@id': url + '#webpage', 'url': url, 'name': S[cfg['title']][i], 'description': S[cfg['desc']][i], 'inLanguage': lang,
+               'isPartOf': {'@id': SITE + '#website'}, 'about': {'@id': SITE + '#organization'}}
+    graph = [org_node(i), founder,
+             {'@type': 'WebSite', '@id': SITE + '#website', 'url': SITE, 'name': 'Batista Digital Ventures', 'inLanguage': ['es', 'en'], 'publisher': {'@id': SITE + '#organization'}},
+             webpage]
+    if page == 'guide':
+        home = SITE + PAGES['home']['paths'][lang]
+        webpage['breadcrumb'] = {'@id': url + '#breadcrumb'}
+        graph += [
+            {'@type': 'Article', '@id': url + '#article', 'headline': S['gH1'][i], 'description': S['gMetaDesc'][i], 'inLanguage': lang,
+             'mainEntityOfPage': {'@id': url + '#webpage'}, 'image': SITE + 'assets/img/og-image.jpg', 'datePublished': GUIDE_DATE, 'dateModified': GUIDE_DATE,
+             'author': {'@id': SITE + '#founder'}, 'publisher': {'@id': SITE + '#organization'},
+             'citation': [u for _, u in GUIDE_SOURCES]},
+            {'@type': 'BreadcrumbList', '@id': url + '#breadcrumb', 'itemListElement': [
+                {'@type': 'ListItem', 'position': 1, 'name': S['gCrumbHome'][i], 'item': home},
+                {'@type': 'ListItem', 'position': 2, 'name': S['gCrumb'][i], 'item': url}]},
+            {'@type': 'FAQPage', '@id': url + '#faq', 'inLanguage': lang, 'isPartOf': {'@id': url + '#webpage'}, 'mainEntity': [
+                {'@type': 'Question', 'name': plain(f'gQ{k}', i), 'acceptedAnswer': {'@type': 'Answer', 'text': plain(f'gA{k}', i)}} for k in range(1, GUIDE_FAQ + 1)]},
+        ]
     return '\n'.join('  ' + line for line in json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False, indent=2).splitlines())
 
-def render(template, lang):
+def render(page, lang):
     i = 0 if lang == 'es' else 1
     other = 'en' if lang == 'es' else 'es'
-    page = template
-    for k, v in {'LANG': lang, 'URL': SITE + PAGES[lang][0], 'URL_ES': SITE, 'URL_EN': SITE + PAGES['en'][0], 'SITE': SITE,
-                 'OG_LOCALE': PAGES[lang][1], 'OG_LOCALE_ALT': PAGES[other][1], 'JSONLD': schema(lang),
+    cfg = PAGES[page]
+    paths = cfg['paths']
+    out = SHELL.replace('@@MAIN@@', cfg['main'])
+    for k, v in {'TITLE': f'§{cfg["title"]}§', 'DESC': f'§{cfg["desc"]}§', 'OG_TYPE': cfg['og_type'], 'PRELOAD': cfg['preload'], 'HOME_SCRIPTS': cfg['scripts'],
+                 'LANG': lang, 'URL': SITE + paths[lang], 'URL_ES': SITE + paths['es'], 'URL_EN': SITE + paths['en'], 'SITE': SITE,
+                 'PATH_ES': '/' + paths['es'], 'PATH_EN': '/' + paths['en'],
+                 'HOME': '' if page == 'home' else '/' + PAGES['home']['paths'][lang], 'GUIDE': '/' + PAGES['guide']['paths'][lang],
+                 'OG_LOCALE': LOCALES[lang], 'OG_LOCALE_ALT': LOCALES[other], 'JSONLD': schema(page, lang),
                  f'ACTIVE_{lang.upper()}': ' active', f'ACTIVE_{other.upper()}': '',
                  f'CURRENT_{lang.upper()}': ' aria-current="page"', f'CURRENT_{other.upper()}': ''}.items():
-        page = page.replace(f'@@{k}@@', v)
-    page = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][i], quote=True), page)
-    assert '@@' not in page and '§' not in page
-    page, n_assets = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, page)
-    assert n_assets == 8, n_assets
-    return page
+        out = out.replace(f'@@{k}@@', v)
+    out = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][i], quote=True), out)
+    # Citations: [[n]] -> superscript link to source n in the guide's source list.
+    out = re.sub(r'\s*\[\[(\d)\]\]', lambda m: f'<sup class="cite">[<a href="#fuente-{m.group(1)}"><span class="bdv-sr-only">{html.escape(S["gSrcAria"][i])} </span>{m.group(1)}</a>]</sup>', out)
+    assert '@@' not in out and '§' not in out and '[[' not in out
+    if page != 'guide':
+        assert 'class="cite"' not in out
+    out, n_assets = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, out)
+    assert n_assets == cfg['assets'], (page, n_assets)
+    return out
 
-for lang, (path, _) in PAGES.items():
-    os.makedirs(os.path.join(REPO, path), exist_ok=True)
-    open(os.path.join(REPO, path, 'index.html'), 'w').write(render(T, lang))
+for page, cfg in PAGES.items():
+    for lang, path in cfg['paths'].items():
+        os.makedirs(os.path.join(REPO, path), exist_ok=True)
+        open(os.path.join(REPO, path, 'index.html'), 'w').write(render(page, lang))
 
 # 404 page (GitHub Pages serves /404.html for any missing URL), in both languages, not indexed.
 nf = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), re.sub(r'§(\w+)\.en§', lambda m: html.escape(S[m.group(1)][1], quote=True), NF))
@@ -234,8 +335,10 @@ nf, n_nf = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned,
 assert n_nf == 1 and '§' not in nf
 open(os.path.join(REPO, '404.html'), 'w').write(nf)
 
-# Sitemap: both language URLs with their hreflang alternates.
-alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{h}" href="{SITE + PAGES[l][0]}" />' for h, l in (('es', 'es'), ('en', 'en'), ('x-default', 'es')))
-urls = ''.join(f'\n  <url>\n    <loc>{SITE + path}</loc>{alts}\n  </url>' for path, _ in PAGES.values())
-open(os.path.join(REPO, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{urls}\n</urlset>\n')
-print('ok', len(S), 'keys,', len(js_used), 'in bdv-i18n.js,', len(PAGES), 'pages + 404 + sitemap')
+# Sitemap: every page in both languages, each with its hreflang alternates.
+urls = []
+for cfg in PAGES.values():
+    alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{h}" href="{SITE + cfg["paths"][l]}" />' for h, l in (('es', 'es'), ('en', 'en'), ('x-default', 'es')))
+    urls += [f'\n  <url>\n    <loc>{SITE + path}</loc>{alts}\n  </url>' for path in cfg['paths'].values()]
+open(os.path.join(REPO, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{"".join(urls)}\n</urlset>\n')
+print('ok', len(S), 'keys,', len(js_used), 'in bdv-i18n.js,', sum(len(c['paths']) for c in PAGES.values()), 'pages + 404 + sitemap')
