@@ -281,22 +281,10 @@
     });
   }
 
+  // The public "⚙ Panel Admin / Dev" footer button was removed (phase 1).
+  // The panel now opens only through the private hash  #bdv-ops  (see ADMIN_HASH below)
+  // or by calling window.BDV_OPS.openAdmin() from the browser console.
   function applyAdminPanel() {
-    var footer = document.querySelector("footer");
-    if (footer) {
-      var container = footer.querySelector(".container") || footer;
-      var adminBtnWrap = document.getElementById("bdv-admin-btn-wrap");
-      if (!adminBtnWrap) {
-        adminBtnWrap = document.createElement("div");
-        adminBtnWrap.id = "bdv-admin-btn-wrap";
-        adminBtnWrap.style.cssText = "width: 100%; display: flex; justify-content: center; margin-top: 12px;";
-        adminBtnWrap.innerHTML = '<button type="button" id="bdv-admin-btn" class="bdv-admin-footer-btn" style="cursor: pointer; opacity: 0.65; padding: 4px 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.18) !important; background: transparent !important; color: #94a3b8 !important; font-size: 0.75rem;">⚙ Panel Admin / Dev</button>';
-        container.appendChild(adminBtnWrap);
-      } else if (!container.contains(adminBtnWrap)) {
-        container.appendChild(adminBtnWrap);
-      }
-    }
-
     var modalRoot = document.getElementById("bdv-admin-modal-root");
     if (!modalRoot) {
       modalRoot = document.createElement("div");
@@ -308,7 +296,7 @@
         '<div class="bdv-admin-card" style="max-height: 88vh; overflow-y: auto; margin: auto;">',
         '  <div class="bdv-modal-top">',
         '    <h3 id="bdv-admin-modal-title" style="margin: 0; color: #e8c861; font-size: 1.1rem;">⚙ Control Operativo · BDV LLC</h3>',
-        '    <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close">✕</button>',
+        '    <button type="button" id="bdv-admin-close-btn" class="bdv-modal-close" aria-label="Cerrar">✕</button>',
         "  </div>",
         '  <div id="bdv-admin-auth-view" style="margin-top: 15px;">',
         '    <input type="password" id="bdv-admin-pass" class="bdv-tracker-input" style="width: 100%;" placeholder="Ingresa tu clave (Admin o Programador)" />',
@@ -922,7 +910,7 @@
               '    <span style="color: #94a3b8;">(' + escapedEmail + ")</span>",
               escapedBiz ? '<div style="color: #e8c861; font-size: 0.75rem;">Negocio: ' + escapedBiz + "</div>" : "",
               srvList ? '<div style="color: #cbd5e1; font-size: 0.72rem;">Servicio: ' + core.escapeHtml(srvList) + "</div>" : "",
-              '    <div style="color: #64748b; font-size: 0.7rem;">' + escapedId + " · " + dateStr + "</div>",
+              '    <div style="color: #94a3b8; font-size: 0.7rem;">' + escapedId + " · " + dateStr + "</div>",
               "  </div>",
               '  <div style="display: flex; gap: 6px; flex-wrap: wrap;">',
               '    <button type="button" class="bdv-admin-action-btn" style="background: #e8c861 !important; color: #000 !important; font-weight: 700; padding: 4px 8px; font-size: 0.75rem;" onclick="autofillProjectByIndex(' + idx + ')">Usar en Nuevo Proyecto</button>',
@@ -1157,7 +1145,29 @@
       });
   };
 
+  var ADMIN_HASH = "#bdv-ops";
+
+  function clearAdminHash() {
+    if (window.location.hash === ADMIN_HASH && window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.href.split("#")[0]);
+    }
+  }
+
+  function openAdminFromHash() {
+    if (window.location.hash === ADMIN_HASH) {
+      openAdminModal();
+      // Drop the hash right away so it is not left in the address bar and the
+      // same link can be used again later (hashchange only fires on a change).
+      clearAdminHash();
+    }
+  }
+
+  window.addEventListener("hashchange", openAdminFromHash);
+
   window.BDV_OPS = {
+    openAdmin: function () {
+      openAdminModal();
+    },
     onLanguageChange: function () {
       if (window.__bdvSessionKey && document.getElementById("bdv-admin-dash-view") && document.getElementById("bdv-admin-dash-view").style.display === "block") {
         loadAdminProjects();
@@ -1168,6 +1178,7 @@
   function initOps() {
     applyClientTrackerModal();
     applyAdminPanel();
+    openAdminFromHash();
   }
 
   if (document.readyState === "loading") {

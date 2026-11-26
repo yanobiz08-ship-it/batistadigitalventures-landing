@@ -2,7 +2,7 @@
 (function () {
   const copy = {
     es: {
-      pill: "PLATAFORMA COMERCIAL · REVISIÓN PREVIA",
+      pill: "PROYECTO DE CLIENTE · EN VIVO",
       title: "GY Roadside Solutions",
       desc: "Llevada a producción (Live) con rediseño visual, panel de administración, conexión a Google y seguimiento de llamadas, estructura de membresías de 12 meses en vista previa y avisos legales bilingües para Texas.",
       t1: "Live & Rediseño",
@@ -12,7 +12,7 @@
       btn: "Revisar gyroadsidesolutions.com/en ↗"
     },
     en: {
-      pill: "COMMERCIAL PLATFORM · PREVIEW REVIEW",
+      pill: "CLIENT PROJECT · LIVE",
       title: "GY Roadside Solutions",
       desc: "Taken live with design updates, admin panel, Google search & call tracking setup, 12-month membership concepts in preview mode, and bilingual Texas privacy & legal disclosures.",
       t1: "Live & Redesign",
@@ -27,6 +27,11 @@
     const lang = document.documentElement.getAttribute("lang") || document.documentElement.getAttribute("data-lang");
     return lang === "en" ? "en" : "es";
   }
+
+  // brand-media.js already renders the GY Roadside card inside the products drawer
+  // and keeps its ES/EN text in sync. This script only acts as a fallback when that
+  // card is missing, so the two scripts never overwrite each other with different copy.
+  let builtHere = false;
 
   function buildCard() {
     if (document.getElementById("bdv-gy-roadside-card")) return;
@@ -63,9 +68,11 @@
     `;
 
     venturesGrid.appendChild(article);
+    builtHere = true;
   }
 
   function syncLang() {
+    if (!builtHere) return;
     const lang = getLang();
     const t = copy[lang];
     const map = [

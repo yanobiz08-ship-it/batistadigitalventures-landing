@@ -89,6 +89,7 @@ main section {
 .bdv-banner-img {
   display: block;
   width: 100%;
+  height: auto;
   max-height: 240px;
   object-fit: cover;
   border-radius: 10px;
@@ -320,7 +321,7 @@ footer {
 }
 
 .bdv-legal-dot {
-  color: #475569 !important;
+  color: #94a3b8 !important;
   font-size: 0.80rem !important;
   user-select: none !important;
 }
@@ -668,6 +669,9 @@ footer {
 .bdv-ops-sub {
   margin: 0;
   font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: normal;
   color: #94a3b8;
 }
 
@@ -846,7 +850,7 @@ footer {
 .bdv-admin-footer-btn {
   background: none;
   border: none;
-  color: #475569;
+  color: #94a3b8;
   font-size: 0.72rem;
   cursor: pointer;
   padding: 4px 8px;

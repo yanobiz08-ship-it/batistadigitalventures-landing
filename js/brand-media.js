@@ -35,33 +35,33 @@
       eyebrow: "PLATAFORMAS DIGITALES Y APPS MÓVILES",
       h1: "Creamos y escalamos plataformas digitales y apps móviles con visión clara.",
       lead: "Batista Digital Ventures diseña, lanza y hace crecer software desde cero hasta producción—uniendo estrategia de negocio, desarrollo móvil, infraestructura en la nube y ejecución enfocada en resultados.",
-      ctaPrimary: "Ver Proyectos Activos",
+      ctaPrimary: "Ver Proyectos",
       ctaSecondary: "Ver Qué Hacemos",
       navCta: "Cotizar Proyecto",
       kicker: "IDENTIDAD OFICIAL · BATISTA DIGITAL VENTURES",
       caption: "Plataformas digitales, aplicaciones móviles y sistemas listos para crecer",
       altBanner: "Banner oficial de Batista Digital Ventures con emblema hexagonal dorado y nombre de marca",
       altLogo: "Logotipo hexagonal dorado de Batista Digital Ventures",
-      toggleOpen: "Ver productos en desarrollo y lanzados (TRIVLO · MERQOX · GY Roadside)",
-      toggleClose: "Ocultar productos en desarrollo y lanzados",
-      trPill: "EN DESARROLLO · PRÓXIMO A LANZAMIENTO",
+      toggleOpen: "Ver productos y proyectos (TRIVLO · MERQOX · GY Roadside)",
+      toggleClose: "Ocultar productos y proyectos",
+      trPill: "PRÓXIMO LANZAMIENTO",
       trTitle: "TRIVLO",
       trDesc: "Compañero de viaje con asistente conversacional NARA, mapas sin conexión, itinerarios inteligentes y preparación para tiendas móviles.",
       trT1: "Asistente NARA",
       trT2: "Mapas Offline",
       trT3: "Próximo Lanzamiento",
       trBtn: "Abrir trivlopro.com ↗",
-      mqPill: "EN DESARROLLO · PRÓXIMO A LANZAMIENTO",
+      mqPill: "PRÓXIMO LANZAMIENTO",
       mqTitle: "MERQOX",
       mqDesc: "Aplicación móvil de comercio local y ofertas de proximidad con panel para comercios, radar cercano, códigos QR en mostrador y pedidos para recoger.",
       mqT1: "App Móvil",
       mqT2: "Panel Comercio",
       mqT3: "Próximo Lanzamiento",
       mqBtn: "Abrir merqox.com ↗",
-      gyPill: "YA LIVE · REVISIÓN PREVIA",
+      gyPill: "PROYECTO DE CLIENTE · EN VIVO",
       gyTitle: "GY Roadside Solutions",
       gyDesc: "Sitio ya live con rediseño visual, panel de administración, conexión a Google y seguimiento de llamadas, membresías de 12 meses en vista previa y avisos legales bilingües para Texas.",
-      gyT1: "Ya Live",
+      gyT1: "En Vivo",
       gyT2: "Panel Admin",
       gyT3: "Google y Llamadas",
       gyT4: "Membresías (Vista Previa)",
@@ -70,7 +70,7 @@
       scopeKicker: "ALCANCE COMPLETO DE LA COMPAÑÍA",
       scopeTitle: "Cada capa cubierta hasta el último detalle.",
       scopeDesc: "Desde la tesis inicial del producto y el diseño de interfaz hasta pipelines de backend, cumplimiento en tiendas, DNS y piezas bilingües.",
-      scopeBadge: "4 áreas",
+      scopeBadge: "4 capacidades",
       s1Title: "Estrategia de Producto y Diseño de Venture",
       s1a: "Propuesta de valor, recorridos de usuario y alcance MVP",
       s1b: "Modelos de monetización, precios y economía unitaria",
@@ -163,33 +163,33 @@
       eyebrow: "B2B & CONSUMER VENTURE ARCHITECTURE",
       h1: "We build and scale digital platforms and mobile apps with conviction.",
       lead: "Batista Digital Ventures designs, builds, and scales software from concept to production—combining disciplined business economics, modern mobile engineering, cloud infrastructure, and market execution.",
-      ctaPrimary: "View Active Ventures",
+      ctaPrimary: "View Ventures",
       ctaSecondary: "Explore Full Scope",
       navCta: "Request a Proposal",
       kicker: "OFFICIAL IDENTITY · BATISTA DIGITAL VENTURES",
       caption: "Digital platforms, mobile applications & growth systems",
       altBanner: "Official Batista Digital Ventures banner featuring gold hexagonal emblem and wordmark",
       altLogo: "Gold hexagonal logo of Batista Digital Ventures",
-      toggleOpen: "View upcoming & live products (TRIVLO · MERQOX · GY Roadside)",
-      toggleClose: "Hide upcoming & live products",
-      trPill: "IN DEVELOPMENT · LAUNCHING SOON",
+      toggleOpen: "View products & projects (TRIVLO · MERQOX · GY Roadside)",
+      toggleClose: "Hide products & projects",
+      trPill: "COMING SOON",
       trTitle: "TRIVLO",
       trDesc: "Travel companion featuring conversational assistant NARA, offline maps, tailored itineraries, and mobile store rollout.",
       trT1: "NARA Assistant",
       trT2: "Offline Maps",
-      trT3: "Launching Soon",
+      trT3: "Coming Soon",
       trBtn: "Open trivlopro.com ↗",
-      mqPill: "IN DEVELOPMENT · LAUNCHING SOON",
+      mqPill: "COMING SOON",
       mqTitle: "MERQOX",
       mqDesc: "Hyperlocal marketplace mobile app with merchant dashboard, nearby radar, counter QR codes, and pickup workflows.",
       mqT1: "Mobile App",
       mqT2: "Merchant Portal",
-      mqT3: "Launching Soon",
+      mqT3: "Coming Soon",
       mqBtn: "Open merqox.com ↗",
-      gyPill: "ALREADY LIVE · PREVIEW REVIEW",
+      gyPill: "CLIENT PROJECT · LIVE",
       gyTitle: "GY Roadside Solutions",
       gyDesc: "Live site with design updates, admin panel, Google search & call tracking setup, 12-month membership concepts in preview mode, and bilingual Texas privacy & legal disclosures.",
-      gyT1: "Already Live",
+      gyT1: "Live",
       gyT2: "Admin Panel",
       gyT3: "Google & Call Tracking",
       gyT4: "Memberships (Preview)",
@@ -346,7 +346,10 @@
     if (!img) {
       img = document.createElement("img");
       img.className = "bdv-header-logo-img";
-      img.src = "./assets/BDV Logo.png";
+      img.src = "./assets/img/bdv-logo-88.png";
+      img.width = 44;
+      img.height = 44;
+      img.decoding = "async";
       img.style.width = "44px";
       img.style.height = "44px";
       img.style.maxWidth = "44px";
@@ -375,13 +378,25 @@
             <span class="bdv-banner-kicker" data-bdv-kicker>${t.kicker}</span>
             <span class="bdv-banner-caption" data-bdv-caption>${t.caption}</span>
           </div>
-          <img
-            class="bdv-banner-img"
-            src="./assets/BDV Logo Banner.jpg"
-            alt="${t.altBanner}"
-            data-bdv-banner
-            loading="eager"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcset="./assets/img/bdv-banner-960.webp 960w, ./assets/img/bdv-banner-1600.webp 1600w"
+              sizes="(max-width: 1180px) calc(100vw - 48px), 1132px"
+            />
+            <img
+              class="bdv-banner-img"
+              src="./assets/img/bdv-banner-1600.jpg"
+              srcset="./assets/img/bdv-banner-960.jpg 960w, ./assets/img/bdv-banner-1600.jpg 1600w"
+              sizes="(max-width: 1180px) calc(100vw - 48px), 1132px"
+              width="1600"
+              height="900"
+              alt="${t.altBanner}"
+              data-bdv-banner
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
         </div>
       </div>
     `;
@@ -641,8 +656,8 @@
       <div class="container">
         <div class="bdv-ops-compact">
           <div class="bdv-ops-head">
-            <h2 class="bdv-ops-title">${d.title}</h2>
-            <p class="bdv-ops-sub">${d.sub}</p>
+            <p class="bdv-ops-title">${d.title}</p>
+            <h2 class="bdv-ops-sub">${d.sub}</h2>
           </div>
           <div class="bdv-ops-pills">
             ${d.items
@@ -651,6 +666,7 @@
                   <button
                     type="button"
                     class="bdv-ops-pill ${idx === activeOpsIndex ? "is-active" : ""}"
+                    aria-pressed="${idx === activeOpsIndex ? "true" : "false"}"
                     data-bdv-ops-idx="${idx}"
                   >
                     <span class="bdv-ops-num">${it.num}</span>
@@ -692,7 +708,7 @@
       legalBar.className = "bdv-footer-legal";
       legalBar.innerHTML = `
         <button type="button" id="bdv-btn-terms" class="bdv-link-btn" data-legal-terms-btn>${copy[lang].legalTermsBtn}</button>
-        <span class="bdv-legal-dot">•</span>
+        <span class="bdv-legal-dot" aria-hidden="true">•</span>
         <button type="button" id="bdv-btn-privacy" class="bdv-link-btn" data-legal-privacy-btn>${copy[lang].legalPrivacyBtn}</button>
       `;
 
@@ -1172,8 +1188,11 @@
     ];
 
     pairs.forEach(([sel, val]) => {
-      const el = document.querySelector(sel);
-      if (el && val) el.textContent = val;
+      if (!val) return;
+      // Update every match (e.g. all six "scopeBadge" chips), not only the first one.
+      document.querySelectorAll(sel).forEach((el) => {
+        el.textContent = val;
+      });
     });
 
     if (window.BDV_OPS && typeof window.BDV_OPS.onLanguageChange === "function") {
