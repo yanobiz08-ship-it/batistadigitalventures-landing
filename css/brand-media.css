@@ -359,6 +359,38 @@
 .bdv-ops-wc .bdv-ops-muted { margin: 8px 0 0; }
 .bdv-ops-wc-last { margin: 10px 0 0; color: #94a3b8; font-size: 0.78rem; }
 
+/* Payments: paid vs total with the pending part highlighted (panel and client viewer). */
+.bdv-pay { margin-top: 10px; }
+.bdv-pay-bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: rgba(255, 255, 255, 0.08); }
+.bdv-pay-bar .is-paid { background: linear-gradient(90deg, #d4af37, #f3d678); }
+.bdv-pay-bar .is-pending { background: repeating-linear-gradient(135deg, rgba(251, 146, 60, 0.55) 0 6px, rgba(251, 146, 60, 0.25) 6px 12px); }
+.bdv-pay-legend { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 6px; font-size: 0.76rem; color: #cbd5e1; }
+.bdv-pay-pending { color: #fdba74; }
+.bdv-ops-ledger { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.25); }
+.bdv-ops-ledger .bdv-pay { margin-top: 0; }
+.bdv-ops-next { margin-top: 6px; font-size: 0.8rem; color: #fde68a; }
+.bdv-ops-next.is-done { color: #4ade80; }
+.bdv-ops-pay-details h6 { margin: 10px 0 4px; font-size: 0.78rem; color: #e8c861; }
+.bdv-ops-ledger-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.bdv-ops-ledger-list > li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px 10px; padding: 8px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); font-size: 0.8rem; color: #e2e8f0; }
+.bdv-ops-ledger-list > li > div:first-child { flex: 1 1 220px; }
+.bdv-ops-ledger-list > li.is-void { opacity: 0.6; }
+.bdv-ops-ledger-list > li.is-void strong { text-decoration: line-through; }
+.bdv-ops-ledger-list .bdv-ops-actions { margin-top: 0; }
+.bdv-ops-ledger-list .bdv-ops-form { flex: 1 1 100%; }
+.bdv-ops-audit { margin-top: 4px; font-size: 0.74rem; color: #94a3b8; }
+.bdv-ops-audit summary { cursor: pointer; }
+.bdv-ops-audit ul { margin: 4px 0 0; padding-left: 16px; }
+.bdv-trk-pay { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(212, 175, 55, 0.35); font-size: 0.8rem; color: #cbd5e1; }
+.bdv-trk-pay h5 { margin: 0; font-size: 0.9rem; color: #e8c861; }
+.bdv-trk-pay h6 { margin: 12px 0 4px; font-size: 0.78rem; color: #e8c861; }
+.bdv-trk-pay ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.bdv-trk-pay li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.04); }
+.bdv-trk-pay-next { margin: 8px 0 0; color: #fde68a; }
+.bdv-trk-pay-await { margin: 8px 0 0; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(251, 146, 60, 0.5); color: #fed7aa; }
+.bdv-trk-pay-await a { color: #e8c861; font-weight: 700; }
+.bdv-trk-pay-sub { margin: 6px 0 0; font-size: 0.74rem; color: #94a3b8; }
+
 .bdv-ops-confirm { margin-top: 10px; padding: 12px; border-radius: 10px; background: #1f1215; border: 1px solid rgba(248, 113, 113, 0.55); }
 .bdv-ops-confirm p { margin: 0; color: #fecaca; }
 

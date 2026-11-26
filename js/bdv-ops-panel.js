@@ -89,13 +89,46 @@
             '<span class="bdv-tracker-status-tag bdv-status-active">' + core.escapeHtml(tr("trkActiveTag")) + "</span>" +
             '<h4 style="margin: 4px 0; font-size: 0.95rem; color: #f8fafc;">' + core.escapeHtml(tr("trkStage")) + " " + stObj.stage + "/6: " + core.escapeHtml(stName) + " (" + stObj.percentage + "%)</h4>" +
             '<p style="font-size: 0.8rem; color: #cbd5e1; margin: 6px 0;"><strong>' + core.escapeHtml(tr("trkProject")) + "</strong> " + core.escapeHtml(core.getProjectDisplayName(matched, lang)) + " (" + core.escapeHtml(matched.id) + ")</p>" +
-            '<p style="font-size: 0.8rem; color: #e8c861; margin: 6px 0;"><strong>' + core.escapeHtml(tr("trkPayment")) + "</strong> " + core.escapeHtml(matched.paymentStatus) + "</p>" +
-            '<div class="bdv-progress-track" style="margin-top: 8px;"><div class="bdv-progress-fill" style="width: ' + stObj.percentage + '%;"></div></div>';
+            '<div class="bdv-progress-track" style="margin-top: 8px;"><div class="bdv-progress-fill" style="width: ' + stObj.percentage + '%;"></div></div>' +
+            clientPaymentsHtml(res.payments, lang);
         })
         .catch(function () {
           msg(tr("trkNetErr"), "#f87171");
         });
     });
+  }
+
+  // The client's payments, read-only: total (signed SOW + change orders they approved), paid, pending,
+  // the next payment and the history. Change orders waiting for their signature link to their page.
+  function clientPaymentsHtml(pay, lang) {
+    if (!pay || !(pay.total > 0)) return "";
+    var locale = lang === "en" ? "en-US" : "es-US";
+    var date = function (iso) { return iso ? new Date(iso).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" }) : ""; };
+    var typeName = function (type, coId) {
+      return type === "deposit" ? tr("trkTypeDeposit") : type === "final_settlement" ? tr("trkTypeFinal") : type === "change_order" ? tr("trkTypeCo") + " " + coId : tr("trkTypeMilestone");
+    };
+    var when = { now: tr("trkWhenNow"), before_extra_work: tr("trkWhenExtra"), at_delivery: tr("trkWhenDelivery") };
+    var html = '<div class="bdv-trk-pay"><h5>' + esc(tr("trkPayTitle")) + "</h5>" +
+      paymentBarHtml(pay, { paid: tr("trkPayPaid"), pending: tr("trkPayPending"), total: tr("trkPayTotal") }) +
+      (pay.changeOrdersTotal ? '<p class="bdv-trk-pay-sub">' + esc(tr("trkPayBreakdown").replace("{sow}", money(pay.contractTotal)).replace("{co}", money(pay.changeOrdersTotal))) + "</p>" : "") +
+      '<p class="bdv-trk-pay-next">' + (pay.nextDue
+        ? "<strong>" + esc(tr("trkPayNext")) + "</strong> " + esc(typeName(pay.nextDue.type, pay.nextDue.changeOrderId)) + " · " + esc(money(pay.nextDue.amountUsd)) + " · " + esc(when[pay.nextDue.timing] || "")
+        : "✓ " + esc(tr("trkPayDone"))) + "</p>";
+    pay.awaitingApproval.forEach(function (co) {
+      html += '<p class="bdv-trk-pay-await">' + esc(tr("trkPayAwaiting")) + " <strong>" + esc(co.coId) + "</strong> · " + esc(money(co.amountUsd)) +
+        ' · <a href="' + esc(co.url) + '">' + esc(tr("trkPayReview")) + "</a></p>";
+    });
+    html += "<h6>" + esc(tr("trkPayHistory")) + "</h6>" + (pay.payments.length
+      ? "<ul>" + pay.payments.map(function (pm) {
+          return "<li><span>" + esc(date(pm.paidAt)) + " · " + esc(typeName(pm.type, pm.changeOrderId)) + "</span><strong>" + esc(money(pm.amountUsd)) + "</strong></li>";
+        }).join("") + "</ul>"
+      : '<p class="bdv-trk-pay-sub">' + esc(tr("trkPayNoHistory")) + "</p>");
+    if (pay.changeOrders.length) {
+      html += "<h6>" + esc(tr("trkPayCos")) + "</h6><ul>" + pay.changeOrders.map(function (co) {
+        return "<li><span>" + esc(co.coId) + " · " + esc(co.description) + " · " + esc(co.paid ? tr("trkPayCoPaid") : tr("trkPayCoUnpaid")) + "</span><strong>" + esc(money(co.amountUsd)) + "</strong></li>";
+      }).join("") + "</ul>";
+    }
+    return html + '<p class="bdv-trk-pay-sub">' + esc(tr("trkPayReadOnly")) + "</p></div>";
   }
 
   // =====================================================================================
@@ -127,19 +160,32 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   }
   function money(n) {
-    return "$" + (Number(n) || 0).toLocaleString("en-US") + " USD";
+    return "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " USD";
   }
   function stageInfo(n) {
     var list = getCore().workflowStages;
     return list[(Number(n) || 1) - 1] || list[0];
   }
-  function isPaidStatus(s) {
-    return /PAGADO|PAID/i.test(String(s || ""));
+  function ledgerOf(p) {
+    return (ops.data && ops.data.ledgers && ops.data.ledgers[p.row]) || null;
   }
-  function paymentLabel(s) {
-    if (!s || s === "PENDING") return "Sin pagos todavía";
-    if (s === "SOW_SIGNED_DEPOSIT_DUE") return "Depósito pendiente";
-    return s;
+  function dueLabel(d) {
+    return d.type === "deposit" ? "Depósito" : d.type === "change_order" ? "Orden de cambio " + d.changeOrderId : "Liquidación final";
+  }
+  function shortDate(iso) {
+    return iso ? new Date(iso).toLocaleDateString("es-US", { year: "numeric", month: "short", day: "numeric" }) : "";
+  }
+
+  // Paid vs total (signed SOW + approved change orders) with the pending part highlighted. Shared by the
+  // panel and the client's read-only viewer; every number comes from the server's ledger.
+  function paymentBarHtml(l, labels) {
+    var paidPct = l.total > 0 ? Math.min(100, (l.paid / l.total) * 100) : 0;
+    return '<div class="bdv-pay">' +
+      '<div class="bdv-pay-bar" role="img" aria-label="' + esc(labels.paid + " " + money(l.paid) + " · " + labels.pending + " " + money(l.pending)) + '">' +
+      '<span class="is-paid" style="width: ' + paidPct.toFixed(1) + '%;"></span><span class="is-pending" style="width: ' + (100 - paidPct).toFixed(1) + '%;"></span></div>' +
+      '<div class="bdv-pay-legend"><span><strong>' + esc(labels.paid) + ":</strong> " + esc(money(l.paid)) + " (" + esc(l.percentPaid) + "%)</span>" +
+      '<span class="bdv-pay-pending"><strong>' + esc(labels.pending) + ":</strong> " + esc(money(l.pending)) + "</span>" +
+      "<span><strong>" + esc(labels.total) + ":</strong> " + esc(money(l.total)) + "</span></div></div>";
   }
   function sowUrlOf(sowId) {
     return "https://batistadigitalventures.com/?sow=" + encodeURIComponent(sowId);
@@ -170,6 +216,7 @@
       newRequests: requests.filter(function (r) { return String(r.status || "NEW") === "NEW"; }),
       apps: Array.isArray(res.partnerApplications) ? res.partnerApplications : [],
       currentSow: current,
+      ledgers: res.ledgers || {}, // project row -> payment ledger computed by the Worker
       otherSows: sows.filter(function (w) { return currentIds.indexOf(w.sowId) === -1; }),
       webCheck: res.webCheck || null // summary of the last Web Check (panel, weekly or alert)
     };
@@ -327,7 +374,7 @@
     var input = o.textarea
       ? '<textarea name="' + name + '" rows="3" class="bdv-tracker-input"' + (o.required ? " required" : "") + ' placeholder="' + esc(o.placeholder || "") + '">' + esc(value || "") + "</textarea>"
       : '<input name="' + name + '" type="' + (o.type || "text") + '" class="bdv-tracker-input" value="' + esc(value || "") + '"' +
-        (o.required ? " required" : "") + (o.type === "number" ? ' min="1" step="any" inputmode="decimal"' : "") +
+        (o.required ? " required" : "") + (o.type === "number" ? ' min="1" step="any" inputmode="decimal"' : "") + (o.attrs || "") +
         ' placeholder="' + esc(o.placeholder || "") + '" />';
     return '<label class="bdv-ops-field' + (o.half ? " is-half" : "") + '"><span>' + esc(label) + "</span>" + input + "</label>";
   }
@@ -518,17 +565,18 @@
   }
 
   // Batista Digital Ventures signs the SOW as it is issued; the client's signature then completes it.
-  function bdvSignatureFields() {
+  var SOW_CONSENT = "Firmo electrónicamente este SOW en nombre de Batista Digital Ventures LLC (E-SIGN / UETA). Al enviarlo, el cliente solo tiene que firmar para cerrarlo.";
+  function bdvSignatureFields(consent) {
     return '<div class="bdv-ops-sign-block"><div class="bdv-ops-sign-title">Tu firma (Batista Digital Ventures LLC firma primero)</div>' +
       field("bdvSignerName", "Tu nombre", OWNER_SIGNER.name, { required: true, half: true }) +
       field("bdvSignerTitle", "Tu cargo", OWNER_SIGNER.title, { required: true, half: true }) +
-      '<label class="bdv-ops-check"><input type="checkbox" name="bdvConsent" required /> <span>Firmo electrónicamente este SOW en nombre de Batista Digital Ventures LLC (E-SIGN / UETA). Al enviarlo, el cliente solo tiene que firmar para cerrarlo.</span></label></div>';
+      '<label class="bdv-ops-check"><input type="checkbox" name="bdvConsent" required /> <span>' + esc(consent || SOW_CONSENT) + "</span></label></div>";
   }
   function bdvSignatureOf(v) {
     return { signerName: v.bdvSignerName, signerTitle: v.bdvSignerTitle, consentAccepted: v.bdvConsent === true };
   }
   function bdvSignatureError(v) {
-    return v.bdvSignerName && v.bdvSignerTitle && v.bdvConsent ? "" : "Escribe tu nombre y cargo y marca la casilla para firmar el SOW.";
+    return v.bdvSignerName && v.bdvSignerTitle && v.bdvConsent ? "" : "Escribe tu nombre y cargo y marca la casilla para firmar.";
   }
 
   // One form for every new project: blank (from "+ Nuevo proyecto") or prefilled from a request.
@@ -566,7 +614,8 @@
       '<span class="bdv-tracker-status-tag ' + (p.accessStatus === "DISABLED" ? "bdv-status-disabled" : "bdv-status-active") + '">' +
       (p.accessStatus === "DISABLED" ? "Cerrado" : "Activo") + "</span></div>" +
       '<div class="bdv-ops-stage"><div class="bdv-progress-track"><div class="bdv-progress-fill" style="width: ' + st.percentage + '%;"></div></div>' +
-      "<span>Etapa " + st.stage + "/6 · " + esc(st.name_es) + (isAdmin ? " · " + esc(paymentLabel(p.paymentStatus)) : "") + "</span></div>";
+      "<span>Etapa " + st.stage + "/6 · " + esc(st.name_es) + "</span></div>" +
+      (isAdmin ? ledgerSummaryHtml(ledgerOf(p)) : "");
     return '<div class="bdv-ops-card' + (projectNeedsYou(p) ? " is-attention" : "") + '" data-row="' + esc(p.row) + '">' + head +
       (isAdmin ? adminProjectBody(p, w) : partnerProjectBody(p)) + "</div>";
   }
@@ -583,7 +632,9 @@
     var status = "";
     var actions = [];
     var proposal = proposalOf(p);
-    var paid = isPaidStatus(p.paymentStatus) || (w && isPaidStatus(w.paymentStatus));
+    var l = ledgerOf(p);
+    var depositDue = Boolean(l && l.nextDue && l.nextDue.type === "deposit");
+    var canChangeOrder = Boolean(l && l.anchorSowId) && form !== "co";
     var closed = stage >= 6 || p.accessStatus === "DISABLED";
 
     if (closed) {
@@ -601,21 +652,32 @@
       status = "Firmaste el SOW " + w.sowId + " (" + money(w.totalAmount) + ") y se envió a " + w.clientEmail + ". Esperando su firma; al firmar, queda cerrado y puede pagar el depósito.";
       actions.push(btn("copy", "Copiar enlace del SOW", "is-ghost", dataAttr("url", sowUrlOf(w.sowId))));
       if (form !== "sow") actions.push(btn("open-sow", "Corregir y reenviar SOW", "is-ghost", dataAttr("row", row)));
-    } else if (w && !paid && stage <= 2) {
+    } else if (w && depositDue && stage <= 2) {
       status = "SOW firmado por ambas partes. Esperando el depósito de " + money(w.depositAmount) + " (el cliente paga desde el enlace del SOW; al pagarlo, el proyecto pasa solo a la Etapa 3).";
       actions.push(btn("copy", "Copiar enlace para pagar", "is-ghost", dataAttr("url", sowUrlOf(w.sowId))));
     } else if (stage < 5) {
       var next = stageInfo(stage + 1);
-      status = paid ? "Pago registrado: " + paymentLabel(p.paymentStatus) + "." : "Proyecto en curso.";
+      status = "Proyecto en curso.";
       actions.push(btn("advance", "Avanzar a Etapa " + next.stage + ": " + next.name_es, "is-primary", dataAttr("row", row) + dataAttr("stage", next.stage)));
       if (form !== "pay") actions.push(btn("open-pay", "💳 Cobrar un hito", "is-ghost", dataAttr("row", row)));
+      if (canChangeOrder) actions.push(btn("open-co", "➕ Orden de cambio", "is-ghost", dataAttr("row", row)));
     } else {
       status = "En revisión del cliente. Para cerrar, cobra la liquidación final (al pagarla, el proyecto pasa solo a la Etapa 6).";
       if (form !== "pay") actions.push(btn("open-pay", "💳 Cobrar liquidación final", "is-primary", dataAttr("row", row)));
+      if (canChangeOrder) actions.push(btn("open-co", "➕ Orden de cambio", "is-ghost", dataAttr("row", row)));
       actions.push(btn("advance", "Cerrar sin cobro (Etapa 6)", "is-ghost", dataAttr("row", row) + dataAttr("stage", 6)));
     }
+    // Change orders waiting on the client (signature or payment) are part of where the project stands.
+    if (l && !closed) {
+      l.changeOrders.forEach(function (co) {
+        if (co.status === "PENDING_CLIENT") status += " La orden de cambio " + co.coId + " (" + money(co.amountUsd) + ") espera la firma del cliente.";
+        if (co.status === "APPROVED" && !co.paid) status += " El cliente aprobó la orden de cambio " + co.coId + "; falta su pago de " + money(co.amountUsd) + " antes de empezar ese trabajo.";
+      });
+    }
 
-    var formHtml = form === "sow" ? sowForm(p, w) : form === "pay" ? payForm(p) : "";
+    // While a charge or change-order form is open, its own buttons are the only ones (no competing next step).
+    if (form === "pay" || form === "co") actions = [];
+    var formHtml = form === "sow" ? sowForm(p, w) : form === "pay" ? payForm(p, l) : form === "co" ? changeOrderForm(p, l) : "";
     var link = ops.payLinks[row];
     var linkHtml = link
       ? '<div class="bdv-ops-link">Enlace de pago: <a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">' + esc(link.slice(0, 48)) + "…</a> " +
@@ -623,7 +685,116 @@
       : "";
     return '<p class="bdv-ops-status">' + esc(status) + "</p>" + formHtml + linkHtml +
       (actions.length ? '<div class="bdv-ops-actions">' + actions.join("") + "</div>" : "") +
+      ledgerDetails(p, l, form) +
       moreOptions(p, w);
+  }
+
+  // ---------- payments ledger (admin) ----------
+  function ledgerSummaryHtml(l) {
+    if (!l || !l.total) return "";
+    return '<div class="bdv-ops-ledger">' +
+      paymentBarHtml(l, { paid: "Pagado", pending: "Pendiente", total: "Total" }) +
+      '<div class="bdv-ops-sub">SOW ' + esc(l.sowIds.join(" + ")) + " " + esc(money(l.contractTotal)) +
+      (l.changeOrdersTotal ? " + órdenes de cambio aprobadas " + esc(money(l.changeOrdersTotal)) : "") + "</div>" +
+      (l.nextDue
+        ? '<div class="bdv-ops-next">Próximo cobro: <strong>' + esc(dueLabel(l.nextDue)) + " · " + esc(money(l.nextDue.amountUsd)) + "</strong> · " + esc(l.nextDue.when) + "</div>"
+        : '<div class="bdv-ops-next is-done">✓ Pagado al 100%</div>') +
+      (l.overpaid ? '<div class="bdv-ops-warn">⚠ Cobrado de más: ' + esc(money(l.overpaid)) + ". Revisa si corresponde un reembolso.</div>" : "") +
+      "</div>";
+  }
+
+  var CO_STATUS_LABEL = { PENDING_CLIENT: "Espera la firma del cliente", APPROVED: "Aprobada por el cliente", VOID: "Anulada" };
+  var AUDIT_LABEL = { created: "Creada y firmada por BDV", emailed: "Enviada al cliente", email_failed: "El correo no salió", approved: "Aprobada y firmada por el cliente", paid: "Pagada", voided: "Anulada", payment_voided: "Pago anulado" };
+
+  // Every payment and change order of the project, with its audit trail. Nothing is edited: a manual
+  // payment or a change order is voided with a reason, and that stays in the history.
+  function ledgerDetails(p, l, form) {
+    if (!l || (!l.anchorSowId && !l.payments.length)) return "";
+    var ref = ops.form && ops.form.ref;
+    var payments = l.payments.length
+      ? '<ul class="bdv-ops-ledger-list">' + l.payments.map(function (pm) {
+          var voided = Boolean(pm.voidedAt);
+          return '<li class="' + (voided ? "is-void" : "") + '"><div><strong>' + esc(money(pm.amountUsd)) + "</strong> · " + esc(pm.concept) + " · " + esc(shortDate(pm.paidAt)) +
+            '<div class="bdv-ops-sub">' + esc([pm.methodLabel, pm.ref ? "Ref. " + pm.ref : "", "SOW " + pm.sowId, pm.source === "admin" ? "registrado a mano" : "", pm.note].filter(Boolean).join(" · ")) + "</div>" +
+            (voided ? '<div class="bdv-ops-sub">Anulado ' + esc(shortDate(pm.voidedAt)) + ": " + esc(pm.voidReason) + "</div>" : "") + "</div>" +
+            (!voided && pm.method !== "stripe" && !(form === "void-pay" && ref === pm.id) ? btn("open-void-pay", "Anular", "is-ghost is-small is-danger-text", dataAttr("row", p.row) + dataAttr("ref", pm.id)) : "") +
+            (form === "void-pay" && ref === pm.id ? voidForm("void-pay", p.row, pm.id, "Anular este pago de " + money(pm.amountUsd)) : "") +
+            "</li>";
+        }).join("") + "</ul>"
+      : '<p class="bdv-ops-empty">Todavía no hay pagos.</p>';
+    var cos = l.changeOrders.length
+      ? '<ul class="bdv-ops-ledger-list">' + l.changeOrders.map(function (co) {
+          var state = co.status === "APPROVED" ? CO_STATUS_LABEL.APPROVED + (co.paid ? " · pagada" : " · por pagar") : CO_STATUS_LABEL[co.status] || co.status;
+          var canVoid = co.status !== "VOID" && !co.paid;
+          return '<li class="' + (co.status === "VOID" ? "is-void" : "") + '"><div><strong>' + esc(co.coId) + "</strong> · " + esc(money(co.amountUsd)) + " · " + esc(state) +
+            '<div class="bdv-ops-sub">' + esc(co.description) + " · Motivo: " + esc(co.reason) + "</div>" +
+            (co.voidReason ? '<div class="bdv-ops-sub">Motivo de anulación: ' + esc(co.voidReason) + "</div>" : "") +
+            '<details class="bdv-ops-audit"><summary>Historial</summary><ul>' + (co.audit || []).map(function (a) {
+              return "<li>" + esc(shortDate(a.at) + " " + new Date(a.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + " · " + esc(AUDIT_LABEL[a.event] || a.event) +
+                (a.ip ? " · IP " + esc(a.ip) : "") + (a.detail ? " · " + esc(a.detail) : "") + "</li>";
+            }).join("") + "</ul></details></div>" +
+            '<div class="bdv-ops-actions">' +
+            (co.status !== "VOID" && !co.paid ? btn("copy", "Copiar enlace", "is-ghost is-small", dataAttr("url", "https://batistadigitalventures.com/?co=" + co.coId)) : "") +
+            (canVoid && !(form === "void-co" && ref === co.coId) ? btn("open-void-co", "Anular", "is-ghost is-small is-danger-text", dataAttr("row", p.row) + dataAttr("ref", co.coId)) : "") +
+            "</div>" +
+            (form === "void-co" && ref === co.coId ? voidForm("void-co", p.row, co.coId, "Anular la orden de cambio " + co.coId + (co.status === "APPROVED" ? " (el cliente ya la aprobó; se le avisará por correo)" : "")) : "") +
+            "</li>";
+        }).join("") + "</ul>"
+      : '<p class="bdv-ops-empty">Sin órdenes de cambio.</p>';
+    var open = form === "record" || form === "void-pay" || form === "void-co";
+    return '<details class="bdv-ops-more bdv-ops-pay-details"' + (open ? " open" : "") + '><summary>💵 Pagos y órdenes de cambio (' + (l.payments.length + l.changeOrders.length) + ")</summary>" +
+      "<h6>Pagos</h6>" + payments + "<h6>Órdenes de cambio</h6>" + cos +
+      (form === "record" ? recordPaymentForm(p, l) : l.anchorSowId ? '<div class="bdv-ops-actions">' + btn("open-record", "Registrar un pago recibido fuera de Stripe", "is-ghost is-small", dataAttr("row", p.row)) + "</div>" : "") +
+      "</details>";
+  }
+
+  function voidForm(kind, row, ref, title) {
+    return '<form class="bdv-ops-form is-inline bdv-ops-void" data-form="' + kind + '"' + dataAttr("row", row) + dataAttr("ref", ref) + ">" +
+      "<h5>" + esc(title) + "</h5>" +
+      field("reason", "Motivo (queda registrado)", "", { required: true, attrs: ' minlength="5"' }) +
+      '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-danger">Anular</button>' + btn("cancel-form", "Cancelar", "is-ghost") + "</div></form>";
+  }
+
+  // Extra work on the signed SOW: you sign it here, the client approves and signs it from the email, and
+  // only then it is added to the total and can be charged.
+  function changeOrderForm(p, l) {
+    return '<form class="bdv-ops-form" data-form="co"' + dataAttr("row", p.row) + ">" +
+      "<h5>Orden de cambio (trabajo adicional al SOW " + esc(l.anchorSowId) + ")</h5>" +
+      field("description", "Trabajo adicional", "", { textarea: true, required: true, placeholder: "Qué se agrega, con el detalle que el cliente va a firmar" }) +
+      field("reason", "Motivo", "", { required: true, half: true, placeholder: "Por qué se agrega (p. ej., lo pidió el cliente)" }) +
+      field("amountUsd", "Monto (USD)", "", { type: "number", required: true, half: true }) +
+      '<p class="bdv-ops-sub">Total actual ' + esc(money(l.total)) + '. No se suma ni se cobra hasta que el cliente la apruebe y la firme.</p>' +
+      bdvSignatureFields("Firmo electrónicamente esta orden de cambio en nombre de Batista Digital Ventures LLC (E-SIGN / UETA). El cliente la recibe por correo para aprobarla y firmarla.") +
+      '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">✍ Firmar y enviar al cliente</button>' +
+      btn("cancel-form", "Cancelar", "is-ghost") + "</div></form>";
+  }
+
+  // A payment received outside Stripe (Zelle, transfer, cash, check). The amount is fixed by the ledger
+  // except for a milestone, which can never be more than what can still be charged.
+  function recordPaymentForm(p, l) {
+    var options = [];
+    if (l.nextDue && l.nextDue.type === "deposit") options.push({ value: "deposit", label: "Depósito", amount: l.nextDue.amountUsd, fixed: true });
+    l.changeOrders.forEach(function (co) {
+      if (co.status === "APPROVED" && !co.paid) options.push({ value: "change_order:" + co.coId, label: "Orden de cambio " + co.coId, amount: co.amountUsd, fixed: true });
+    });
+    if (!l.limits.blocked && l.limits.milestoneMax > 0) options.push({ value: "milestone", label: "Hito (máximo " + money(l.limits.milestoneMax) + ")", amount: "", fixed: false, max: l.limits.milestoneMax });
+    if (!l.limits.blocked && !l.limits.finalBlocked) options.push({ value: "final_settlement", label: "Liquidación final", amount: l.limits.finalAmount, fixed: true });
+    if (!options.length) return '<p class="bdv-ops-warn">' + esc(l.limits.blocked || l.limits.finalBlocked || "No hay nada pendiente de cobro.") + "</p>";
+    var first = options[0];
+    var methods = [["zelle", "Zelle"], ["transfer", "Transferencia bancaria"], ["cash", "Efectivo"], ["check", "Cheque"], ["other", "Otro"]];
+    return '<form class="bdv-ops-form is-inline" data-form="record"' + dataAttr("row", p.row) + ">" +
+      "<h5>Registrar un pago recibido fuera de Stripe</h5>" +
+      '<label class="bdv-ops-field is-half"><span>Concepto</span><select name="type" class="bdv-tracker-input">' + options.map(function (o) {
+        return '<option value="' + esc(o.value) + '"' + dataAttr("amount", o.amount) + dataAttr("fixed", o.fixed ? "1" : "") + dataAttr("max", o.max || "") + ">" + esc(o.label) + "</option>";
+      }).join("") + "</select></label>" +
+      field("amountUsd", "Monto recibido (USD)", first.amount, { type: "number", required: true, half: true, attrs: (first.fixed ? " readonly" : "") + (first.max ? ' max="' + esc(first.max) + '"' : "") }) +
+      '<label class="bdv-ops-field is-half"><span>Cómo se recibió</span><select name="method" class="bdv-tracker-input">' + methods.map(function (m) {
+        return '<option value="' + m[0] + '">' + esc(m[1]) + "</option>";
+      }).join("") + "</select></label>" +
+      field("paidAt", "Fecha del pago", new Date().toISOString().slice(0, 10), { type: "date", required: true, half: true }) +
+      field("ref", "Referencia o número de confirmación", "", { half: true }) +
+      field("note", "Nota (opcional)", "", { half: true }) +
+      '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Registrar pago</button>' + btn("cancel-form", "Cancelar", "is-ghost") + "</div></form>";
   }
 
   function sowForm(p, w) {
@@ -641,13 +812,20 @@
       btn("cancel-form", "Cancelar", "is-ghost") + "</div></form>";
   }
 
-  function payForm(p) {
-    var finalDue = Number(p.stage) >= 5;
+  // Stripe link for a milestone or the final settlement. The server caps the milestone at what can still
+  // be charged and sets the final amount itself; the form only shows those limits.
+  function payForm(p, l) {
+    var limits = l ? l.limits : { blocked: "El proyecto no tiene un SOW firmado por ambas partes." };
+    if (limits.blocked) return '<p class="bdv-ops-warn">' + esc(limits.blocked) + "</p>";
+    var finalOk = !limits.finalBlocked;
+    var finalDue = Number(p.stage) >= 5 && finalOk;
     return '<form class="bdv-ops-form is-inline" data-form="pay"' + dataAttr("row", p.row) + ">" +
-      field("amountUsd", "Monto a cobrar (USD)", "", { type: "number", required: true, half: true }) +
       '<label class="bdv-ops-field is-half"><span>Tipo de cobro</span><select name="paymentType" class="bdv-tracker-input">' +
-      '<option value="milestone"' + (finalDue ? "" : " selected") + ">Hito intermedio</option>" +
-      '<option value="final_settlement"' + (finalDue ? " selected" : "") + ">Liquidación final (cierra en Etapa 6)</option></select></label>" +
+      '<option value="milestone"' + dataAttr("amount", "") + dataAttr("max", limits.milestoneMax) + (finalDue ? "" : " selected") + ">Hito intermedio (máximo " + esc(money(limits.milestoneMax)) + ")</option>" +
+      (finalOk ? '<option value="final_settlement"' + dataAttr("amount", limits.finalAmount) + dataAttr("fixed", "1") + (finalDue ? " selected" : "") + ">Liquidación final: " + esc(money(limits.finalAmount)) + " (cierra en Etapa 6)</option>" : "") +
+      "</select></label>" +
+      field("amountUsd", "Monto a cobrar (USD)", finalDue ? limits.finalAmount : "", { type: "number", required: true, half: true, attrs: finalDue ? " readonly" : ' max="' + esc(limits.milestoneMax) + '"' }) +
+      (finalOk ? "" : '<p class="bdv-ops-sub">Liquidación final: ' + esc(limits.finalBlocked) + "</p>") +
       '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Crear enlace de pago</button>' +
       btn("cancel-form", "Cancelar", "is-ghost") + "</div></form>";
   }
@@ -664,7 +842,6 @@
       '<form class="bdv-ops-form is-inline" data-form="pin"' + dataAttr("row", p.row) + ">" +
       field("code", "PIN del cliente para ver su avance", p.code, { required: true }) +
       '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-ghost">Guardar PIN</button></div></form>' +
-      (w && w.status === "SIGNED" ? '<div class="bdv-ops-actions">' + btn("open-sow", "Emitir otro SOW (orden de cambio)", "is-ghost", dataAttr("row", p.row)) + "</div>" : "") +
       (req ? '<div class="bdv-ops-note">Solicitud original (' + esc(req.id) + "): " + esc([(req.services || []).join(", "), req.notes].filter(Boolean).join(" · ")) + "</div>" : "") +
       '<div class="bdv-ops-actions">' + btn("delete-project", "Eliminar proyecto", "is-ghost is-danger-text", dataAttr("row", p.row)) + "</div>" +
       "</details>";
@@ -786,6 +963,8 @@
       var amount = Number(v.amountUsd);
       if (!p) return;
       if (!(amount >= 0.5)) return toast("Indica un monto válido en USD (mínimo $0.50).", false);
+      var l = ledgerOf(p);
+      if (v.paymentType === "milestone" && l && amount > l.limits.milestoneMax) return toast("El hito no puede superar lo que falta por cobrar (" + money(l.limits.milestoneMax) + ").", false);
       if (!window.BDV_SOW || typeof window.BDV_SOW.createCheckoutLink !== "function") return toast("El módulo de pagos no está disponible; recarga la página.", false);
       var w = ops.data.currentSow[p.row];
       var isFinal = v.paymentType === "final_settlement";
@@ -821,6 +1000,60 @@
           ops.inFlight--;
           if (document.body.contains(submitBtn)) { submitBtn.disabled = false; submitBtn.textContent = label; }
         });
+    },
+    co: function (form, submitBtn) {
+      var v = formValues(form);
+      var p = findProject(form.getAttribute("data-row"));
+      if (!p) return;
+      if (v.description.length < 5 || v.reason.length < 5) return toast("Describe el trabajo adicional y el motivo.", false);
+      if (!(Number(v.amountUsd) >= 1)) return toast("Indica el monto de la orden de cambio (mínimo $1).", false);
+      if (bdvSignatureError(v)) return toast(bdvSignatureError(v), false);
+      runAction(submitBtn, {
+        action: "create_change_order",
+        row: p.row,
+        description: v.description,
+        reason: v.reason,
+        amountUsd: Number(v.amountUsd),
+        providerSignature: bdvSignatureOf(v)
+      }, function (res) {
+        return res.emailSent
+          ? { msg: "✓ Firmaste la orden de cambio " + res.coId + " y se envió al cliente para que la apruebe." }
+          : { msg: "⚠ Orden de cambio " + res.coId + " creada, pero el correo no salió. Usa «Copiar enlace» y envíaselo tú.", ok: false };
+      });
+    },
+    record: function (form, submitBtn) {
+      var v = formValues(form);
+      var p = findProject(form.getAttribute("data-row"));
+      if (!p) return;
+      var type = v.type.split(":")[0];
+      if (!(Number(v.amountUsd) > 0)) return toast("Indica el monto recibido.", false);
+      runAction(submitBtn, {
+        action: "record_payment",
+        row: p.row,
+        type: type,
+        changeOrderId: type === "change_order" ? v.type.split(":")[1] : "",
+        amountUsd: Number(v.amountUsd),
+        method: v.method,
+        paidAt: v.paidAt,
+        ref: v.ref,
+        note: v.note
+      }, function (res) {
+        return { msg: "✓ Pago de " + money(res.payment.amountUsd) + " registrado. Pendiente: " + money(res.ledger.pending) + ". El cliente recibió su comprobante." };
+      });
+    },
+    "void-co": function (form, submitBtn) {
+      var reason = formValues(form).reason;
+      if (reason.length < 5) return toast("Escribe el motivo de la anulación.", false);
+      runAction(submitBtn, { action: "void_change_order", coId: form.getAttribute("data-ref"), reason: reason }, function (res) {
+        return { msg: "✓ Orden de cambio " + res.coId + " anulada" + (res.clientNotified ? "; se avisó al cliente." : ".") };
+      });
+    },
+    "void-pay": function (form, submitBtn) {
+      var reason = formValues(form).reason;
+      if (reason.length < 5) return toast("Escribe el motivo de la anulación.", false);
+      runAction(submitBtn, { action: "void_payment", row: Number(form.getAttribute("data-row")), paymentId: form.getAttribute("data-ref"), reason: reason }, function (res) {
+        return { msg: "✓ Pago anulado (queda en el historial). Pendiente: " + money(res.ledger.pending) + "." };
+      });
     },
     stage: function (form, submitBtn) {
       setStage(submitBtn, Number(formValues(form).stage), findProject(form.getAttribute("data-row")));
@@ -859,7 +1092,9 @@
       });
     };
     if (stage === 6) {
-      confirmCard(button, "¿Cerrar «" + p.name + "» en la Etapa 6? El cliente ya no podrá consultar su avance con el PIN.", "Sí, cerrar proyecto", go);
+      var l = ledgerOf(p);
+      confirmCard(button, "¿Cerrar «" + p.name + "» en la Etapa 6? El cliente ya no podrá consultar su avance con el PIN." +
+        (l && l.pending > 0 ? " Atención: quedan " + money(l.pending) + " sin cobrar." : ""), "Sí, cerrar proyecto", go);
     } else {
       go(button);
     }
@@ -870,6 +1105,10 @@
     "new-project": function () { ops.form = { kind: "project", id: "" }; render(); focusForm(); },
     "open-sow": function (b) { ops.form = { kind: "sow", id: b.getAttribute("data-row") }; render(); focusForm(); },
     "open-pay": function (b) { ops.form = { kind: "pay", id: b.getAttribute("data-row") }; render(); focusForm(); },
+    "open-co": function (b) { ops.form = { kind: "co", id: b.getAttribute("data-row") }; render(); focusForm(); },
+    "open-record": function (b) { ops.form = { kind: "record", id: b.getAttribute("data-row") }; render(); },
+    "open-void-co": function (b) { ops.form = { kind: "void-co", id: b.getAttribute("data-row"), ref: b.getAttribute("data-ref") }; render(); },
+    "open-void-pay": function (b) { ops.form = { kind: "void-pay", id: b.getAttribute("data-row"), ref: b.getAttribute("data-ref") }; render(); },
     "cancel-form": function () { ops.form = null; render(); },
     "web-check": function (b) {
       runAction(b, { action: "web_check" }, function (res) {
@@ -981,6 +1220,13 @@
       }
     });
     root.addEventListener("change", function (e) {
+      if ((e.target.name === "type" || e.target.name === "paymentType") && e.target.form && e.target.form.amountUsd) {
+        var opt = e.target.selectedOptions[0];
+        var amount = e.target.form.amountUsd;
+        amount.value = opt.getAttribute("data-amount") || "";
+        amount.readOnly = Boolean(opt.getAttribute("data-fixed"));
+        if (opt.getAttribute("data-max")) amount.max = opt.getAttribute("data-max"); else amount.removeAttribute("max");
+      }
       if (e.target.name === "withSow") {
         var form = e.target.form;
         form.querySelector(".bdv-ops-sow-fields").hidden = !e.target.checked;

@@ -6,6 +6,8 @@
   }
 
   let currentSowData = null;
+  // The change order shown in the same window (?co= link) instead of a SOW, or null.
+  let currentCo = null;
 
   // Key legal terms of every SOW (Spanish, like the rest of the SOW document), shared by the .txt
   // receipt and the printable / PDF version.
@@ -21,14 +23,49 @@
   // Both signatures of a SOW, Batista Digital Ventures first: it signs when issuing the SOW from the
   // ops panel, and the client's signature from the ?sow= link completes the agreement.
   function sowSignatureEntries(sow) {
+    return signatureEntries(sow.providerSignature, sow.signature);
+  }
+  // Same two signatures, in the same order, for SOWs and change orders.
+  function signatureEntries(providerSig, clientSig) {
     return [
       {
         party: "Batista Digital Ventures LLC",
-        sig: sow.providerSignature || null,
+        sig: providerSig || null,
         pending: "Sin la firma de Batista Digital Ventures LLC."
       },
-      { party: "Cliente", sig: sow.signature || null, pending: "Pendiente de la firma del cliente." }
+      { party: "Cliente", sig: clientSig || null, pending: "Pendiente de la firma del cliente." }
     ];
+  }
+
+  // Signature boxes on the page (dark) and on the printable / PDF version (light).
+  function signaturesHtml(entries) {
+    const esc = getCore().escapeHtml;
+    return entries
+      .map(({ party, sig, pending }) =>
+        sig
+          ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); color: #dcfce7;">
+               <strong>${esc(party)} · Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
+               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
+               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}
+             </div>`
+          : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">${esc(party)}: ${esc(pending)}</div>`
+      )
+      .join("");
+  }
+  function printSignaturesHtml(entries) {
+    const esc = getCore().escapeHtml;
+    return entries
+      .map(({ party, sig, pending }) =>
+        `<div class="sig-box"><strong>${esc(party)}</strong><br/>${
+          sig
+            ? `<strong>Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
+               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
+               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}<br/>
+               <strong>Consentimiento:</strong> Aceptado bajo ESIGN / UETA`
+            : `<em>${esc(pending)}</em>`
+        }</div>`
+      )
+      .join("");
   }
 
   // A SOW can be signed by the client only when Batista Digital Ventures already signed it and it
@@ -102,38 +139,36 @@
 
   function downloadSowTextFile(sow) {
     if (!sow) return;
-    const content = buildPrintableOrTextDocument(sow);
+    downloadTextFile(`${sow.sowId || "BDV-SOW"}-${sow.status || "DOCUMENTO"}.txt`, buildPrintableOrTextDocument(sow));
+  }
+
+  function downloadTextFile(filename, content) {
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${sow.sowId || "BDV-SOW"}-${sow.status || "DOCUMENTO"}.txt`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  function printSowAsPdf(sow) {
-    if (!sow) return;
-    const core = getCore();
-    const esc = core.escapeHtml;
+  // Printable page (the browser's "Save as PDF"), shared by SOWs and change orders. Falls back to the
+  // .txt download when pop-ups are blocked.
+  function openPrintWindow(title, bodyHtml, fallback) {
+    const esc = getCore().escapeHtml;
     const win = window.open("", "_blank", "width=820,height=900");
     if (!win) {
-      downloadSowTextFile(sow);
+      fallback();
       return;
     }
-
-    const paymentSummaryHtml = isSowPaid(sow)
-      ? `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")} ($${esc(sow.lastPaidAmountUsd || sow.depositAmount || 0)} USD)`
-      : `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "Pendiente")}`;
-
     win.document.write(`
       <!DOCTYPE html>
       <html lang="es">
       <head>
         <meta charset="UTF-8" />
-        <title>${esc(sow.sowId)} — Batista Digital Ventures LLC</title>
+        <title>${esc(title)} — Batista Digital Ventures LLC</title>
         <style>
           body { font-family: Arial, sans-serif; color: #111827; padding: 32px; line-height: 1.55; max-width: 780px; margin: 0 auto; }
           h1 { margin: 0 0 4px; font-size: 20px; }
@@ -148,6 +183,23 @@
         <div class="no-print" style="margin-bottom: 16px;">
           <button onclick="window.print()" style="padding: 8px 14px; background: #111827; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Guardar como PDF / Imprimir</button>
         </div>
+        ${bodyHtml}
+      </body>
+      </html>
+    `);
+    win.document.close();
+  }
+
+  function printSowAsPdf(sow) {
+    if (!sow) return;
+    const core = getCore();
+    const esc = core.escapeHtml;
+
+    const paymentSummaryHtml = isSowPaid(sow)
+      ? `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")} ($${esc(sow.lastPaidAmountUsd || sow.depositAmount || 0)} USD)`
+      : `<br/><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "Pendiente")}`;
+
+    openPrintWindow(sow.sowId, `
         <h1>STATEMENT OF WORK (SOW) — BATISTA DIGITAL VENTURES LLC</h1>
         <div class="meta">
           <strong>Folio:</strong> ${esc(sow.sowId)} · <strong>Estado:</strong> ${esc(sowStatusLabel(sow))} · <strong>Ubicación:</strong> Lompoc, California${paymentSummaryHtml}
@@ -176,22 +228,8 @@
         </div>
 
         <h2>5. Firmas Digitales</h2>
-        ${sowSignatureEntries(sow)
-          .map(({ party, sig, pending }) =>
-            `<div class="sig-box"><strong>${esc(party)}</strong><br/>${
-              sig
-                ? `<strong>Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
-                   <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
-                   <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}<br/>
-                   <strong>Consentimiento:</strong> Aceptado bajo ESIGN / UETA`
-                : `<em>${esc(pending)}</em>`
-            }</div>`
-          )
-          .join("")}
-      </body>
-      </html>
-    `);
-    win.document.close();
+        ${printSignaturesHtml(sowSignatureEntries(sow))}
+    `, () => downloadSowTextFile(sow));
   }
 
   async function requestStripeCheckoutSession(opts) {
@@ -240,6 +278,7 @@
       body: JSON.stringify({
         action: "create_checkout",
         sowId: sowIdClean,
+        changeOrderId: options.changeOrderId || "",
         clientEmail,
         amountUsd,
         paymentType,
@@ -336,11 +375,11 @@
         <div id="bdv-sow-body" style="margin-top: 12px; font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;"></div>
         <div id="bdv-sow-sign-form-wrap" style="margin-top: 14px; border-top: 1px dashed rgba(212, 175, 55, 0.35); padding-top: 14px;">
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <input type="text" id="bdv-sow-signer-name" class="bdv-tracker-input" placeholder="Escribe tu nombre completo como firma digital" />
-            <input type="text" id="bdv-sow-signer-title" class="bdv-tracker-input" placeholder="Tu cargo o relación (ej. Dueño / Director)" value="Owner / Client" />
+            <input type="text" id="bdv-sow-signer-name" class="bdv-tracker-input" placeholder="Escriba su nombre completo como firma digital" />
+            <input type="text" id="bdv-sow-signer-title" class="bdv-tracker-input" placeholder="Su cargo o relación (ej. Dueño / Director)" value="Cliente" />
             <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.78rem; color: #e2e8f0; cursor: pointer;">
               <input type="checkbox" id="bdv-sow-consent-check" style="margin-top: 3px; accent-color: #d4af37;" />
-              <span>${getCore().escapeHtml(window.BDV_t("sowConsent"))}</span>
+              <span id="bdv-sow-consent-text">${getCore().escapeHtml(window.BDV_t("sowConsent"))}</span>
             </label>
             <button type="button" class="bdv-link-btn" style="align-self: flex-start;" data-legal="terms">${getCore().escapeHtml(window.BDV_t("legalTermsBtn"))}</button>
             <button type="button" id="bdv-sow-sign-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700;">Firmar Acuerdo Digitalmente</button>
@@ -368,26 +407,29 @@
     });
 
     document.getElementById("bdv-sow-print-btn").addEventListener("click", () => {
-      if (currentSowData) printSowAsPdf(currentSowData);
+      if (currentCo) printChangeOrder(currentCo);
+      else if (currentSowData) printSowAsPdf(currentSowData);
     });
 
     document.getElementById("bdv-sow-txt-btn").addEventListener("click", () => {
-      if (currentSowData) downloadSowTextFile(currentSowData);
+      if (currentCo) downloadTextFile(`${currentCo.coId}-${currentCo.status}.txt`, changeOrderText(currentCo));
+      else if (currentSowData) downloadSowTextFile(currentSowData);
     });
 
     document.getElementById("bdv-sow-sign-btn").addEventListener("click", () => {
       const core = getCore();
       const statusEl = document.getElementById("bdv-sow-status-msg");
       const signerName = (document.getElementById("bdv-sow-signer-name").value || "").trim();
-      const signerTitle = (document.getElementById("bdv-sow-signer-title").value || "Owner / Client").trim();
+      const signerTitle = (document.getElementById("bdv-sow-signer-title").value || "Cliente").trim();
       const consentAccepted = Boolean(document.getElementById("bdv-sow-consent-check").checked);
 
-      if (!currentSowData || !currentSowData.sowId) return;
+      const co = currentCo;
+      if (!co && (!currentSowData || !currentSowData.sowId)) return;
 
       if (!signerName || !consentAccepted) {
         statusEl.style.display = "block";
         statusEl.style.color = "#f87171";
-        statusEl.textContent = "Escribe tu nombre completo como firma y marca la casilla de aceptación.";
+        statusEl.textContent = "Escriba su nombre completo como firma y marque la casilla de aceptación.";
         return;
       }
 
@@ -395,18 +437,16 @@
       btn.disabled = true;
       statusEl.style.display = "block";
       statusEl.style.color = "#94a3b8";
-      statusEl.textContent = "Registrando tu firma...";
+      statusEl.textContent = "Registrando su firma...";
 
       fetch(core.apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "sign_sow",
-          sowId: currentSowData.sowId,
-          signerName,
-          signerTitle,
-          consentAccepted
-        })
+        body: JSON.stringify(
+          co
+            ? { action: "approve_change_order", coId: co.coId, signerName, signerTitle, consentAccepted }
+            : { action: "sign_sow", sowId: currentSowData.sowId, signerName, signerTitle, consentAccepted }
+        )
       })
         .then((r) => r.json())
         .then((res) => {
@@ -416,13 +456,23 @@
             statusEl.textContent = res.error || "No se pudo registrar la firma.";
             return;
           }
+          if (co) {
+            currentCo = res.changeOrder;
+            renderChangeOrder(currentCo);
+            statusEl.style.color = "#4ade80";
+            statusEl.textContent =
+              "✓ Usted aprobó y firmó la orden de cambio. Le enviamos la copia firmada por correo. Siguiente paso: páguela con el botón de pago de esta página; el trabajo adicional comienza al pagarla.";
+            const coPay = document.getElementById("bdv-sow-payment-wrap");
+            if (coPay && coPay.style.display !== "none") coPay.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
 
           currentSowData = res.sow;
           renderSowContent(currentSowData);
 
           statusEl.style.color = "#4ade80";
           statusEl.textContent =
-            "✓ Firmaste el acuerdo: ya está firmado por ambas partes y te enviamos la copia final por correo. Siguiente paso: paga el depósito aquí abajo para que comencemos el trabajo.";
+            "✓ Usted firmó el acuerdo: ya está firmado por ambas partes y le enviamos la copia final por correo. Siguiente paso: pague el depósito aquí abajo para que comencemos el trabajo.";
           const payWrap = document.getElementById("bdv-sow-payment-wrap");
           if (payWrap && payWrap.style.display !== "none") payWrap.scrollIntoView({ behavior: "smooth", block: "center" });
         })
@@ -466,7 +516,7 @@
       <div style="padding: 14px; border-radius: 10px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.4);">
         <div style="font-weight: 700; color: #e8c861; margin-bottom: 6px;">Liquidación de Depósito Inicial (Stripe Checkout)</div>
         <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 12px;">
-          Acuerdo firmado. Completa el depósito acordado de <strong>$${esc(depositUsd)} USD</strong> a favor de <strong>Batista Digital Ventures LLC</strong> para activar la fase de ejecución.
+          Acuerdo firmado. Complete el depósito acordado de <strong>$${esc(depositUsd)} USD</strong> a favor de <strong>Batista Digital Ventures LLC</strong> para activar la fase de ejecución.
         </div>
         <button type="button" id="bdv-sow-stripe-pay-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; width: 100%;">
           Pagar Depósito ($${esc(depositUsd)} USD) con Stripe
@@ -485,6 +535,8 @@
   function renderSowContent(sow) {
     const core = getCore();
     const esc = core.escapeHtml;
+    currentCo = null;
+    setSignMode(false);
     const titleEl = document.getElementById("bdv-sow-title");
     const bodyEl = document.getElementById("bdv-sow-body");
     const formWrap = document.getElementById("bdv-sow-sign-form-wrap");
@@ -493,17 +545,7 @@
       titleEl.textContent = `Statement of Work · ${sow.sowId || "BDV"} (${sowStatusLabel(sow)})`;
     }
 
-    const sigHtml = sowSignatureEntries(sow)
-      .map(({ party, sig, pending }) =>
-        sig
-          ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); color: #dcfce7;">
-               <strong>${esc(party)} · Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
-               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
-               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}
-             </div>`
-          : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">${esc(party)}: ${esc(pending)}</div>`
-      )
-      .join("");
+    const sigHtml = signaturesHtml(sowSignatureEntries(sow));
 
     const payBadgeHtml = isSowPaid(sow)
       ? `<div style="margin-top: 8px; color: #4ade80; font-size: 0.78rem;"><strong>Estado de Pago:</strong> ${esc(sow.paymentStatus || "PAGADO")}</div>`
@@ -526,9 +568,9 @@
           ${sigHtml}
           ${
             sow.status === "VOID"
-              ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.45); color: #fecaca;">Este SOW fue reemplazado por uno más reciente y ya no se puede firmar. Usa el último enlace que te enviamos por correo.</div>`
+              ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.45); color: #fecaca;">Este SOW fue reemplazado por uno más reciente y ya no se puede firmar. Use el último enlace que le enviamos por correo.</div>`
               : !sow.signature && !sow.providerSignature
-                ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(232, 200, 97, 0.1); border: 1px solid rgba(232, 200, 97, 0.45); color: #fde68a;">Este SOW todavía no está firmado por Batista Digital Ventures LLC. Te enviaremos por correo un enlace nuevo, ya firmado por nuestra parte, para que lo firmes.</div>`
+                ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(232, 200, 97, 0.1); border: 1px solid rgba(232, 200, 97, 0.45); color: #fde68a;">Este SOW todavía no está firmado por Batista Digital Ventures LLC. Le enviaremos por correo un enlace nuevo, ya firmado por nuestra parte, para que usted lo firme.</div>`
                 : ""
           }
         </div>
@@ -541,6 +583,214 @@
     }
 
     renderPaymentSection(sow);
+  }
+
+  // ---------- Change orders (?co=): extra work on a signed SOW, signed by Batista Digital Ventures first.
+  // It is added to the project's total, and can be paid, only once the client approves and signs it here. ----------
+  function usd(n) {
+    return (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // The same signing form serves the SOW and a change order: consent text and button say which one is signed.
+  function setSignMode(isChangeOrder) {
+    const el = document.getElementById("bdv-sow-consent-text");
+    if (el) el.textContent = window.BDV_t(isChangeOrder ? "coConsent" : "sowConsent");
+    const btn = document.getElementById("bdv-sow-sign-btn");
+    if (btn) btn.textContent = isChangeOrder ? "Aprobar y firmar la orden de cambio" : "Firmar Acuerdo Digitalmente";
+  }
+
+  function coStatusLabel(co) {
+    if (co.status === "VOID") return "Anulada";
+    if (co.status === "APPROVED") return co.paid ? "Aprobada por ambas partes · pagada" : "Aprobada por ambas partes · pendiente de pago";
+    return "Firmada por Batista Digital Ventures LLC · pendiente de su aprobación";
+  }
+
+  function coTotalsLine(co) {
+    const t = co.totals || {};
+    return co.status === "APPROVED"
+      ? `Total del proyecto con esta orden: $${usd(t.after)} USD · Pagado: $${usd(t.paid)} USD · Pendiente: $${usd(t.pending)} USD`
+      : `Total del proyecto: $${usd(t.before)} USD → $${usd(t.after)} USD si usted aprueba esta orden`;
+  }
+
+  const CO_TERMS =
+    "Esta orden de cambio forma parte del SOW indicado y se rige por sus términos y por los Términos de Servicio. Se suma al total del proyecto solo cuando el cliente la aprueba y la firma; según el SOW, el trabajo adicional comienza cuando la orden está pagada.";
+
+  function changeOrderText(co) {
+    const entries = signatureEntries(co.providerSignature, co.clientSignature);
+    return [
+      "=================================================================",
+      "ORDEN DE CAMBIO / CHANGE ORDER",
+      "Batista Digital Ventures LLC · Lompoc, California",
+      "Web: https://batistadigitalventures.com | Email: contact@batistadigitalventures.com",
+      "=================================================================",
+      `Folio: ${co.coId} · SOW: ${co.sowId}`,
+      `Fecha de Emisión: ${co.createdAt || ""}`,
+      `Estado: ${coStatusLabel(co)}`,
+      "",
+      `Cliente: ${co.clientName || ""}${co.businessName ? ` · ${co.businessName}` : ""}`,
+      `Correo del Cliente: ${co.clientEmail || ""}`,
+      "",
+      "TRABAJO ADICIONAL",
+      co.description || "",
+      "",
+      `MOTIVO: ${co.reason || ""}`,
+      `MONTO: $${usd(co.amountUsd)} USD`,
+      coTotalsLine(co),
+      ...(co.status === "VOID" ? [`ANULADA: ${co.voidReason || ""} (${co.voidedAt || ""})`] : []),
+      "",
+      `CONDICIONES: ${CO_TERMS}`,
+      "",
+      "FIRMAS DIGITALES",
+      ...entries.map(({ party, sig, pending }) =>
+        sig ? `${party}: ${sig.signerName} (${sig.signerTitle || "N/A"}) · ${sig.timestamp} · IP ${sig.ip || "N/A"} · Consentimiento E-SIGN / UETA aceptado` : `${party}: ${pending}`
+      )
+    ].join("\n");
+  }
+
+  function printChangeOrder(co) {
+    const esc = getCore().escapeHtml;
+    openPrintWindow(co.coId, `
+        <h1>ORDEN DE CAMBIO — BATISTA DIGITAL VENTURES LLC</h1>
+        <div class="meta"><strong>Folio:</strong> ${esc(co.coId)} · <strong>SOW:</strong> ${esc(co.sowId)} · <strong>Estado:</strong> ${esc(coStatusLabel(co))} · <strong>Ubicación:</strong> Lompoc, California</div>
+        <h2>1. Partes</h2>
+        <div class="box"><strong>Proveedor:</strong> Batista Digital Ventures LLC (contact@batistadigitalventures.com)<br/>
+          <strong>Cliente:</strong> ${esc(co.clientName)}${co.businessName ? ` · ${esc(co.businessName)}` : ""}<br/><strong>Correo del Cliente:</strong> ${esc(co.clientEmail)}</div>
+        <h2>2. Trabajo adicional y motivo</h2>
+        <div class="box">${esc(co.description)}<br/><br/><strong>Motivo:</strong> ${esc(co.reason)}</div>
+        <h2>3. Monto</h2>
+        <div class="box"><strong>Monto:</strong> $${esc(usd(co.amountUsd))} USD<br/>${esc(coTotalsLine(co))}${co.status === "VOID" ? `<br/><strong>Anulada:</strong> ${esc(co.voidReason || "")}` : ""}</div>
+        <h2>4. Condiciones</h2>
+        <div class="box">${esc(CO_TERMS)}</div>
+        <h2>5. Firmas Digitales</h2>
+        ${printSignaturesHtml(signatureEntries(co.providerSignature, co.clientSignature))}
+    `, () => downloadTextFile(`${co.coId}-${co.status}.txt`, changeOrderText(co)));
+  }
+
+  function renderChangeOrder(co) {
+    const esc = getCore().escapeHtml;
+    currentCo = co;
+    currentSowData = null;
+    setSignMode(true);
+    const titleEl = document.getElementById("bdv-sow-title");
+    const bodyEl = document.getElementById("bdv-sow-body");
+    const formWrap = document.getElementById("bdv-sow-sign-form-wrap");
+    if (titleEl) titleEl.textContent = `Orden de cambio · ${co.coId} (${coStatusLabel(co)})`;
+    if (bodyEl) {
+      bodyEl.innerHTML = `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px;">
+          <div><strong>Proveedor:</strong> Batista Digital Ventures LLC (Lompoc, California)</div>
+          <div><strong>Cliente:</strong> ${esc(co.clientName)} ${co.businessName ? `· <strong>Empresa:</strong> ${esc(co.businessName)}` : ""}</div>
+          <div><strong>Forma parte del SOW:</strong> ${esc(co.sowId)}</div>
+          <div style="margin-top: 8px;"><strong>Trabajo adicional:</strong><br/>${esc(co.description)}</div>
+          <div style="margin-top: 8px;"><strong>Motivo:</strong> ${esc(co.reason)}</div>
+          <div style="margin-top: 8px; color: #e8c861;"><strong>Monto de esta orden:</strong> $${esc(usd(co.amountUsd))} USD</div>
+          <div style="margin-top: 4px; color: #cbd5e1;">${esc(coTotalsLine(co))}</div>
+          <div style="margin-top: 8px; font-size: 0.76rem; color: #94a3b8;">${esc(CO_TERMS)}</div>
+          ${signaturesHtml(signatureEntries(co.providerSignature, co.clientSignature))}
+          ${
+            co.status === "VOID"
+              ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.45); color: #fecaca;">Esta orden de cambio fue anulada y no se le cobrará. Motivo: ${esc(co.voidReason || "")}</div>`
+              : co.status === "PENDING_CLIENT"
+                ? `<div style="margin-top: 10px; font-size: 0.78rem; color: #fde68a;">Si no está de acuerdo o tiene preguntas, no la firme y responda a nuestro correo.</div>`
+                : ""
+          }
+        </div>
+      `;
+    }
+    if (formWrap) formWrap.style.display = co.status === "PENDING_CLIENT" ? "block" : "none";
+    renderChangeOrderPayment(co);
+  }
+
+  function renderChangeOrderPayment(co) {
+    const esc = getCore().escapeHtml;
+    const payWrap = document.getElementById("bdv-sow-payment-wrap");
+    if (!payWrap) return;
+    if (co.status !== "APPROVED") {
+      payWrap.style.display = "none";
+      payWrap.innerHTML = "";
+      return;
+    }
+    payWrap.style.display = "block";
+    if (co.paid) {
+      payWrap.innerHTML = `<div style="padding: 12px 14px; border-radius: 10px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.45); color: #dcfce7;"><strong>✓ Orden de cambio pagada.</strong> Gracias; el trabajo adicional ya puede comenzar.</div>`;
+      return;
+    }
+    const label = `Pagar la orden de cambio ($${usd(co.amountUsd)} USD) con Stripe`;
+    payWrap.innerHTML = `
+      <div style="padding: 14px; border-radius: 10px; background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.4);">
+        <div style="font-weight: 700; color: #e8c861; margin-bottom: 6px;">Pago de la orden de cambio (Stripe Checkout)</div>
+        <div style="font-size: 0.78rem; color: #cbd5e1; margin-bottom: 12px;">Orden aprobada. Al pagar <strong>$${esc(usd(co.amountUsd))} USD</strong> a favor de <strong>Batista Digital Ventures LLC</strong>, comenzamos el trabajo adicional.</div>
+        <button type="button" id="bdv-co-pay-btn" class="bdv-tracker-btn" style="background: #e8c861 !important; color: #070a10 !important; font-weight: 700; width: 100%;">${esc(label)}</button>
+      </div>
+    `;
+    const payBtn = document.getElementById("bdv-co-pay-btn");
+    payBtn.addEventListener("click", () => {
+      const statusEl = document.getElementById("bdv-sow-status-msg");
+      payBtn.disabled = true;
+      payBtn.textContent = "Conectando con Stripe...";
+      // The server takes the amount from the approved change order.
+      requestStripeCheckoutSession({
+        sowId: co.sowId,
+        changeOrderId: co.coId,
+        paymentType: "change_order",
+        amountUsd: co.amountUsd,
+        clientEmail: co.clientEmail,
+        returnBaseUrl: `${window.location.origin}${window.location.pathname}`
+      })
+        .then((res) => {
+          if (res.ok && res.checkoutUrl) {
+            window.location.href = res.checkoutUrl;
+            return;
+          }
+          throw new Error(res.error || "No se pudo iniciar la sesión de pago en Stripe.");
+        })
+        .catch((err) => {
+          payBtn.disabled = false;
+          payBtn.textContent = label;
+          if (statusEl) {
+            statusEl.style.display = "block";
+            statusEl.style.color = "#f87171";
+            statusEl.textContent = (err && err.message) || "Error de conexión al iniciar el pago con Stripe.";
+          }
+        });
+    });
+  }
+
+  function openChangeOrder(coId, postCheckoutStatus) {
+    const core = getCore();
+    const cleanId = String(coId || "").trim().toUpperCase();
+    if (!cleanId) return;
+    const modal = ensureSowModal();
+    const bodyEl = document.getElementById("bdv-sow-body");
+    const statusEl = document.getElementById("bdv-sow-status-msg");
+    const formWrap = document.getElementById("bdv-sow-sign-form-wrap");
+    const payWrap = document.getElementById("bdv-sow-payment-wrap");
+    if (statusEl) statusEl.style.display = "none";
+    if (formWrap) formWrap.style.display = "none";
+    if (payWrap) payWrap.style.display = "none";
+    if (bodyEl) bodyEl.innerHTML = `<p style="color: #94a3b8;">Cargando orden de cambio ${core.escapeHtml(cleanId)}...</p>`;
+    modal.style.setProperty("display", "block", "important");
+    fetch(`${core.apiUrl}?co=${encodeURIComponent(cleanId)}`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (!res.ok || !res.changeOrder) {
+          if (bodyEl) bodyEl.innerHTML = `<p style="color: #f87171;">${core.escapeHtml(res.error || "No se encontró la orden de cambio.")}</p>`;
+          return;
+        }
+        renderChangeOrder(res.changeOrder);
+        if (statusEl && postCheckoutStatus === "success") {
+          statusEl.style.display = "block";
+          statusEl.style.color = "#4ade80";
+          statusEl.textContent = "✓ Pago recibido en Stripe. Si el estado aún dice pendiente, se actualizará en unos segundos.";
+        } else if (statusEl && postCheckoutStatus === "cancel") {
+          statusEl.style.display = "block";
+          statusEl.style.color = "#e8c861";
+          statusEl.textContent = "El pago fue cancelado. Puede intentarlo nuevamente cuando esté listo.";
+        }
+      })
+      .catch(() => {
+        if (bodyEl) bodyEl.innerHTML = `<p style="color: #f87171;">Error al consultar la orden de cambio.</p>`;
+      });
   }
 
   window.BDV_SOW = {
@@ -580,7 +830,7 @@
           } else if (statusEl && postCheckoutStatus === "cancel") {
             statusEl.style.display = "block";
             statusEl.style.color = "#e8c861";
-            statusEl.textContent = "El pago fue cancelado. Puedes intentar nuevamente cuando estés listo.";
+            statusEl.textContent = "El pago fue cancelado. Puede intentarlo nuevamente cuando esté listo.";
           }
         })
         .catch(() => {
@@ -599,8 +849,11 @@
     try {
       const params = new URLSearchParams(window.location.search || "");
       const sowParam = (params.get("sow") || "").trim().toUpperCase();
+      const coParam = (params.get("co") || "").trim().toUpperCase();
       const checkoutParam = (params.get("checkout") || "").trim().toLowerCase();
-      if (sowParam) {
+      if (coParam) {
+        openChangeOrder(coParam, checkoutParam);
+      } else if (sowParam) {
         window.BDV_SOW.openById(sowParam, checkoutParam);
       }
     } catch (_) {}
