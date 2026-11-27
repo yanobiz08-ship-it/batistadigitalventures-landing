@@ -8,6 +8,9 @@
   let currentSowData = null;
   // The change order shown in the same window (?co= link) instead of a SOW, or null.
   let currentCo = null;
+  // Access token of the open document (t= in its link). Documents issued since the security update
+  // need it to be viewed, signed or paid; older links have none.
+  let docToken = "";
 
   // Key legal terms of every SOW (Spanish, like the rest of the SOW document), shared by the .txt
   // receipt and the printable / PDF version.
@@ -45,8 +48,7 @@
         sig
           ? `<div style="margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); color: #dcfce7;">
                <strong>${esc(party)} · Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
-               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
-               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}
+               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}${sig.ip ? `<br/><strong>IP Registrada:</strong> ${esc(sig.ip)}` : ""}
              </div>`
           : `<div style="margin-top: 10px; color: #e8c861; font-size: 0.78rem;">${esc(party)}: ${esc(pending)}</div>`
       )
@@ -59,8 +61,8 @@
         `<div class="sig-box"><strong>${esc(party)}</strong><br/>${
           sig
             ? `<strong>Firmado electrónicamente por:</strong> ${esc(sig.signerName)} (${esc(sig.signerTitle || "N/A")})<br/>
-               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>
-               <strong>IP Registrada:</strong> ${esc(sig.ip || "N/A")}<br/>
+               <strong>Fecha y Hora (UTC):</strong> ${esc(sig.timestamp)}<br/>${sig.ip ? `
+               <strong>IP Registrada:</strong> ${esc(sig.ip)}<br/>` : ""}
                <strong>Consentimiento:</strong> Aceptado bajo ESIGN / UETA`
             : `<em>${esc(pending)}</em>`
         }</div>`
@@ -128,7 +130,7 @@
               `  Firmado por: ${sig.signerName}`,
               `  Cargo / Rol: ${sig.signerTitle || "N/A"}`,
               `  Fecha y Hora (UTC): ${sig.timestamp}`,
-              `  IP Registrada: ${sig.ip || "N/A"}`,
+              ...(sig.ip ? [`  IP Registrada: ${sig.ip}`] : []),
               `  Consentimiento Legal: Aceptado`
             ].join("\n")
           : `${party}: ${pending}`
@@ -232,44 +234,16 @@
     `, () => downloadSowTextFile(sow));
   }
 
+  // Stripe Checkout for a SOW or change order. The server takes the amount, the product name and the
+  // page to come back to from its own records; the client sends which document and its link token.
+  // Milestone and final-settlement links are created from the ops panel with the admin key (authKey).
   async function requestStripeCheckoutSession(opts) {
     const core = getCore();
     const options = opts || {};
     const amountUsd = Number(options.amountUsd || 0);
-
     if (!amountUsd || amountUsd < 0.5) {
       return { ok: false, error: "Monto inválido para Stripe Checkout (mínimo $0.50 USD)." };
     }
-
-    const sowIdClean = String(options.sowId || (currentSowData && currentSowData.sowId) || "")
-      .trim()
-      .toUpperCase();
-    const paymentType = String(options.paymentType || "deposit").trim();
-    const targetStage = Number(options.targetStage || 3);
-    const clientEmail = String(
-      options.clientEmail || (currentSowData && currentSowData.clientEmail) || ""
-    )
-      .trim()
-      .toLowerCase();
-
-    const labelType =
-      paymentType === "final_settlement"
-        ? "Liquidación Final (100%)"
-        : paymentType === "milestone"
-          ? "Hito de Proyecto"
-          : "Depósito Inicial";
-
-    const itemTitle =
-      options.itemTitle ||
-      `${labelType}${sowIdClean ? ` (${sowIdClean})` : ""} — ${
-        options.businessName || options.clientName || (currentSowData && (currentSowData.businessName || currentSowData.clientName)) || "Batista Digital Ventures LLC"
-      }`;
-
-    const returnBaseUrl =
-      options.returnBaseUrl || `${window.location.origin}${window.location.pathname}`;
-
-    // Milestone and final-settlement links are created from the ops panel with the admin key; the
-    // deposit is public and the server takes its amount from the signed SOW.
     const headers = { "Content-Type": "application/json" };
     if (options.authKey) headers.Authorization = `Bearer ${options.authKey}`;
     const resp = await fetch(core.apiUrl, {
@@ -277,17 +251,14 @@
       headers,
       body: JSON.stringify({
         action: "create_checkout",
-        sowId: sowIdClean,
+        sowId: String(options.sowId || "").trim().toUpperCase(),
         changeOrderId: options.changeOrderId || "",
-        clientEmail,
+        paymentType: String(options.paymentType || "deposit").trim(),
         amountUsd,
-        paymentType,
-        targetStage,
-        itemTitle,
-        returnBaseUrl
+        targetStage: Number(options.targetStage || 3),
+        token: options.token || ""
       })
     });
-
     return resp.json();
   }
 
@@ -320,13 +291,9 @@
     try {
       const res = await requestStripeCheckoutSession({
         sowId: sow.sowId,
-        clientEmail: sow.clientEmail || "",
-        businessName: sow.businessName || "",
-        clientName: sow.clientName || "",
         amountUsd: depositAmount,
         paymentType: "deposit",
-        itemTitle: `Depósito Inicial (${sow.sowId}) — ${sow.businessName || sow.clientName || "Batista Digital Ventures LLC"}`,
-        returnBaseUrl: `${window.location.origin}${window.location.pathname}`
+        token: docToken
       });
 
       if (!res.ok || !res.checkoutUrl) {
@@ -444,8 +411,8 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           co
-            ? { action: "approve_change_order", coId: co.coId, signerName, signerTitle, consentAccepted }
-            : { action: "sign_sow", sowId: currentSowData.sowId, signerName, signerTitle, consentAccepted }
+            ? { action: "approve_change_order", coId: co.coId, token: docToken, signerName, signerTitle, consentAccepted }
+            : { action: "sign_sow", sowId: currentSowData.sowId, token: docToken, signerName, signerTitle, consentAccepted }
         )
       })
         .then((r) => r.json())
@@ -642,7 +609,7 @@
       "",
       "FIRMAS DIGITALES",
       ...entries.map(({ party, sig, pending }) =>
-        sig ? `${party}: ${sig.signerName} (${sig.signerTitle || "N/A"}) · ${sig.timestamp} · IP ${sig.ip || "N/A"} · Consentimiento E-SIGN / UETA aceptado` : `${party}: ${pending}`
+        sig ? `${party}: ${sig.signerName} (${sig.signerTitle || "N/A"}) · ${sig.timestamp}${sig.ip ? ` · IP ${sig.ip}` : ""} · Consentimiento E-SIGN / UETA aceptado` : `${party}: ${pending}`
       )
     ].join("\n");
   }
@@ -734,8 +701,7 @@
         changeOrderId: co.coId,
         paymentType: "change_order",
         amountUsd: co.amountUsd,
-        clientEmail: co.clientEmail,
-        returnBaseUrl: `${window.location.origin}${window.location.pathname}`
+        token: docToken
       })
         .then((res) => {
           if (res.ok && res.checkoutUrl) {
@@ -756,10 +722,11 @@
     });
   }
 
-  function openChangeOrder(coId, postCheckoutStatus) {
+  function openChangeOrder(coId, postCheckoutStatus, token) {
     const core = getCore();
     const cleanId = String(coId || "").trim().toUpperCase();
     if (!cleanId) return;
+    docToken = String(token || "");
     const modal = ensureSowModal();
     const bodyEl = document.getElementById("bdv-sow-body");
     const statusEl = document.getElementById("bdv-sow-status-msg");
@@ -770,7 +737,7 @@
     if (payWrap) payWrap.style.display = "none";
     if (bodyEl) bodyEl.innerHTML = `<p style="color: #94a3b8;">Cargando orden de cambio ${core.escapeHtml(cleanId)}...</p>`;
     modal.style.setProperty("display", "block", "important");
-    fetch(`${core.apiUrl}?co=${encodeURIComponent(cleanId)}`)
+    fetch(`${core.apiUrl}?co=${encodeURIComponent(cleanId)}${docToken ? `&t=${encodeURIComponent(docToken)}` : ""}`)
       .then((r) => r.json())
       .then((res) => {
         if (!res.ok || !res.changeOrder) {
@@ -794,10 +761,11 @@
   }
 
   window.BDV_SOW = {
-    openById: function (sowId, postCheckoutStatus) {
+    openById: function (sowId, postCheckoutStatus, token) {
       const core = getCore();
       const cleanId = String(sowId || "").trim().toUpperCase();
       if (!cleanId) return;
+      docToken = String(token || "");
 
       const modal = ensureSowModal();
       const bodyEl = document.getElementById("bdv-sow-body");
@@ -806,7 +774,7 @@
       if (bodyEl) bodyEl.innerHTML = `<p style="color: #94a3b8;">Cargando documento ${core.escapeHtml(cleanId)}...</p>`;
       modal.style.setProperty("display", "block", "important");
 
-      fetch(`${core.apiUrl}?sow=${encodeURIComponent(cleanId)}`)
+      fetch(`${core.apiUrl}?sow=${encodeURIComponent(cleanId)}${docToken ? `&t=${encodeURIComponent(docToken)}` : ""}`)
         .then((r) => r.json())
         .then((res) => {
           if (!res.ok || !res.sow) {
@@ -851,10 +819,11 @@
       const sowParam = (params.get("sow") || "").trim().toUpperCase();
       const coParam = (params.get("co") || "").trim().toUpperCase();
       const checkoutParam = (params.get("checkout") || "").trim().toLowerCase();
+      const tokenParam = (params.get("t") || "").trim();
       if (coParam) {
-        openChangeOrder(coParam, checkoutParam);
+        openChangeOrder(coParam, checkoutParam, tokenParam);
       } else if (sowParam) {
-        window.BDV_SOW.openById(sowParam, checkoutParam);
+        window.BDV_SOW.openById(sowParam, checkoutParam, tokenParam);
       }
     } catch (_) {}
   }

@@ -187,8 +187,12 @@
       '<span class="bdv-pay-pending"><strong>' + esc(labels.pending) + ":</strong> " + esc(money(l.pending)) + "</span>" +
       "<span><strong>" + esc(labels.total) + ":</strong> " + esc(money(l.total)) + "</span></div></div>";
   }
-  function sowUrlOf(sowId) {
-    return "https://batistadigitalventures.com/?sow=" + encodeURIComponent(sowId);
+  // Public links carry the document's access token (t=); SOWs and change orders created before it have none.
+  function sowUrlOf(w) {
+    return "https://batistadigitalventures.com/?sow=" + encodeURIComponent(w.sowId) + (w.accessToken ? "&t=" + encodeURIComponent(w.accessToken) : "");
+  }
+  function coUrlOf(co) {
+    return "https://batistadigitalventures.com/?co=" + encodeURIComponent(co.coId) + (co.accessToken ? "&t=" + encodeURIComponent(co.accessToken) : "");
   }
   // Same rule as the Worker: by project id, or by row for SOWs issued before ids were stored.
   function sowBelongsTo(w, p) {
@@ -218,7 +222,9 @@
       currentSow: current,
       ledgers: res.ledgers || {}, // project row -> payment ledger computed by the Worker
       otherSows: sows.filter(function (w) { return currentIds.indexOf(w.sowId) === -1; }),
-      webCheck: res.webCheck || null // summary of the last Web Check (panel, weekly or alert)
+      webCheck: res.webCheck || null, // summary of the last Web Check (panel, weekly or alert)
+      auditLog: Array.isArray(res.auditLog) ? res.auditLog : [], // newest first (admin only)
+      lastBackup: res.lastBackup || null
     };
   }
 
@@ -241,8 +247,8 @@
     var core = getCore();
     return fetch(core.apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.assign({ key: ops.key }, payload))
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + ops.key },
+      body: JSON.stringify(payload)
     }).then(function (r) {
       return r.json().catch(function () { return { ok: false, error: "Respuesta inválida del servidor (" + r.status + ")." }; })
         .then(function (json) {
@@ -287,10 +293,11 @@
     }
     ops.loading = true;
     fetch(core.apiUrl, { headers: { Authorization: "Bearer " + ops.key } })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
+      .then(function (r) { return r.json().then(function (json) { return { status: r.status, res: json }; }); })
+      .then(function (out) {
+        var res = out.res;
         if (!res.ok) {
-          signOut("Clave no válida o sin permiso.");
+          signOut(out.status === 429 ? "Demasiados intentos con una clave incorrecta. Espera 15 minutos e intenta de nuevo." : "Clave no válida o sin permiso.");
           return;
         }
         ops.role = res.role === "admin" ? "admin" : "partner";
@@ -418,6 +425,7 @@
     document.getElementById("bdv-ops-role").textContent = isAdmin ? "Administrador" : "Programador partner";
     document.getElementById("bdv-ops-new-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-webcheck-btn").hidden = !isAdmin;
+    document.getElementById("bdv-ops-backup-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-updated").textContent =
       "Actualizado " + ops.loadedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + " · se actualiza solo";
 
@@ -439,8 +447,31 @@
       if (d.apps.length) {
         html.push(collapsible("🤝 Postulaciones de partners", d.apps.length, d.apps.map(appCard).join("")));
       }
+      html.push(collapsible("🧾 Historial de cambios", d.auditLog.length, auditLogHtml(d.auditLog, d.lastBackup)));
     }
     body.innerHTML = html.join("");
+  }
+
+  // Every change made from the panel, newest first (kept by the Worker; it cannot be edited or deleted).
+  var AUDIT_ACTION = {
+    create_project: "Proyecto creado", create_sow: "SOW emitido", create_change_order: "Orden de cambio creada",
+    void_change_order: "Orden de cambio anulada", record_payment: "Pago registrado", void_payment: "Pago anulado",
+    delete_request: "Solicitud descartada", delete_partner_application: "Postulación descartada", delete_project: "Proyecto eliminado",
+    assign_partner: "Partner asignado", update_pin: "PIN cambiado", propose: "Avance propuesto (partner)",
+    approve_proposal: "Avance aprobado", update: "Etapa cambiada", backup_now: "Copia de seguridad manual",
+    resync_from_kv: "Datos recuperados tras un rollback"
+  };
+  function auditLogHtml(log, lastBackup) {
+    var backupLine = '<p class="bdv-ops-sub">' + (lastBackup && lastBackup.at
+      ? "Última copia de seguridad: " + esc(shortDate(lastBackup.at) + " " + new Date(lastBackup.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + " (se hace sola cada noche; se guardan 35 días)."
+      : "Todavía no hay copia de seguridad; se hace sola cada noche.") + "</p>";
+    if (!log.length) return backupLine + '<p class="bdv-ops-empty">Todavía no hay cambios registrados.</p>';
+    return backupLine + '<ul class="bdv-ops-audit-log">' + log.map(function (e) {
+      return "<li>" + esc(shortDate(e.at) + " " + new Date(e.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + " · " +
+        "<strong>" + esc(AUDIT_ACTION[e.action] || e.action) + "</strong> · " + esc(e.target || "") +
+        (e.detail ? " · " + esc(e.detail) : "") + (e.snapshot ? " · copia del registro guardada" : "") +
+        ' <span class="bdv-ops-muted">(' + esc(e.role === "partner" ? "partner" : e.role === "system" ? "automático" : "admin") + ")</span></li>";
+    }).join("") + "</ul>";
   }
 
   function section(title, count, inner, emptyText) {
@@ -588,7 +619,7 @@
       field("clientName", "Nombre del cliente", r ? r.clientName : "", { required: true, half: true }) +
       field("email", "Correo del cliente", r ? r.clientEmail : "", { type: "email", required: true, half: true }) +
       field("name", "Nombre del proyecto", r ? r.businessName || (Array.isArray(r.services) && r.services[0]) || "" : "", { required: true, half: true }) +
-      field("code", "PIN del cliente (opcional)", "", { placeholder: "Se genera solo", half: true }) +
+      field("code", "PIN del cliente (opcional, 6 o más caracteres)", "", { placeholder: "Se genera solo", half: true, attrs: ' minlength="6" maxlength="32"' }) +
       field("name_en", "Nombre en inglés (opcional)", "", { placeholder: "Si lo dejas vacío se usa el mismo" }) +
       '<label class="bdv-ops-check"><input type="checkbox" name="withSow" checked /> <span>Firmar el SOW ahora y enviarlo al cliente</span></label>' +
       '<div class="bdv-ops-sow-fields">' +
@@ -650,11 +681,11 @@
       if (form !== "sow") actions.push(btn("open-sow", "✍ Firmar y reenviar SOW", "is-primary", dataAttr("row", row)));
     } else if (w && !w.signature) {
       status = "Firmaste el SOW " + w.sowId + " (" + money(w.totalAmount) + ") y se envió a " + w.clientEmail + ". Esperando su firma; al firmar, queda cerrado y puede pagar el depósito.";
-      actions.push(btn("copy", "Copiar enlace del SOW", "is-ghost", dataAttr("url", sowUrlOf(w.sowId))));
+      actions.push(btn("copy", "Copiar enlace del SOW", "is-ghost", dataAttr("url", sowUrlOf(w))));
       if (form !== "sow") actions.push(btn("open-sow", "Corregir y reenviar SOW", "is-ghost", dataAttr("row", row)));
     } else if (w && depositDue && stage <= 2) {
       status = "SOW firmado por ambas partes. Esperando el depósito de " + money(w.depositAmount) + " (el cliente paga desde el enlace del SOW; al pagarlo, el proyecto pasa solo a la Etapa 3).";
-      actions.push(btn("copy", "Copiar enlace para pagar", "is-ghost", dataAttr("url", sowUrlOf(w.sowId))));
+      actions.push(btn("copy", "Copiar enlace para pagar", "is-ghost", dataAttr("url", sowUrlOf(w))));
     } else if (stage < 5) {
       var next = stageInfo(stage + 1);
       status = "Proyecto en curso.";
@@ -734,7 +765,7 @@
                 (a.ip ? " · IP " + esc(a.ip) : "") + (a.detail ? " · " + esc(a.detail) : "") + "</li>";
             }).join("") + "</ul></details></div>" +
             '<div class="bdv-ops-actions">' +
-            (co.status !== "VOID" && !co.paid ? btn("copy", "Copiar enlace", "is-ghost is-small", dataAttr("url", "https://batistadigitalventures.com/?co=" + co.coId)) : "") +
+            (co.status !== "VOID" && !co.paid ? btn("copy", "Copiar enlace", "is-ghost is-small", dataAttr("url", coUrlOf(co))) : "") +
             (canVoid && !(form === "void-co" && ref === co.coId) ? btn("open-void-co", "Anular", "is-ghost is-small is-danger-text", dataAttr("row", p.row) + dataAttr("ref", co.coId)) : "") +
             "</div>" +
             (form === "void-co" && ref === co.coId ? voidForm("void-co", p.row, co.coId, "Anular la orden de cambio " + co.coId + (co.status === "APPROVED" ? " (el cliente ya la aprobó; se le avisará por correo)" : "")) : "") +
@@ -840,7 +871,7 @@
       '<select name="stage" class="bdv-tracker-input">' + stageOptions + "</select></label>" +
       '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-ghost">Guardar etapa</button></div></form>' +
       '<form class="bdv-ops-form is-inline" data-form="pin"' + dataAttr("row", p.row) + ">" +
-      field("code", "PIN del cliente para ver su avance", p.code, { required: true }) +
+      field("code", "PIN del cliente para ver su avance (6 o más caracteres)", p.code, { required: true, attrs: ' minlength="6" maxlength="32"' }) +
       '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-ghost">Guardar PIN</button></div></form>' +
       (req ? '<div class="bdv-ops-note">Solicitud original (' + esc(req.id) + "): " + esc([(req.services || []).join(", "), req.notes].filter(Boolean).join(" · ")) + "</div>" : "") +
       '<div class="bdv-ops-actions">' + btn("delete-project", "Eliminar proyecto", "is-ghost is-danger-text", dataAttr("row", p.row)) + "</div>" +
@@ -869,7 +900,7 @@
     return '<div class="bdv-ops-card is-compact"><div class="bdv-ops-card-head"><div><strong>' + esc(w.sowId) + "</strong> · " + esc(w.clientName) +
       ' <span class="bdv-ops-muted">' + esc(w.clientEmail) + "</span>" +
       '<div class="bdv-ops-sub">' + esc(money(w.totalAmount)) + " · " + esc(state) + " · " + esc(w.createdAt ? new Date(w.createdAt).toLocaleDateString() : "") + "</div></div>" +
-      '<div class="bdv-ops-actions"><a class="bdv-ops-btn is-ghost is-small" href="' + esc(sowUrlOf(w.sowId)) + '" target="_blank" rel="noopener noreferrer">Ver</a></div></div></div>';
+      '<div class="bdv-ops-actions"><a class="bdv-ops-btn is-ghost is-small" href="' + esc(sowUrlOf(w)) + '" target="_blank" rel="noopener noreferrer">Ver</a></div></div></div>';
   }
 
   function appCard(a) {
@@ -904,6 +935,7 @@
       var v = formValues(form);
       var requestId = form.getAttribute("data-request") || "";
       if (!v.clientName || !isValidEmailSimple(v.email) || !v.name) return toast("Completa el nombre del cliente, un correo válido y el nombre del proyecto.", false);
+      if (v.code && v.code.length < 6) return toast("El PIN debe tener al menos 6 caracteres (o déjalo vacío para que se genere solo).", false);
       if (v.withSow && (!v.scopeSummary || amountsError(v))) return toast(v.scopeSummary ? amountsError(v) : "Escribe el alcance del SOW.", false);
       if (v.withSow && bdvSignatureError(v)) return toast(bdvSignatureError(v), false);
       var payload = {
@@ -976,14 +1008,9 @@
       window.BDV_SOW.createCheckoutLink({
         authKey: ops.key,
         sowId: w ? w.sowId : "",
-        clientEmail: p.email,
-        clientName: p.clientName || (w && w.clientName) || "",
-        businessName: getCore().getProjectDisplayName(p, "es"),
         amountUsd: amount,
         paymentType: isFinal ? "final_settlement" : "milestone",
-        targetStage: isFinal ? 6 : Number(p.stage) || 3,
-        itemTitle: (isFinal ? "Liquidación 100%" : "Hito de Proyecto") + " — " + getCore().getProjectDisplayName(p, "es"),
-        returnBaseUrl: "https://batistadigitalventures.com/"
+        targetStage: isFinal ? 6 : Number(p.stage) || 3
       })
         .then(function (res) {
           if (!res || !res.ok || !res.checkoutUrl) {
@@ -1060,7 +1087,7 @@
     },
     pin: function (form, submitBtn) {
       var code = formValues(form).code.toUpperCase();
-      if (code.length < 4) return toast("El PIN debe tener al menos 4 caracteres.", false);
+      if (code.length < 6) return toast("El PIN debe tener al menos 6 caracteres.", false);
       runAction(submitBtn, { action: "update_pin", row: Number(form.getAttribute("data-row")), code: code }, function (res) {
         return { msg: "✓ PIN actualizado a " + res.code + "." };
       });
@@ -1070,15 +1097,6 @@
       if (!v.notes) return toast("Escribe un resumen de lo avanzado.", false);
       runAction(submitBtn, { action: "propose", row: Number(form.getAttribute("data-row")), stage: Number(v.stage), notes: v.notes }, function () {
         return { msg: "✓ Avance enviado a revisión del administrador." };
-      });
-    },
-    key: function (form, submitBtn) {
-      var newPass = formValues(form).newPassword;
-      if (newPass.length < 6) return toast("La nueva clave debe tener al menos 6 caracteres.", false);
-      runAction(submitBtn, { action: "change_my_password", newPassword: newPass }, function () {
-        ops.key = newPass;
-        form.reset();
-        return { msg: "✓ Clave actualizada. Úsala la próxima vez que entres." };
       });
     }
   };
@@ -1119,6 +1137,13 @@
     "web-check-pdf": function () { downloadWebCheck(); },
     "web-check-share": function () { shareWebCheck(); },
     "web-check-close": function () { ops.webCheck = null; render(); },
+    "backup-now": function (b) {
+      var menu = b.closest(".bdv-ops-menu");
+      if (menu) menu.open = false;
+      runAction(b, { action: "backup_now" }, function () {
+        return { msg: "✓ Copia de seguridad guardada (además de la copia automática de cada noche)." };
+      });
+    },
     copy: function (b) { copyText(b.getAttribute("data-url")); },
     approve: function (b) {
       var p = findProject(b.getAttribute("data-row"));
@@ -1130,20 +1155,20 @@
     "delete-project": function (b) {
       var p = findProject(b.getAttribute("data-row"));
       if (!p) return;
-      confirmCard(b, "¿Eliminar el proyecto «" + p.name + "» de forma permanente? No se puede deshacer.", "Sí, eliminar", function (cb) {
+      confirmCard(b, "¿Eliminar el proyecto «" + p.name + "»? Desaparece del panel; queda una copia en el historial de cambios.", "Sí, eliminar", function (cb) {
         runAction(cb, { action: "delete_project", row: p.row }, function () { return { msg: "✓ Proyecto eliminado." }; });
       });
     },
     "delete-request": function (b) {
       var r = findRequest(b.getAttribute("data-id"));
       if (!r) return;
-      confirmCard(b, "¿Descartar la solicitud de " + (r.clientName || r.clientEmail) + "? Se borra de forma permanente.", "Sí, descartar", function (cb) {
+      confirmCard(b, "¿Descartar la solicitud de " + (r.clientName || r.clientEmail) + "? Desaparece del panel; queda una copia en el historial de cambios.", "Sí, descartar", function (cb) {
         runAction(cb, { action: "delete_request", requestId: r.id }, function () { return { msg: "✓ Solicitud descartada." }; });
       });
     },
     "delete-app": function (b) {
       var id = b.getAttribute("data-id");
-      confirmCard(b, "¿Descartar la postulación " + id + "? Se borra de forma permanente.", "Sí, descartar", function (cb) {
+      confirmCard(b, "¿Descartar la postulación " + id + "? Desaparece del panel; queda una copia en el historial de cambios.", "Sí, descartar", function (cb) {
         runAction(cb, { action: "delete_partner_application", applicationId: id }, function () { return { msg: "✓ Postulación descartada." }; });
       });
     },
@@ -1197,9 +1222,7 @@
       '      <button type="button" id="bdv-ops-webcheck-btn" class="bdv-ops-btn is-ghost" data-act="web-check" title="Revisa sitio, pagos, correo, datos y seguridad, y genera un PDF">🩺 Web Check</button>',
       '      <span id="bdv-ops-updated" class="bdv-ops-muted"></span>',
       '      <details class="bdv-ops-menu"><summary aria-label="Opciones de la cuenta">⋯</summary><div class="bdv-ops-menu-pop">',
-      '        <form class="bdv-ops-form is-inline" data-form="key"><label class="bdv-ops-field"><span>Nueva clave para este rol</span>',
-      '          <input type="password" name="newPassword" class="bdv-tracker-input" autocomplete="new-password" minlength="6" required /></label>',
-      '          <div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-ghost">Cambiar clave</button></div></form>',
+      '        <button type="button" id="bdv-ops-backup-btn" class="bdv-ops-btn is-ghost" data-act="backup-now" title="Guarda ahora una copia de todos los datos (también se hace sola cada noche)">💾 Copia de seguridad ahora</button>',
       '        <button type="button" class="bdv-ops-btn is-ghost" data-act="logout">Salir</button>',
       "      </div></details>",
       "    </div>",

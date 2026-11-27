@@ -108,7 +108,8 @@
         serviceType: serviceType,
         budget: budgetSel.value,
         timeline: timelineSel.value,
-        notes: header + (notes ? "\n\n" + notes : "")
+        notes: header + (notes ? "\n\n" + notes : ""),
+        website: document.getElementById("qf-website").value
       }, g("qf-name"), "quote");
     });
   }
@@ -143,7 +144,8 @@
         portfolio: g("pf-portfolio"),
         specialty: optionLabel(specSel) || specSel.value,
         timezone: g("pf-tz"),
-        notes: g("pf-notes")
+        notes: g("pf-notes"),
+        company_url: document.getElementById("pf-company-url").value
       }, g("pf-name"), "partner");
     });
   }
