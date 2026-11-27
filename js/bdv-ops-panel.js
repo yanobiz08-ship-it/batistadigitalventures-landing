@@ -689,7 +689,7 @@
     if (reissue) items.push(reissue + (reissue === 1 ? " SOW por reemitir" : " SOWs por reemitir"));
     if (proposals) items.push(proposals + (proposals === 1 ? " avance por aprobar" : " avances por aprobar"));
     return '<div class="bdv-ops-todo' + (items.length ? "" : " is-clear") + '">' +
-      (items.length ? "<strong>Por hacer:</strong> " + esc(items.join(" · ")) : "✓ Todo al día. No hay nada pendiente de tu parte.") + "</div>";
+      (items.length ? "<strong>Por hacer:</strong> " + esc(items.join(" · ")) : "✓ Todo al día. No hay nada pendiente de su parte.") + "</div>";
   }
 
   // ---------- sign-in setup (Acceso y verificación) ----------
