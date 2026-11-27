@@ -134,13 +134,18 @@
   // =====================================================================================
   // Admin / partner panel (#bdv-ops). One guided card per incoming request and per project:
   // each card shows where it stands and only the next valid action. Every action posts once
-  // (its button is locked while it runs), then the panel reloads by itself. The key lives only
-  // in memory while this page is open; closing the panel does not sign you out, "Salir" does.
+  // (its button is locked while it runs), then the panel reloads by itself. The admin signs in with
+  // email + password and a code (Google Authenticator or email); the 8-hour session token is kept in
+  // sessionStorage (this tab only). A key (partners, or the ADMIN_KEY emergency key) lives only in
+  // memory while this page is open. Closing the panel does not sign you out, "Salir" does.
   // =====================================================================================
   var ops = {
-    key: "",
+    token: "",       // what goes in the Authorization header: a key, or an admin session token
+    via: "",         // "key" or "session"
     role: "",
-    data: null,      // last GET ?key= payload, normalised by normaliseData()
+    auth: { step: "login", challenge: "", emailHint: "", method: "" }, // sign-in steps before the dashboard
+    setup: null,     // sign-in setup in progress (secret, QR, recovery codes): memory only
+    data: null,      // last GET payload, normalised by normaliseData()
     form: null,      // the one inline form that is open: { kind, id }
     payLinks: {},    // project row -> Stripe link created in this session
     webCheck: null,  // last Web Check run from this page: { report, pdfBase64, filename }
@@ -224,7 +229,8 @@
       otherSows: sows.filter(function (w) { return currentIds.indexOf(w.sowId) === -1; }),
       webCheck: res.webCheck || null, // summary of the last Web Check (panel, weekly or alert)
       auditLog: Array.isArray(res.auditLog) ? res.auditLog : [], // newest first (admin only)
-      lastBackup: res.lastBackup || null
+      lastBackup: res.lastBackup || null,
+      adminLogin: res.adminLogin || null // admin sign-in status (admin only)
     };
   }
 
@@ -247,19 +253,20 @@
     var core = getCore();
     return fetch(core.apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + ops.key },
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + ops.token },
       body: JSON.stringify(payload)
     }).then(function (r) {
       return r.json().catch(function () { return { ok: false, error: "Respuesta inválida del servidor (" + r.status + ")." }; })
         .then(function (json) {
-          if (r.status === 401) signOut("Tu sesión ya no es válida. Vuelve a entrar con tu clave.");
+          if (r.status === 401) signOut(tr(json.errorCode === "session_expired" ? "opsErrSession" : "opsErrKey"));
           return json;
         });
     });
   }
 
-  // Runs one panel action: locks its button (no double posts), shows the result and reloads.
-  function runAction(btn, payload, onOk) {
+  // Runs one panel action: locks its button (no double posts), shows the result and reloads. With
+  // `keepOpen` (a step of a multi-step form) the form stays open and the panel is only redrawn.
+  function runAction(btn, payload, onOk, keepOpen) {
     if (btn && btn.disabled) return;
     var label = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Procesando…"; }
@@ -271,8 +278,9 @@
           return;
         }
         var out = onOk ? onOk(res) : { msg: "✓ Listo." };
-        ops.form = null;
         toast(out.msg, out.ok !== false);
+        if (keepOpen) return render();
+        ops.form = null;
         loadData();
       })
       .catch(function () {
@@ -286,18 +294,18 @@
 
   function loadData() {
     var core = getCore();
-    if (!ops.key) return;
+    if (!ops.token) return;
     if (ops.loading) {
       ops.reloadAgain = true; // an action finished while a load was running: load once more afterwards
       return;
     }
     ops.loading = true;
-    fetch(core.apiUrl, { headers: { Authorization: "Bearer " + ops.key } })
+    fetch(core.apiUrl, { headers: { Authorization: "Bearer " + ops.token } })
       .then(function (r) { return r.json().then(function (json) { return { status: r.status, res: json }; }); })
       .then(function (out) {
         var res = out.res;
         if (!res.ok) {
-          signOut(out.status === 429 ? "Demasiados intentos con una clave incorrecta. Espera 15 minutos e intenta de nuevo." : "Clave no válida o sin permiso.");
+          signOut(tr(out.status === 429 ? "opsErrLocked" : res.errorCode === "session_expired" ? "opsErrSession" : "opsErrKey"));
           return;
         }
         ops.role = res.role === "admin" ? "admin" : "partner";
@@ -321,7 +329,7 @@
   // Auto refresh while the panel is open, never while you are typing in a form or an action runs.
   function canAutoRefresh() {
     var root = document.getElementById("bdv-admin-modal-root");
-    if (!root || root.style.display === "none" || !ops.key || ops.form || ops.inFlight) return false;
+    if (!root || root.style.display === "none" || !ops.token || ops.form || ops.inFlight) return false;
     var a = document.activeElement;
     return !(a && root.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
   }
@@ -365,10 +373,10 @@
     card.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  function copyText(text) {
+  function copyText(text, copiedMsg) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
-        function () { toast("✓ Enlace copiado: " + text, true); },
+        function () { toast(copiedMsg || "✓ Enlace copiado: " + text, true); },
         function () { toast("Copia este enlace: " + text, true); }
       );
     } else {
@@ -401,29 +409,203 @@
   }
 
   function signOut(message) {
-    ops.key = "";
+    ops.token = "";
+    ops.via = "";
     ops.role = "";
     ops.data = null;
     ops.form = null;
+    ops.setup = null;
     ops.payLinks = {};
     ops.webCheck = null;
-    var pass = document.getElementById("bdv-ops-pass");
-    if (pass) pass.value = "";
-    var msg = document.getElementById("bdv-ops-auth-msg");
-    if (msg) {
-      msg.hidden = !message;
-      msg.textContent = message || "";
-    }
+    forgetSession();
+    ["bdv-ops-pass", "bdv-ops-password", "bdv-ops-code-input"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = "";
+    });
     showView("auth");
+    showAuthStep(preferredLoginStep());
+    authMessage(message, false);
   }
+
+  // ---------- sign-in: email + password, then Google Authenticator or a code by email ----------
+  var SESSION_STORE = "bdv-ops-session";  // sessionStorage: { token, expiresAt } of the admin session
+  var LOGIN_MODE_STORE = "bdv-ops-login"; // localStorage: "key" when this browser signs in with a key
+  var AUTH_ERRORS = {
+    bad_credentials: "opsErrCredentials",
+    locked: "opsErrLocked",
+    challenge_expired: "opsErrExpired",
+    bad_code: "opsErrCode",
+    too_many_codes: "opsErrTooManyCodes",
+    send_wait: "opsErrSendWait",
+    send_limit: "opsErrSendLimit",
+    send_failed: "opsErrSendFailed"
+  };
+  function storage(kind) {
+    try { return window[kind]; } catch (_) { return null; } // blocked in some private modes
+  }
+  function rememberSession(token, expiresAt) {
+    var st = storage("sessionStorage");
+    if (st) st.setItem(SESSION_STORE, JSON.stringify({ token: token, expiresAt: expiresAt }));
+  }
+  function storedSession() {
+    var st = storage("sessionStorage");
+    try {
+      var s = st && JSON.parse(st.getItem(SESSION_STORE) || "null");
+      return s && s.token && Date.parse(s.expiresAt) > Date.now() ? s : null;
+    } catch (_) {
+      return null;
+    }
+  }
+  function forgetSession() {
+    var st = storage("sessionStorage");
+    if (st) st.removeItem(SESSION_STORE);
+  }
+  function preferredLoginStep() {
+    var ls = storage("localStorage");
+    return ls && ls.getItem(LOGIN_MODE_STORE) === "key" ? "key" : "login";
+  }
+  function setLoginMode(mode) {
+    var ls = storage("localStorage");
+    if (!ls) return;
+    if (mode === "key") ls.setItem(LOGIN_MODE_STORE, "key"); else ls.removeItem(LOGIN_MODE_STORE);
+  }
+
+  function authMessage(text, isInfo) {
+    var err = document.getElementById("bdv-ops-auth-msg");
+    var info = document.getElementById("bdv-ops-auth-info");
+    if (!err || !info) return;
+    err.hidden = isInfo || !text;
+    err.textContent = isInfo ? "" : text || "";
+    info.hidden = !isInfo || !text;
+    info.textContent = isInfo ? text : "";
+  }
+
+  // Shows one sign-in step ("login", "method", "code" or "key") and focuses its first field.
+  function showAuthStep(step) {
+    ops.auth.step = step;
+    var box = document.getElementById("bdv-ops-auth");
+    if (!box) return;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-step]"), function (el) {
+      el.hidden = el.getAttribute("data-step") !== step;
+    });
+    if (step === "code") {
+      var m = ops.auth.method;
+      var input = document.getElementById("bdv-ops-code-input");
+      document.getElementById("bdv-ops-code-label").textContent =
+        m === "recovery" ? tr("opsCodeRecovery") : m === "email" ? tr("opsCodeEmail").replace("{email}", ops.auth.emailHint) : tr("opsCodeTotp");
+      input.value = "";
+      input.setAttribute("autocomplete", m === "recovery" ? "off" : "one-time-code");
+      input.setAttribute("inputmode", m === "recovery" ? "text" : "numeric");
+      input.setAttribute("autocapitalize", m === "recovery" ? "characters" : "off");
+      input.setAttribute("maxlength", m === "recovery" ? "11" : "7");
+      document.getElementById("bdv-ops-resend").hidden = m !== "email";
+    }
+    if (step === "method") document.getElementById("bdv-ops-email-hint").textContent = tr("opsMethodEmailSub").replace("{email}", ops.auth.emailHint);
+    var first = box.querySelector('[data-step="' + step + '"] input, [data-step="' + step + '"] button');
+    if (first && document.getElementById("bdv-admin-modal-root").style.display !== "none") setTimeout(function () { first.focus(); }, 30);
+  }
+
+  // One sign-in request (no key): locks `button` while it runs; `done(res)` gets the JSON answer.
+  function authRequest(button, payload, done) {
+    if (button && button.disabled) return;
+    var label = button ? button.textContent : "";
+    if (button) { button.disabled = true; button.textContent = tr("opsChecking"); }
+    fetch(getCore().apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(done)
+      .catch(function () { authMessage(tr("opsErrNet"), false); })
+      .then(function () {
+        if (button) { button.disabled = false; button.textContent = label; }
+      });
+  }
+  function authError(res) {
+    return tr(AUTH_ERRORS[res && res.errorCode] || "opsErrNet");
+  }
+  // After these the password has to be entered again.
+  function backToLoginIfOver(res) {
+    if (res.errorCode === "challenge_expired" || res.errorCode === "too_many_codes") {
+      ops.auth.challenge = "";
+      showAuthStep("login");
+    }
+  }
+
+  function submitLogin(form, button) {
+    var email = (form.email.value || "").trim();
+    var password = form.password.value || "";
+    if (!email || !password) return authMessage(tr("opsErrMissing"), false);
+    authMessage("", false);
+    authRequest(button, { action: "admin_login", email: email, password: password }, function (res) {
+      if (!res.ok) return authMessage(authError(res), false);
+      form.password.value = "";
+      ops.auth.challenge = res.challenge;
+      ops.auth.emailHint = res.emailHint || "";
+      showAuthStep("method");
+    });
+  }
+
+  function sendEmailCode(button) {
+    authMessage("", false);
+    authRequest(button, { action: "admin_login_send_code", challenge: ops.auth.challenge }, function (res) {
+      if (!res.ok) {
+        authMessage(authError(res), false);
+        return backToLoginIfOver(res);
+      }
+      ops.auth.method = "email";
+      if (ops.auth.step !== "code") showAuthStep("code");
+      authMessage(tr("opsCodeSent").replace("{email}", res.sentTo || ops.auth.emailHint), true);
+    });
+  }
+
+  function submitCode(form, button) {
+    var code = (form.code.value || "").trim();
+    if (!code) return authMessage(tr("opsErrMissing"), false);
+    authRequest(button, { action: "admin_login_verify", challenge: ops.auth.challenge, method: ops.auth.method, code: code }, function (res) {
+      if (!res.ok || !res.token) {
+        authMessage(authError(res), false);
+        form.code.value = "";
+        return backToLoginIfOver(res);
+      }
+      authMessage("", false);
+      ops.auth = { step: "login", challenge: "", emailHint: "", method: "" };
+      ops.token = res.token;
+      ops.via = "session";
+      rememberSession(res.token, res.expiresAt);
+      setLoginMode("email");
+      loadData();
+    });
+  }
+
+  function submitKey() {
+    var pass = (document.getElementById("bdv-ops-pass").value || "").trim();
+    if (!pass) return authMessage(tr("opsErrMissing"), false);
+    authMessage("", false);
+    ops.token = pass;
+    ops.via = "key";
+    setLoginMode("key");
+    loadData();
+  }
+
+  var authHandlers = {
+    login: function () { setLoginMode("email"); authMessage("", false); showAuthStep("login"); },
+    key: function () { authMessage("", false); showAuthStep("key"); },
+    totp: function () { ops.auth.method = "totp"; authMessage("", false); showAuthStep("code"); },
+    email: function (b) { sendEmailCode(b); },
+    resend: function (b) { sendEmailCode(b); },
+    recovery: function () { ops.auth.method = "recovery"; authMessage("", false); showAuthStep("code"); },
+    method: function () { authMessage("", false); showAuthStep("method"); },
+    restart: function () { ops.auth.challenge = ""; authMessage("", false); showAuthStep("login"); }
+  };
 
   function render() {
     var d = ops.data;
     var body = document.getElementById("bdv-ops-body");
     if (!d || !body) return;
     var isAdmin = ops.role === "admin";
-    document.getElementById("bdv-ops-role").textContent = isAdmin ? "Administrador" : "Programador partner";
+    var login = d.adminLogin;
+    document.getElementById("bdv-ops-role").textContent = !isAdmin ? "Programador partner"
+      : ops.via === "key" && login && login.enrolled ? "Administrador · clave de emergencia" : "Administrador";
     document.getElementById("bdv-ops-new-btn").hidden = !isAdmin;
+    document.getElementById("bdv-ops-access-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-webcheck-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-backup-btn").hidden = !isAdmin;
     document.getElementById("bdv-ops-updated").textContent =
@@ -432,6 +614,8 @@
     var html = [];
     if (isAdmin) {
       html.push(renderTodo(d));
+      if (ops.form && ops.form.kind === "login-setup") html.push(loginSetupCard(login));
+      else if (login && !login.enrolled) html.push(loginSetupPrompt());
       html.push(webCheckCard(d.webCheck));
       if (ops.form && ops.form.kind === "project" && !ops.form.id) html.push('<div class="bdv-ops-card is-focus">' + projectForm(null) + "</div>");
       html.push(section("📨 Solicitudes nuevas", d.newRequests.length, d.newRequests.map(requestCard).join(""), "No hay solicitudes nuevas."));
@@ -459,7 +643,9 @@
     delete_request: "Solicitud descartada", delete_partner_application: "Postulación descartada", delete_project: "Proyecto eliminado",
     assign_partner: "Partner asignado", update_pin: "PIN cambiado", propose: "Avance propuesto (partner)",
     approve_proposal: "Avance aprobado", update: "Etapa cambiada", backup_now: "Copia de seguridad manual",
-    resync_from_kv: "Datos recuperados tras un rollback"
+    resync_from_kv: "Datos recuperados tras un rollback", admin_login: "Inicio de sesión", admin_logout: "Cierre de sesión",
+    admin_login_failed: "Intento de inicio de sesión fallido", admin_2fa_enrolled: "Acceso con verificación activado",
+    admin_2fa_changed: "Acceso con verificación cambiado"
   };
   function auditLogHtml(log, lastBackup) {
     var backupLine = '<p class="bdv-ops-sub">' + (lastBackup && lastBackup.at
@@ -470,7 +656,7 @@
       return "<li>" + esc(shortDate(e.at) + " " + new Date(e.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) + " · " +
         "<strong>" + esc(AUDIT_ACTION[e.action] || e.action) + "</strong> · " + esc(e.target || "") +
         (e.detail ? " · " + esc(e.detail) : "") + (e.snapshot ? " · copia del registro guardada" : "") +
-        ' <span class="bdv-ops-muted">(' + esc(e.role === "partner" ? "partner" : e.role === "system" ? "automático" : "admin") + ")</span></li>";
+        ' <span class="bdv-ops-muted">(' + esc(e.role === "partner" ? "partner" : e.role === "system" ? "automático" : e.role === "visitor" ? "sin sesión" : "admin") + ")</span></li>";
     }).join("") + "</ul>";
   }
 
@@ -503,7 +689,81 @@
     if (reissue) items.push(reissue + (reissue === 1 ? " SOW por reemitir" : " SOWs por reemitir"));
     if (proposals) items.push(proposals + (proposals === 1 ? " avance por aprobar" : " avances por aprobar"));
     return '<div class="bdv-ops-todo' + (items.length ? "" : " is-clear") + '">' +
-      (items.length ? "<strong>Por hacer:</strong> " + esc(items.join(" · ")) : "✓ Todo al día. No hay nada pendiente de tu parte.") + "</div>";
+      (items.length ? "<strong>Por hacer:</strong> " + esc(items.join(" · ")) : "✓ Todo al día. No hay nada pendiente de su parte.") + "</div>";
+  }
+
+  // ---------- sign-in setup (Acceso y verificación) ----------
+  // Only with the ADMIN_KEY emergency key (the Worker refuses it from a session): 1) email + password,
+  // 2) scan the QR in Google Authenticator and type its code, 3) save the 10 recovery codes.
+  function loginSetupPrompt() {
+    return '<div class="bdv-ops-card is-attention"><strong>🔐 Proteja su panel con correo, contraseña y un código de verificación</strong>' +
+      '<p class="bdv-ops-sub">Hoy entra con la clave de emergencia. En 2 minutos puede activar la entrada con su correo y contraseña más un código de Google Authenticator o por correo (usted elige cada vez). La clave de emergencia sigue sirviendo si algún día la necesita.</p>' +
+      '<div class="bdv-ops-actions">' + btn("open-login-setup", "Configurar ahora", "is-primary") + "</div></div>";
+  }
+
+  function loginStatusLine(login) {
+    return login && login.enrolled
+      ? '<p class="bdv-ops-sub">✓ Acceso activo para <strong>' + esc(login.email) + "</strong> desde el " + esc(shortDate(login.enrolledAt)) +
+        " · quedan " + esc(login.recoveryCodesLeft) + " códigos de recuperación.</p>"
+      : '<p class="bdv-ops-sub">Todavía no está configurado: hoy solo se entra con clave.</p>';
+  }
+
+  function groupSecret(secret) {
+    return String(secret || "").replace(/(.{4})/g, "$1 ").trim();
+  }
+
+  function loginSetupCard(login) {
+    var cancel = btn("cancel-form", "Cancelar", "is-ghost");
+    var head = '<div class="bdv-ops-card is-focus bdv-ops-setup"><h5>🔐 Acceso y verificación</h5>';
+    if (ops.via !== "key") {
+      return head + loginStatusLine(login) +
+        '<p class="bdv-ops-note">Para cambiar la contraseña, Google Authenticator o los códigos de recuperación, salga y entre con la clave de emergencia (ADMIN_KEY). Así nadie con una sesión abierta puede quitarle el acceso.</p>' +
+        '<div class="bdv-ops-actions">' + btn("cancel-form", "Cerrar", "is-ghost") + "</div></div>";
+    }
+    var st = ops.setup || { step: 1 };
+    if (st.step === 1) {
+      return head + loginStatusLine(login) +
+        (login && login.enrolled ? '<p class="bdv-ops-warn">Si lo configura otra vez, se reemplazan la contraseña, Google Authenticator y los códigos de recuperación, y se cierran todas las sesiones abiertas.</p>' : "") +
+        '<form class="bdv-ops-form" data-form="login-setup-1"><h5>Paso 1 de 3 · Su correo y una contraseña nueva</h5>' +
+        field("email", "Correo para entrar", (login && login.email) || "", { type: "email", required: true, attrs: ' autocomplete="username" autocapitalize="off" spellcheck="false"' }) +
+        field("password", "Contraseña nueva (mínimo 12 caracteres)", "", { type: "password", required: true, half: true, attrs: ' autocomplete="new-password" minlength="12" maxlength="128"' }) +
+        field("password2", "Repita la contraseña", "", { type: "password", required: true, half: true, attrs: ' autocomplete="new-password" minlength="12" maxlength="128"' }) +
+        '<p class="bdv-ops-muted">Consejo: deje que Google Passwords o el llavero del iPhone sugiera una contraseña segura y la guarde por usted.</p>' +
+        '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Continuar</button>' + cancel + "</div></form></div>";
+    }
+    if (st.step === 2) {
+      return head + '<form class="bdv-ops-form" data-form="login-setup-2"><h5>Paso 2 de 3 · Google Authenticator</h5>' +
+        '<div class="bdv-ops-setup-qr"><img src="data:image/svg+xml;base64,' + btoa(st.qrSvg) + '" width="216" height="216" alt="Código QR para Google Authenticator" /></div>' +
+        '<ol class="bdv-ops-steps">' +
+        "<li>En su iPhone, abra <strong>Google Authenticator</strong> (gratis en la App Store), toque <strong>+</strong> y luego <strong>Escanear un código QR</strong>.</li>" +
+        "<li>Apunte la cámara a este código. Si está usando el panel en ese mismo iPhone, toque <strong>Abrir en Google Authenticator</strong> o escriba la clave de configuración.</li>" +
+        "<li>Escriba abajo el código de 6 dígitos que muestra la app para <strong>" + esc(st.issuer) + "</strong>.</li></ol>" +
+        '<p class="bdv-ops-secret"><span class="bdv-ops-muted">Clave de configuración (' + esc(st.account) + '):</span> <code>' + esc(groupSecret(st.secret)) + "</code></p>" +
+        '<div class="bdv-ops-actions">' + btn("copy-secret", "Copiar clave", "is-ghost is-small") +
+        '<a class="bdv-ops-btn is-ghost is-small" href="' + esc(st.otpauthUri) + '">Abrir en Google Authenticator</a></div>' +
+        field("code", "Código de 6 dígitos", "", { required: true, attrs: ' inputmode="numeric" pattern="[0-9 ]*" maxlength="7" autocomplete="one-time-code"' }) +
+        '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Activar</button>' + cancel + "</div></form></div>";
+    }
+    return head + '<form class="bdv-ops-form" data-form="login-setup-3"><h5>Paso 3 de 3 · Sus códigos de recuperación</h5>' +
+      '<p class="bdv-ops-sub">✓ Acceso activado para <strong>' + esc(st.email) + "</strong>. Si pierde el teléfono y no puede recibir correos, cada uno de estos códigos le deja entrar <strong>una sola vez</strong>. Solo se muestran ahora: guárdelos en Google Passwords o en otro lugar seguro.</p>" +
+      '<ol class="bdv-ops-codes">' + st.codes.map(function (c) { return "<li><code>" + esc(c) + "</code></li>"; }).join("") + "</ol>" +
+      '<div class="bdv-ops-actions">' + btn("copy-recovery", "Copiar códigos", "is-ghost is-small") + btn("download-recovery", "Descargar (.txt)", "is-ghost is-small") + "</div>" +
+      '<label class="bdv-ops-check"><input type="checkbox" name="saved" required /> <span>Ya guardé mis códigos en un lugar seguro.</span></label>' +
+      '<p class="bdv-ops-muted">Desde ahora entre con su correo y contraseña y elija «Google Authenticator» o «Código por correo». La clave de emergencia (ADMIN_KEY) sigue sirviendo; guárdela también.</p>' +
+      '<div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Listo</button></div></form></div>';
+  }
+
+  function downloadRecoveryCodes() {
+    var text = ["Batista Digital Ventures · Panel BDV", "Códigos de recuperación de " + ops.setup.email + " (cada uno sirve una sola vez)", ""]
+      .concat(ops.setup.codes).concat(["", "Creados: " + new Date().toLocaleString()]).join("\n");
+    var url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "bdv-codigos-de-recuperacion.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
   // ---------- Web Check ----------
@@ -1006,7 +1266,7 @@
       submitBtn.textContent = "Creando enlace…";
       ops.inFlight++;
       window.BDV_SOW.createCheckoutLink({
-        authKey: ops.key,
+        authKey: ops.token,
         sowId: w ? w.sowId : "",
         amountUsd: amount,
         paymentType: isFinal ? "final_settlement" : "milestone",
@@ -1082,6 +1342,29 @@
         return { msg: "✓ Pago anulado (queda en el historial). Pendiente: " + money(res.ledger.pending) + "." };
       });
     },
+    "login-setup-1": function (form, submitBtn) {
+      var email = formValues(form).email;
+      var password = form.password.value; // as typed (no trimming), exactly like the sign-in form sends it
+      if (password.length < 12) return toast("La contraseña debe tener al menos 12 caracteres.", false);
+      if (password !== form.password2.value) return toast("Las dos contraseñas no coinciden.", false);
+      runAction(submitBtn, { action: "admin_auth_setup_start", email: email, password: password }, function (res) {
+        ops.setup = { step: 2, secret: res.secret, qrSvg: res.qrSvg, otpauthUri: res.otpauthUri, issuer: res.issuer, account: res.account };
+        return { msg: "Paso 2 de 3: escanee el código QR con Google Authenticator." };
+      }, true);
+    },
+    "login-setup-2": function (form, submitBtn) {
+      runAction(submitBtn, { action: "admin_auth_setup_confirm", code: formValues(form).code }, function (res) {
+        ops.setup = { step: 3, codes: res.recoveryCodes, email: res.email };
+        return { msg: "✓ Acceso activado. Guarde sus códigos de recuperación." };
+      }, true);
+    },
+    "login-setup-3": function () {
+      setLoginMode("email"); // next time this browser opens the email + password sign-in
+      ops.setup = null;
+      ops.form = null;
+      toast("✓ Listo. La próxima vez entre con su correo y contraseña.", true);
+      loadData();
+    },
     stage: function (form, submitBtn) {
       setStage(submitBtn, Number(formValues(form).stage), findProject(form.getAttribute("data-row")));
     },
@@ -1127,7 +1410,16 @@
     "open-record": function (b) { ops.form = { kind: "record", id: b.getAttribute("data-row") }; render(); },
     "open-void-co": function (b) { ops.form = { kind: "void-co", id: b.getAttribute("data-row"), ref: b.getAttribute("data-ref") }; render(); },
     "open-void-pay": function (b) { ops.form = { kind: "void-pay", id: b.getAttribute("data-row"), ref: b.getAttribute("data-ref") }; render(); },
-    "cancel-form": function () { ops.form = null; render(); },
+    "cancel-form": function () { ops.form = null; ops.setup = null; render(); },
+    "open-login-setup": function () {
+      ops.form = { kind: "login-setup" };
+      ops.setup = null;
+      render();
+      focusForm();
+    },
+    "copy-secret": function () { copyText(ops.setup.secret, "✓ Clave de configuración copiada."); },
+    "copy-recovery": function () { copyText(ops.setup.codes.join("\n"), "✓ Códigos copiados. Péguelos en un lugar seguro."); },
+    "download-recovery": function () { downloadRecoveryCodes(); },
     "web-check": function (b) {
       runAction(b, { action: "web_check" }, function (res) {
         ops.webCheck = { report: res.report, pdfBase64: res.pdfBase64, filename: res.filename };
@@ -1172,7 +1464,10 @@
         runAction(cb, { action: "delete_partner_application", applicationId: id }, function () { return { msg: "✓ Postulación descartada." }; });
       });
     },
-    logout: function () { signOut(""); }
+    logout: function () {
+      if (ops.via === "session") api({ action: "admin_logout" }).catch(function () {}); // ends the session on the server too
+      signOut("");
+    }
   };
 
   function focusForm() {
@@ -1183,19 +1478,6 @@
       var first = f.querySelector("input:not([type=checkbox]), textarea");
       if (first) first.focus();
     }, 30);
-  }
-
-  function signIn() {
-    var pass = (document.getElementById("bdv-ops-pass").value || "").trim();
-    var msg = document.getElementById("bdv-ops-auth-msg");
-    if (!pass) {
-      msg.hidden = false;
-      msg.textContent = "Ingresa tu clave de acceso.";
-      return;
-    }
-    msg.hidden = true;
-    ops.key = pass;
-    loadData();
   }
 
   function applyAdminPanel() {
@@ -1210,18 +1492,45 @@
       '    <h3 id="bdv-ops-title">⚙ Panel BDV <span id="bdv-ops-role" class="bdv-ops-role"></span></h3>',
       '    <button type="button" id="bdv-ops-close" class="bdv-modal-close" aria-label="Cerrar">✕</button>',
       "  </div>",
-      '  <form id="bdv-ops-auth" class="bdv-ops-form">',
-      '    <label class="bdv-ops-field"><span>Clave de acceso (administrador o programador)</span>',
-      '      <input type="password" id="bdv-ops-pass" class="bdv-tracker-input" autocomplete="current-password" required /></label>',
-      '    <div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">Entrar</button></div>',
+      '  <div id="bdv-ops-auth" class="bdv-ops-auth">',
+      '    <form id="bdv-ops-login" class="bdv-ops-form" data-step="login">',
+      '      <label class="bdv-ops-field"><span>' + esc(tr("opsLoginEmail")) + "</span>",
+      '        <input type="email" name="email" id="bdv-ops-email" class="bdv-tracker-input" autocomplete="username" autocapitalize="off" spellcheck="false" required /></label>',
+      '      <label class="bdv-ops-field"><span>' + esc(tr("opsLoginPassword")) + "</span>",
+      '        <input type="password" name="password" id="bdv-ops-password" class="bdv-tracker-input" autocomplete="current-password" required /></label>',
+      '      <div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">' + esc(tr("opsLoginSubmit")) + "</button></div>",
+      '      <button type="button" class="bdv-link-btn bdv-ops-auth-link" data-auth="key">' + esc(tr("opsLoginUseKey")) + "</button>",
+      "    </form>",
+      '    <div class="bdv-ops-form" data-step="method" hidden>',
+      "      <h5>" + esc(tr("opsMethodTitle")) + "</h5>",
+      '      <button type="button" class="bdv-ops-choice" data-auth="totp"><strong>📱 ' + esc(tr("opsMethodTotp")) + "</strong><span>" + esc(tr("opsMethodTotpSub")) + "</span></button>",
+      '      <button type="button" class="bdv-ops-choice" data-auth="email"><strong>✉️ ' + esc(tr("opsMethodEmail")) + '</strong><span id="bdv-ops-email-hint"></span></button>',
+      '      <button type="button" class="bdv-link-btn bdv-ops-auth-link" data-auth="recovery">' + esc(tr("opsMethodRecovery")) + "</button>",
+      '      <button type="button" class="bdv-link-btn bdv-ops-auth-link" data-auth="restart">' + esc(tr("opsStartOver")) + "</button>",
+      "    </div>",
+      '    <form id="bdv-ops-code" class="bdv-ops-form" data-step="code" hidden>',
+      '      <label class="bdv-ops-field"><span id="bdv-ops-code-label"></span>',
+      '        <input type="text" name="code" id="bdv-ops-code-input" class="bdv-tracker-input bdv-ops-code-input" spellcheck="false" required /></label>',
+      '      <div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">' + esc(tr("opsCodeSubmit")) + "</button>",
+      '        <button type="button" id="bdv-ops-resend" class="bdv-ops-btn is-ghost" data-auth="resend">' + esc(tr("opsCodeResend")) + "</button></div>",
+      '      <button type="button" class="bdv-link-btn bdv-ops-auth-link" data-auth="method">' + esc(tr("opsCodeOther")) + "</button>",
+      "    </form>",
+      '    <form id="bdv-ops-keyform" class="bdv-ops-form" data-step="key" hidden>',
+      '      <label class="bdv-ops-field"><span>' + esc(tr("opsKeyLabel")) + "</span>",
+      '        <input type="password" id="bdv-ops-pass" class="bdv-tracker-input" autocomplete="current-password" required /></label>',
+      '      <div class="bdv-ops-actions"><button type="submit" class="bdv-ops-btn is-primary">' + esc(tr("opsLoginSubmit")) + "</button></div>",
+      '      <button type="button" class="bdv-link-btn bdv-ops-auth-link" data-auth="login">' + esc(tr("opsLoginUseEmail")) + "</button>",
+      "    </form>",
       '    <p id="bdv-ops-auth-msg" class="bdv-ops-error" role="alert" hidden></p>',
-      "  </form>",
+      '    <p id="bdv-ops-auth-info" class="bdv-ops-auth-info" role="status" hidden></p>',
+      "  </div>",
       '  <div id="bdv-ops-dash" hidden>',
       '    <div class="bdv-ops-toolbar">',
       '      <button type="button" id="bdv-ops-new-btn" class="bdv-ops-btn is-primary" data-act="new-project">+ Nuevo proyecto</button>',
       '      <button type="button" id="bdv-ops-webcheck-btn" class="bdv-ops-btn is-ghost" data-act="web-check" title="Revisa sitio, pagos, correo, datos y seguridad, y genera un PDF">🩺 Web Check</button>',
       '      <span id="bdv-ops-updated" class="bdv-ops-muted"></span>',
       '      <details class="bdv-ops-menu"><summary aria-label="Opciones de la cuenta">⋯</summary><div class="bdv-ops-menu-pop">',
+      '        <button type="button" id="bdv-ops-access-btn" class="bdv-ops-btn is-ghost" data-act="open-login-setup" title="Entrar con correo, contraseña y código de verificación">🔐 Acceso y verificación</button>',
       '        <button type="button" id="bdv-ops-backup-btn" class="bdv-ops-btn is-ghost" data-act="backup-now" title="Guarda ahora una copia de todos los datos (también se hace sola cada noche)">💾 Copia de seguridad ahora</button>',
       '        <button type="button" class="bdv-ops-btn is-ghost" data-act="logout">Salir</button>',
       "      </div></details>",
@@ -1236,9 +1545,16 @@
     document.getElementById("bdv-ops-close").addEventListener("click", closeAdminModal);
     root.addEventListener("click", function (e) {
       if (e.target === root) return closeAdminModal();
+      var a = e.target.closest ? e.target.closest("[data-auth]") : null;
+      if (a && authHandlers[a.getAttribute("data-auth")]) {
+        e.preventDefault();
+        return authHandlers[a.getAttribute("data-auth")](a);
+      }
       var b = e.target.closest ? e.target.closest("[data-act]") : null;
       if (b && clickHandlers[b.getAttribute("data-act")]) {
         e.preventDefault();
+        var menu = b.closest(".bdv-ops-menu");
+        if (menu) menu.open = false; // a choice in the ⋯ menu closes it
         clickHandlers[b.getAttribute("data-act")](b);
       }
     });
@@ -1262,9 +1578,12 @@
     });
     root.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (e.target.id === "bdv-ops-auth") return signIn();
+      var submitBtn = e.target.querySelector('[type="submit"]');
+      if (e.target.id === "bdv-ops-login") return submitLogin(e.target, submitBtn);
+      if (e.target.id === "bdv-ops-code") return submitCode(e.target, submitBtn);
+      if (e.target.id === "bdv-ops-keyform") return submitKey();
       var kind = e.target.getAttribute("data-form");
-      if (formHandlers[kind]) formHandlers[kind](e.target, e.target.querySelector('[type="submit"]'));
+      if (formHandlers[kind]) formHandlers[kind](e.target, submitBtn);
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && root.style.display !== "none") closeAdminModal();
@@ -1276,12 +1595,19 @@
     var root = document.getElementById("bdv-admin-modal-root");
     root.style.setProperty("display", "flex", "important");
     startAutoRefresh();
-    if (ops.key) {
+    var saved = ops.token ? null : storedSession(); // a session of this tab survives a reload
+    if (saved) {
+      ops.token = saved.token;
+      ops.via = "session";
+    }
+    if (ops.token) {
       showView("dash");
       loadData();
+    } else if (ops.auth.challenge) {
+      showView("auth"); // closed in the middle of a sign-in: continue where it was
+      showAuthStep(ops.auth.step);
     } else {
       signOut("");
-      setTimeout(function () { document.getElementById("bdv-ops-pass").focus(); }, 60);
     }
   }
 
