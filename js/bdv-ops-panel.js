@@ -194,10 +194,10 @@
   }
   // Public links carry the document's access token (t=); SOWs and change orders created before it have none.
   function sowUrlOf(w) {
-    return "https://batistadigitalventures.com/?sow=" + encodeURIComponent(w.sowId) + (w.accessToken ? "&t=" + encodeURIComponent(w.accessToken) : "");
+    return "https://batistadigitalventures.com/es/?sow=" + encodeURIComponent(w.sowId) + (w.accessToken ? "&t=" + encodeURIComponent(w.accessToken) : "");
   }
   function coUrlOf(co) {
-    return "https://batistadigitalventures.com/?co=" + encodeURIComponent(co.coId) + (co.accessToken ? "&t=" + encodeURIComponent(co.accessToken) : "");
+    return "https://batistadigitalventures.com/es/?co=" + encodeURIComponent(co.coId) + (co.accessToken ? "&t=" + encodeURIComponent(co.accessToken) : "");
   }
   // Same rule as the Worker: by project id, or by row for SOWs issued before ids were stored.
   function sowBelongsTo(w, p) {

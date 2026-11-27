@@ -2,38 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://batistadigitalventures.com/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/" />
   </url>
   <url>
-    <loc>https://batistadigitalventures.com/en/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/" />
+    <loc>https://batistadigitalventures.com/es/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/" />
   </url>
   <url>
-    <loc>https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/how-much-does-a-website-cost/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+    <loc>https://batistadigitalventures.com/how-much-does-a-website-cost/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/how-much-does-a-website-cost/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/cuanto-cuesta-una-pagina-web/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/how-much-does-a-website-cost/" />
   </url>
   <url>
-    <loc>https://batistadigitalventures.com/en/how-much-does-a-website-cost/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/how-much-does-a-website-cost/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/cuanto-cuesta-una-pagina-web/" />
+    <loc>https://batistadigitalventures.com/es/cuanto-cuesta-una-pagina-web/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/how-much-does-a-website-cost/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/cuanto-cuesta-una-pagina-web/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/how-much-does-a-website-cost/" />
   </url>
   <url>
-    <loc>https://batistadigitalventures.com/desarrollo-de-apps/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/app-development/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+    <loc>https://batistadigitalventures.com/app-development/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/app-development/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/desarrollo-de-apps/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/app-development/" />
   </url>
   <url>
-    <loc>https://batistadigitalventures.com/en/app-development/</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/en/app-development/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/desarrollo-de-apps/" />
+    <loc>https://batistadigitalventures.com/es/desarrollo-de-apps/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://batistadigitalventures.com/app-development/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://batistadigitalventures.com/es/desarrollo-de-apps/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://batistadigitalventures.com/app-development/" />
   </url>
 </urlset>

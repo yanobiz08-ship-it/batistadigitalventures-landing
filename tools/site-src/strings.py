@@ -8,7 +8,7 @@ S = {
 "langEsTitle": ("Ver en español", "View in Spanish"),
 "langEnTitle": ("Ver en inglés", "View in English"),
 "nfTitle": ("Página no encontrada", "Page not found"),
-"nfText": ("La página que buscas no existe o cambió de dirección.", "The page you're looking for doesn't exist or has moved."),
+"nfText": ("La página que busca no existe o cambió de dirección.", "The page you're looking for doesn't exist or has moved."),
 "nfHome": ("Ir al inicio", "Go to the home page"),
 "ariaNav": ("Navegación principal", "Primary navigation"),
 "ariaLang": ("Idioma", "Language"),
@@ -402,7 +402,7 @@ S = {
 }
 S["skipLink"] = ("Saltar al contenido", "Skip to content")
 
-# Pricing guide (/cuanto-cuesta-una-pagina-web/ and /en/how-much-does-a-website-cost/).
+# Pricing guide (/how-much-does-a-website-cost/ and /es/cuanto-cuesta-una-pagina-web/).
 # [[n]] marks a citation to source n in GUIDE_SOURCES (build.py). Market figures must come from
 # those sources; BDV prices come from the svc* keys above, so the guide and the home page never disagree.
 S.update({
@@ -525,7 +525,7 @@ S.update({
 "gNewTab": ("(se abre en una pestaña nueva)", "(opens in a new tab)"),
 })
 
-# App development page (/desarrollo-de-apps/ and /en/app-development/). [[n]] cites APP_SOURCES in build.py.
+# App development page (/app-development/ and /es/desarrollo-de-apps/). [[n]] cites APP_SOURCES in build.py.
 # Prices, process stages, commitments, portfolio and maintenance reuse the home page keys.
 S.update({
 "svc1More": ("Más sobre desarrollo de apps", "More about app development"),
