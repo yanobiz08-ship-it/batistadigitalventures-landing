@@ -820,6 +820,12 @@
       const coParam = (params.get("co") || "").trim().toUpperCase();
       const checkoutParam = (params.get("checkout") || "").trim().toLowerCase();
       const tokenParam = (params.get("t") || "").trim();
+      // SOWs and change orders are Spanish documents, opened on the Spanish home (/es/). Links from before
+      // English became the main language (/?sow=…, /?co=…, also Stripe returns) are sent there unchanged.
+      if ((sowParam || coParam) && document.documentElement.lang === "en") {
+        window.location.replace("/es/" + window.location.search + window.location.hash);
+        return;
+      }
       if (coParam) {
         openChangeOrder(coParam, checkoutParam, tokenParam);
       } else if (sowParam) {

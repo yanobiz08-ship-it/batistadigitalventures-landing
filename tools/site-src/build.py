@@ -265,7 +265,7 @@ G = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], G)
 A = re.sub(r'@@ICON:(\w+)@@', lambda m: ICONS[m.group(1)], A)
 
 NF = open('404.html').read()
-used = set(re.findall(r'§(\w+)§', SHELL + T + G + A)) | set(re.findall(r'§(\w+)(?:\.en)?§', NF)) | {'pageTitle', 'metaDesc', 'gTitle', 'gMetaDesc', 'apTitle', 'apMetaDesc', 'gSrcAria'}
+used = set(re.findall(r'§(\w+)§', SHELL + T + G + A)) | set(re.findall(r'§(\w+)(?:\.es)?§', NF)) | {'pageTitle', 'metaDesc', 'gTitle', 'gMetaDesc', 'apTitle', 'apMetaDesc', 'gSrcAria'}
 missing = used - set(S)
 assert not missing, missing
 # Keys used from JavaScript (passed to BDV_t / tr as quoted strings) count as used too; only those are
@@ -288,17 +288,19 @@ def versioned(m):
     return f'{m.group(1)}="/{path}?v={digest}"'
 
 # One static page per language and page, so Google can index each (hreflang pairs them).
-# Spanish is the x-default. Paths are relative to SITE.
+# English is the primary language (at the root) and the x-default; Spanish lives under /es/ with the same
+# page names it always had. Paths are relative to SITE.
 SITE = 'https://batistadigitalventures.com/'
 LOCALES = {'es': 'es_US', 'en': 'en_US'}
 PAGES = {
-    'home':  {'paths': {'es': '', 'en': 'en/'}, 'main': T, 'title': 'pageTitle', 'desc': 'metaDesc', 'og_type': 'website',
+    'home':  {'paths': {'en': '', 'es': 'es/'}, 'main': T, 'title': 'pageTitle', 'desc': 'metaDesc', 'og_type': 'website',
               'preload': '<link rel="preload" as="image" href="/assets/img/portfolio/trivlo-hero-device.webp" type="image/webp" fetchpriority="high" />\n  ',
-              # Admin panel (#bdv-ops), client viewer and SOW links (?sow=) live on the home page only.
+              # Admin panel (#bdv-ops), client viewer and SOW links (?sow=) live on the home page only;
+              # SOW and change-order links point to the Spanish home (/es/), the language of those documents.
               'scripts': '  <script src="/js/bdv-ops-panel.js" defer></script>\n  <script src="/js/bdv-sow-signer.js" defer></script>\n', 'assets': 8},
-    'guide': {'paths': {'es': 'cuanto-cuesta-una-pagina-web/', 'en': 'en/how-much-does-a-website-cost/'}, 'main': G, 'title': 'gTitle', 'desc': 'gMetaDesc',
+    'guide': {'paths': {'en': 'how-much-does-a-website-cost/', 'es': 'es/cuanto-cuesta-una-pagina-web/'}, 'main': G, 'title': 'gTitle', 'desc': 'gMetaDesc',
               'og_type': 'article', 'preload': '', 'scripts': '', 'assets': 6, 'crumb': 'gCrumb', 'faq': GUIDE_FAQ},
-    'apps':  {'paths': {'es': 'desarrollo-de-apps/', 'en': 'en/app-development/'}, 'main': A, 'title': 'apTitle', 'desc': 'apMetaDesc',
+    'apps':  {'paths': {'en': 'app-development/', 'es': 'es/desarrollo-de-apps/'}, 'main': A, 'title': 'apTitle', 'desc': 'apMetaDesc',
               'og_type': 'website', 'preload': '', 'scripts': '', 'assets': 6, 'crumb': 'apCrumb', 'faq': APP_FAQ},
 }
 GUIDE_DATE = '2026-11-25'  # datePublished / dateModified of the guide; update dateModified when its figures change
@@ -385,8 +387,35 @@ for page, cfg in PAGES.items():
         os.makedirs(os.path.join(REPO, path), exist_ok=True)
         open(os.path.join(REPO, path, 'index.html'), 'w').write(render(page, lang))
 
-# 404 page (GitHub Pages serves /404.html for any missing URL), in both languages, not indexed.
-nf = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][0], quote=True), re.sub(r'§(\w+)\.en§', lambda m: html.escape(S[m.group(1)][1], quote=True), NF))
+# Former addresses (until November 2026 Spanish was at the root and English under /en/). Each one keeps a
+# tiny page that sends visitors, old links in emails and search engines to the page's current address,
+# keeping the ?query and #section (e.g. /en/#proceso). Google treats an instant refresh like a 301 and the
+# canonical points to the new address. A Cloudflare Redirect Rule for the same paths, if added, answers first.
+LEGACY = {'en/': ('home', 'en'), 'en/how-much-does-a-website-cost/': ('guide', 'en'), 'en/app-development/': ('apps', 'en'),
+          'cuanto-cuesta-una-pagina-web/': ('guide', 'es'), 'desarrollo-de-apps/': ('apps', 'es')}
+REDIRECT = '''<!DOCTYPE html>
+<html lang="{lang}">
+<head>
+  <meta charset="UTF-8" />
+  <title>Batista Digital Ventures</title>
+  <link rel="canonical" href="{url}" />
+  <meta http-equiv="refresh" content="0; url={path}" />
+  <script>location.replace("{path}" + location.search + location.hash);</script>
+</head>
+<body>
+  <p><a href="{path}">{url}</a></p>
+</body>
+</html>
+'''
+current = {path for cfg in PAGES.values() for path in cfg['paths'].values()}
+for old_path, (page, lang) in LEGACY.items():
+    assert old_path not in current, old_path
+    new_path = PAGES[page]['paths'][lang]
+    os.makedirs(os.path.join(REPO, old_path), exist_ok=True)
+    open(os.path.join(REPO, old_path, 'index.html'), 'w').write(REDIRECT.format(lang=lang, url=SITE + new_path, path='/' + new_path))
+
+# 404 page (GitHub Pages serves /404.html for any missing URL), English first then Spanish, not indexed.
+nf = re.sub(r'§(\w+)§', lambda m: html.escape(S[m.group(1)][1], quote=True), re.sub(r'§(\w+)\.es§', lambda m: html.escape(S[m.group(1)][0], quote=True), NF))
 nf, n_nf = re.subn(r'(href|src)="/((?:css|js)/[\w.-]+\.(?:css|js))"', versioned, nf)
 assert n_nf == 1 and '§' not in nf
 open(os.path.join(REPO, '404.html'), 'w').write(nf)
@@ -394,7 +423,7 @@ open(os.path.join(REPO, '404.html'), 'w').write(nf)
 # Sitemap: every page in both languages, each with its hreflang alternates.
 urls = []
 for cfg in PAGES.values():
-    alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{h}" href="{SITE + cfg["paths"][l]}" />' for h, l in (('es', 'es'), ('en', 'en'), ('x-default', 'es')))
+    alts = ''.join(f'\n    <xhtml:link rel="alternate" hreflang="{h}" href="{SITE + cfg["paths"][l]}" />' for h, l in (('en', 'en'), ('es', 'es'), ('x-default', 'en')))
     urls += [f'\n  <url>\n    <loc>{SITE + path}</loc>{alts}\n  </url>' for path in cfg['paths'].values()]
 open(os.path.join(REPO, 'sitemap.xml'), 'w').write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{"".join(urls)}\n</urlset>\n')
-print('ok', len(S), 'keys,', len(js_used), 'in bdv-i18n.js,', sum(len(c['paths']) for c in PAGES.values()), 'pages + 404 + sitemap')
+print('ok', len(S), 'keys,', len(js_used), 'in bdv-i18n.js,', sum(len(c['paths']) for c in PAGES.values()), 'pages +', len(LEGACY), 'redirects + 404 + sitemap')
