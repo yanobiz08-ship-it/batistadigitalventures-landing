@@ -21,8 +21,8 @@ S = {
 "navCta": ("Consulta gratuita", "Free consultation"),
 
 "heroEyebrow": ("BATISTA DIGITAL VENTURES LLC · LOMPOC, CALIFORNIA", "BATISTA DIGITAL VENTURES LLC · LOMPOC, CALIFORNIA"),
-"heroTitleLead": ("Páginas web, apps y automatización ", "Websites, apps & automation "),
-"heroTitleAccent": ("para hacer crecer su negocio.", "that grow your business."),
+"heroTitleLead": ("Convertimos su idea en ", "We turn your idea into "),
+"heroTitleAccent": ("una app, un sitio web o un sistema que funciona.", "an app, a website, or a system that works."),
 "heroOutcome": ("Nuestro objetivo: más clientes, mejores sistemas y menos trabajo manual.", "Our goal: more leads, better systems, and less manual work."),
 "heroLead": ("BDV ayuda a los negocios a crecer con páginas web, apps, automatización y sistemas digitales a la medida. Los construimos, automatizamos y mantenemos, en español y en inglés. Usted recibe el alcance por escrito, paga por etapas y el código es suyo al liquidar.", "BDV helps businesses grow through websites, apps, automation and custom digital systems. We build, automate, and maintain them, in English and Spanish. You get the scope in writing, pay in milestones, and own your code once it's paid in full."),
 "heroCtaQuote": ("Solicite una consulta gratuita", "Request a free consultation"),
