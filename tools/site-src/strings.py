@@ -16,7 +16,7 @@ S = {
 "navServices": ("Servicios", "Services"),
 "navWork": ("Portafolio", "Work"),
 "navProcess": ("Proceso", "Process"),
-"navPartners": ("Partners", "Partners"),
+"navPartners": ("Red de socios", "Partner Network"),
 "navFaq": ("Preguntas", "FAQ"),
 "navCta": ("Consulta gratuita", "Free consultation"),
 
@@ -26,7 +26,6 @@ S = {
 "heroOutcome": ("Nuestro objetivo: más clientes, mejores sistemas y menos trabajo manual.", "Our goal: more leads, better systems, and less manual work."),
 "heroLead": ("BDV ayuda a los negocios a crecer con páginas web, apps, automatización y sistemas digitales a la medida. Los construimos, automatizamos y mantenemos, en español y en inglés. Usted recibe el alcance por escrito, paga por etapas y el código es suyo al liquidar.", "BDV helps businesses grow through websites, apps, automation and custom digital systems. We build, automate, and maintain them, in English and Spanish. You get the scope in writing, pay in milestones, and own your code once it's paid in full."),
 "heroCtaQuote": ("Solicite una consulta gratuita", "Request a free consultation"),
-"heroCtaDev": ("Soy programador, únase", "I'm a developer, join us"),
 "heroNote": ("Consulta gratuita, sin costo · Le respondemos por correo", "Free consultation, no cost · We reply by email"),
 "heroAltMerqox": ("Pantalla de MERQOX: mapa con negocios cercanos (datos de demostración)", "MERQOX screen: map with nearby businesses (demo data)"),
 "heroAltTrivlo": ("Pantalla de inicio de TRIVLO en un iPhone", "TRIVLO welcome screen on an iPhone"),
@@ -202,7 +201,7 @@ S = {
 "trackerText": ("¿Ya eres cliente? Consulta el avance de tu proyecto con tu correo y tu código.", "Already a client? Check your project's progress with your email and code."),
 "trackerBtn": ("Consultar mi proyecto", "Track my project"),
 
-"partKicker": ("RED DE PARTNERS", "PARTNER NETWORK"),
+"partKicker": ("RED DE SOCIOS", "PARTNER NETWORK"),
 "partTitle": ("Únete a la red de partners de BDV.", "Join the BDV partner network."),
 "partDesc": ('Estamos formando una red de programadores, ingenieros y freelancers revisados por BDV. La idea: un cliente pide un servicio y un partner aprobado lo acepta y lo entrega bajo un contrato de cumplimiento con BDV. Por ahora Yano lidera los proyectos directamente mientras crece la red. Postúlate y sé de los primeros.',
     "We're building a network of developers, engineers, and freelancers reviewed by BDV. The idea: a client requests a service, and an approved partner accepts it and delivers it under a fulfillment contract with BDV. For now Yano leads projects directly while the network grows. Apply and be one of the first."),

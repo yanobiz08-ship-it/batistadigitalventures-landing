@@ -116,6 +116,8 @@ textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
 .section-alt { background: linear-gradient(180deg, rgba(13, 18, 29, 0.65), rgba(7, 10, 16, 0)); }
 .section-head { max-width: 760px; margin-bottom: 32px; }
 .section-head h2, .partners-copy h2, .founder-head h2, .quote-copy h2 { font-size: clamp(1.6rem, 4.6vw, 2.4rem); margin-bottom: 12px; }
+.section.partners-band { padding: 44px 0; }
+.partners-band .partners-copy h2 { font-size: clamp(1.25rem, 3.4vw, 1.6rem); }
 .kicker { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-bright); margin-bottom: 10px; }
 .section-desc { color: var(--text-secondary); font-size: 1.02rem; }
 .fine-print { color: var(--text-muted); font-size: 0.82rem; margin-top: 18px; }
