@@ -40,7 +40,7 @@ body {
 
 img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration: none; }
-h1, h2, h3 { margin: 0; line-height: 1.15; letter-spacing: -0.02em; }
+h1, h2, h3, .service-card h4 { margin: 0; line-height: 1.15; letter-spacing: -0.02em; }
 p { margin: 0; }
 
 .container { width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
