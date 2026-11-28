@@ -5,6 +5,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 os.chdir(HERE)
+PHONE_TEL, PHONE_SHOW, PHONE_LD = '+18058035695', '(805) 803-5695', '+1-805-803-5695'  # business line: tel: link, visible text, JSON-LD
 SHELL = open('template.html').read()  # <head>, header, footer and scripts shared by every page
 T = open('home.html').read()          # home page <main>
 G = open('guide.html').read()         # pricing guide <main>
@@ -37,7 +38,7 @@ def t(k):  # text placeholder, filled per language at the end
 # the normal prices. End of January 6, 2027, Pacific time (PST, UTC-8). The same dates appear in the Terms of
 # Service ("Ofertas / Offers" in js/brand-media.js) and in strings.py (offerTerms, a4Offer): keep them in sync.
 OFFER_END = '2027-01-07T00:00:00-08:00'
-SHELL = SHELL.replace('@@OFFER_END@@', OFFER_END)
+SHELL = SHELL.replace('@@OFFER_END@@', OFFER_END).replace('@@PHONE_TEL@@', PHONE_TEL).replace('@@PHONE_SHOW@@', PHONE_SHOW)
 
 def price(key, tag='strong'):
     """Normal price; during the offer it is struck through and followed by the offer price."""
@@ -50,7 +51,7 @@ def price(key, tag='strong'):
 # Offer banner with its conditions, shown (like every .offer-only element) only while the offer runs.
 OFFER_BANNER = """          <div class="offer-banner offer-only"><p><strong>§offerBadge§</strong> <span>§offerLock§</span></p>
           <p class="offer-terms"><span>§offerTerms§</span> <button type="button" class="bdv-link-btn" data-legal="terms">§legalTermsBtn§</button>.</p></div>"""
-T = T.replace('@@OFFER_BANNER@@', OFFER_BANNER)
+T = T.replace('@@OFFER_BANNER@@', OFFER_BANNER).replace('@@PHONE_TEL@@', PHONE_TEL).replace('@@PHONE_SHOW@@', PHONE_SHOW)
 
 # services
 SVC_PAGES = {1: 'apps'}  # service card -> its own landing page (key in PAGES)
@@ -312,11 +313,12 @@ def org_node(i):
     return {'@type': 'ProfessionalService', '@id': org, 'name': 'Batista Digital Ventures LLC', 'alternateName': ['Batista Digital Ventures', 'BDV'],
             'url': SITE, 'logo': {'@type': 'ImageObject', 'url': SITE + 'assets/BDV%20Logo.png', 'width': 512, 'height': 512},
             'image': SITE + 'assets/img/og-image.jpg', 'description': S['metaDesc'][i], 'email': 'contact@batistadigitalventures.com',
+            'telephone': PHONE_LD,
             'address': {'@type': 'PostalAddress', 'addressLocality': 'Lompoc', 'addressRegion': 'CA', 'addressCountry': 'US'},
             'areaServed': {'@type': 'Country', 'name': 'United States'}, 'duns': '150052438', 'knowsLanguage': ['es', 'en'],
             'founder': {'@id': SITE + '#founder'},
             'sameAs': ['https://www.youtube.com/channel/UCVkQn4dWIfmxu4kZ0kBTa9w'],
-            'contactPoint': {'@type': 'ContactPoint', 'contactType': 'customer service', 'email': 'contact@batistadigitalventures.com', 'availableLanguage': ['es', 'en']},
+            'contactPoint': {'@type': 'ContactPoint', 'contactType': 'customer service', 'email': 'contact@batistadigitalventures.com', 'telephone': PHONE_LD, 'availableLanguage': ['es', 'en']},
             'hasOfferCatalog': {'@type': 'OfferCatalog', 'name': S['svcKicker'][i].capitalize(), 'itemListElement': services}}
 
 def plain(key, i):

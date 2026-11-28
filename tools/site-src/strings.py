@@ -269,6 +269,7 @@ S = {
 "qNext2": ("Te proponemos alcance, etapas y precio por escrito.", "We propose scope, stages, and price in writing."),
 "qNext3": ("Firmas el SOW en línea y arrancamos.", "You sign the SOW online and we get started."),
 "qEmailLabel": ("¿Prefieres escribirnos directo?", "Prefer to email us directly?"),
+"qPhoneLabel": ("¿O prefiere llamarnos?", "Or prefer to call us?"),
 "qfName": ("Nombre completo", "Full name"),
 "qfEmail": ("Correo electrónico", "Email"),
 "qfBiz": ("Empresa o proyecto (opcional)", "Company or project (optional)"),

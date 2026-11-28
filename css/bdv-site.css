@@ -310,6 +310,7 @@ html.offer-on .svc-price .price-normal { font-size: 1rem; }
 .next-steps li::before { content: counter(ns); flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem; font-weight: 800; color: #070a10; background: var(--gold-bright); }
 .quote-email { color: var(--text-muted); font-size: 0.9rem; }
 .quote-email a { color: var(--gold-bright); font-weight: 650; word-break: break-all; }
+.quote-email + .quote-email { margin-top: 10px; }
 
 /* ---------- Footer ---------- */
 .site-footer { border-top: 1px solid var(--line); padding: 36px 0 22px; color: var(--text-muted); font-size: 0.88rem; }
