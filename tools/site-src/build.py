@@ -55,23 +55,30 @@ T = T.replace('@@OFFER_BANNER@@', OFFER_BANNER).replace('@@PHONE_TEL@@', PHONE_T
 
 # services
 SVC_PAGES = {1: 'apps'}  # service card -> its own landing page (key in PAGES)
-svc = []
+PILLARS = [('Build', (1, 2)), ('Auto', (3,)), ('Maint', (4,))]  # pillar -> its service cards (same order as the print flyer)
+svc_cards = {}
 for n, (icon, qv) in enumerate([('phone','app'),('monitor','web'),('grid','system'),('wrench','repair')], 1):
     badge = f'<span class="svc-badge">{t(f"svc{n}Badge")}</span>' if f'svc{n}Badge' in S else ''
     lis = ''.join(f'<li>@@ICON:check@@<span><span>{t(f"svc{n}{x}")}</span>' + (' ' + price(f'svc{n}{x}', 'span') if f'svc{n}{x}Price' in S else '') + '</span></li>'
                   for x in 'abcde' if f'svc{n}{x}' in S)
     typical = f'<p class="svc-typical">{t(f"svc{n}Typical")}</p>' if f'svc{n}Typical' in S else ''
     more = f'\n              <a class="text-link svc-more" href="@@PAGE:{SVC_PAGES[n]}@@"><span>{t(f"svc{n}More")}</span> <span aria-hidden="true">→</span></a>' if n in SVC_PAGES else ''
-    svc.append(f'''          <article class="service-card{' service-card-new' if badge else ''}">
-            <div class="svc-top"><span class="svc-ico" aria-hidden="true">@@ICON:{icon}@@</span>{badge}</div>
-            <h3>{t(f"svc{n}Title")}</h3>
-            <p>{t(f"svc{n}Desc")}</p>
-            <ul class="check-list">{lis}</ul>
-            <div class="svc-foot">
-              <p class="svc-price"><span>{t("svcFrom")}</span> {price(f"svc{n}")} <small>{t(f"svc{n}Unit")}</small></p>{typical}{more}
-              <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}">{t("svcQuoteBtn")}</a>
+    svc_cards[n] = f'''            <article class="service-card{' service-card-new' if badge else ''}">
+              <div class="svc-top"><span class="svc-ico" aria-hidden="true">@@ICON:{icon}@@</span>{badge}</div>
+              <h4>{t(f"svc{n}Title")}</h4>
+              <p>{t(f"svc{n}Desc")}</p>
+              <ul class="check-list">{lis}</ul>
+              <div class="svc-foot">
+                <p class="svc-price"><span>{t("svcFrom")}</span> {price(f"svc{n}")} <small>{t(f"svc{n}Unit")}</small></p>{typical}{more}
+                <a class="btn btn-secondary btn-block" href="#cotizar" data-quote-service="{qv}">{t("svcQuoteBtn")}</a>
+              </div>
+            </article>'''
+svc = [f'''          <div class="pillar pillar-{p.lower()}">
+            <div class="pillar-head"><h3>{t(f"pillar{p}Title")}</h3><p>{t(f"pillar{p}Desc")}</p></div>
+            <div class="pillar-cards">
+{chr(10).join(svc_cards[n] for n in cards)}
             </div>
-          </article>''')
+          </div>''' for p, cards in PILLARS]
 T = T.replace('@@SERVICES@@', '\n'.join(svc))
 
 P = 'assets/img/portfolio/'
